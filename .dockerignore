@@ -1,0 +1,17 @@
+node_modules
+data
+*.sqlite
+*.sqlite-*
+.env
+.env.*
+!.env.example
+docs
+test
+.git
+.gitignore
+Dockerfile
+.dockerignore
+render.yaml
+fly.toml
+npm-debug.log*
+mobile

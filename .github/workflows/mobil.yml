@@ -1,0 +1,86 @@
+# Mobil uygulama derlemesi: Android (AAB, Google Play) ve iOS (IPA, App Store Connect / TestFlight).
+# TASLAK: GitHub deposu ve mağaza hesapları açılınca ilk çalıştırmada doğrulanacak. Gizli değerler: docs/MAGAZA.md › "CI sırları".
+name: Mobil derleme
+on:
+  workflow_dispatch:
+    inputs:
+      surum:
+        description: "Sürüm adı (ör. 1.0.0)"
+        required: true
+        default: "1.0.0"
+  push:
+    tags: ["mobil-v*"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm }
+      - run: npm ci && cd mobile && npm ci
+      - run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
+      - run: npm test
+
+  android:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      API_TABAN: ${{ vars.API_TABAN }}
+      REVENUECAT_ANDROID: ${{ vars.REVENUECAT_ANDROID }}
+      SURUM_KODU: ${{ github.run_number }}
+      SURUM_ADI: ${{ inputs.surum || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21" }
+      - run: npm ci && cd mobile && npm ci
+      - run: cd mobile && node scripts/hazirla.js && npx cap sync android
+      - name: Yükleme anahtarını yaz
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
+      - name: AAB derle
+        env:
+          BS_KEYSTORE_YOLU: ${{ runner.temp }}/upload.jks
+          BS_KEYSTORE_SIFRE: ${{ secrets.ANDROID_KEYSTORE_SIFRE }}
+          BS_ANAHTAR_ADI: ${{ secrets.ANDROID_ANAHTAR_ADI }}
+          BS_ANAHTAR_SIFRE: ${{ secrets.ANDROID_ANAHTAR_SIFRE }}
+        run: cd mobile/android && ./gradlew bundleRelease
+      - uses: actions/upload-artifact@v4
+        with: { name: android-aab, path: mobile/android/app/build/outputs/bundle/release/app-release.aab }
+
+  ios:
+    needs: test
+    runs-on: macos-15
+    env:
+      API_TABAN: ${{ vars.API_TABAN }}
+      REVENUECAT_IOS: ${{ vars.REVENUECAT_IOS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm }
+      - run: npm ci && cd mobile && npm ci
+      - run: cd mobile && node scripts/hazirla.js && npx cap sync ios
+      - name: App Store Connect API anahtarını yaz
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "${{ secrets.ASC_API_KEY_P8_BASE64 }}" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+      - name: Arşivle ve dışa aktar (otomatik imzalama)
+        run: |
+          cd mobile/ios/App
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" archive \
+            DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION=${{ inputs.surum || '1.0.0' }} CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            -allowProvisioningUpdates -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.ASC_KEY_ID }} -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }}
+          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict><key>method</key><string>app-store-connect</string><key>teamID</key><string>${{ secrets.APPLE_TEAM_ID }}</string><key>destination</key><string>upload</string></dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/ihrac" -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.ASC_KEY_ID }} -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }}

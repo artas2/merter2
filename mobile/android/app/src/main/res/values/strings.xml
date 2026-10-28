@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Merter Çınar Evleri</string>
+    <string name="title_activity_main">Merter Çınar Evleri</string>
+    <string name="package_name">com.bilinclisakin.mertercinar</string>
+    <string name="custom_url_scheme">com.bilinclisakin.mertercinar</string>
+</resources>

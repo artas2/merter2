@@ -1,0 +1,49 @@
+# Render Blueprint — Bilinçli Sakin (tek web servisi + kalıcı disk)
+# Kalıcı disk ücretli plan gerektirir (Starter ve üstü). Disk tek örneğe bağlanır: ölçekleme 1 örnek.
+services:
+  - type: web
+    name: bilincli-sakin
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: frankfurt
+    numInstances: 1
+    healthCheckPath: /saglik
+    autoDeploy: true
+    disk:
+      name: sakin-veri
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DB_PATH
+        value: /data/site-app.sqlite
+      - key: PUBLIC_ORIGIN
+        sync: false          # ör. https://sakin.ornek.com (özel alan adı) veya https://bilincli-sakin.onrender.com
+      - key: PLATFORM_ADMIN_TELEFONLARI
+        sync: false          # ör. +905xxxxxxxxx
+      - key: REVENUECAT_API_ANAHTARI
+        sync: false          # RevenueCat gizli anahtarı (sk_…); boşsa Premium satın alma kapalı
+      - key: ABONELIK_WEBHOOK_ANAHTARI
+        sync: false          # RevenueCat webhook Authorization değeri
+      - key: INCELEME_TELEFON
+        sync: false          # yalnızca mağaza incelemesi süresince
+      - key: INCELEME_KODU
+        sync: false
+      - key: SMS_PROVIDER
+        sync: false          # webhook | netgsm
+      - key: SMS_WEBHOOK_URL
+        sync: false
+      - key: SMS_WEBHOOK_TOKEN
+        sync: false
+      - key: NETGSM_KULLANICI
+        sync: false
+      - key: NETGSM_SIFRE
+        sync: false
+      - key: NETGSM_BASLIK
+        sync: false

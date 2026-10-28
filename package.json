@@ -1,0 +1,24 @@
+{
+  "name": "bilincli-sakin",
+  "version": "1.0.0",
+  "description": "Çok kiracılı Bilinçli Sakin site uygulaması",
+  "private": true,
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "seed:demo": "node --disable-warning=ExperimentalWarning scripts/seed-demo.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/api.test.js test/abonelik.test.js test/belgeler.test.js test/paket.test.js test/kurulum.test.js test/erisilebilirlik.test.js test/e2e.test.js test/kurulum.e2e.test.js test/arayuz.e2e.test.js test/mobil.e2e.test.js test/merter.e2e.test.js",
+    "test:api": "node --disable-warning=ExperimentalWarning --test test/api.test.js",
+    "test:e2e": "node --disable-warning=ExperimentalWarning --test test/e2e.test.js",
+    "kur:site": "node --disable-warning=ExperimentalWarning scripts/kur-site.js",
+    "ikon:uret": "node scripts/ikon-uret.js",
+    "ekran": "node --disable-warning=ExperimentalWarning test/araclar/ekran-goruntusu.js",
+    "migrate": "node --disable-warning=ExperimentalWarning scripts/migrate.js"
+  },
+  "dependencies": {
+    "marked": "12.0.2"
+  }
+}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Bilinçli Sakin">
+  <rect width="512" height="512" rx="112" fill="#1F6B5A"/>
+  <path d="M136 412V196l120-72 120 72v216z" fill="#F4F6F5"/>
+  <g fill="#E2B04E">
+    <rect x="176" y="220" width="52" height="44" rx="8"/><rect x="284" y="220" width="52" height="44" rx="8"/>
+    <rect x="176" y="292" width="52" height="44" rx="8"/><rect x="284" y="292" width="52" height="44" rx="8"/>
+  </g>
+  <rect x="232" y="352" width="48" height="60" rx="8" fill="#1F6B5A"/>
+</svg>

@@ -1,0 +1,21 @@
+body.nasil{font-size:19px;line-height:1.55}
+.nasil h2.title{font-size:clamp(30px,8vw,42px)}
+.nasil .lead{font-size:19px}
+.adimlar{padding-left:1.4em;margin:0 0 18px}
+.adimlar li{margin:0 0 16px;padding-left:4px}
+.adimlar li::marker{font:800 22px var(--f-display);color:var(--accent)}
+.adimlar b{display:block;font-size:21px}
+.kodkutu{margin-top:8px;padding:10px 12px;background:var(--sheet);border:1.5px dashed var(--accent)}
+.kodkutu span{display:block;font-size:14px;color:var(--muted)}
+.kodkutu b{font:700 28px var(--f-mono);letter-spacing:.08em;color:var(--accent);word-break:break-all}
+.not{color:var(--muted);font-size:16px}
+.yazdir .btn{font-size:17px}
+@media print{
+  body.nasil{background:#fff;color:#000;padding:0;font-size:14pt}
+  header.top{position:static;border:0}
+  .tape,.yazdir,footer{display:none!important}
+  a{color:#000;text-decoration:underline}
+  .kodkutu{border-color:#000;background:#fff}
+  .kodkutu b,.adimlar li::marker,.brand h1 span{color:#000}
+  .adimlar li{break-inside:avoid}
+}

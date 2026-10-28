@@ -1,0 +1,11 @@
+/* Giriş kapısı ve Premium penceresi (Merter arayüzünün renk tokenlarını kullanır) */
+#bsKapi { position: fixed; inset: 0; z-index: 100; background: var(--paper, #F4F6F5); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); overflow: auto; }
+#bsKapi[hidden] { display: none; }
+.bskapi-k { width: 100%; max-width: 420px; background: var(--sheet, #fff); border: 1px solid var(--line, #ddd); border-radius: 18px; padding: 22px 18px; }
+.bskapi-k label { display: block; font-weight: 700; margin: 10px 0 6px; }
+.bskapi-k input { width: 100%; min-height: 48px; font-size: 18px; border-radius: 12px; border: 1px solid var(--line, #ccc); background: var(--paper, #fff); color: var(--ink, #111); padding: 0 12px; }
+.bskapi-k .btn { width: 100%; min-height: 48px; margin-top: 10px; border-radius: 12px; font-size: 16px; }
+.bskapi-k .err { color: var(--warn, #a35f00); min-height: 1.2em; }
+.bskapi-yasal { font-size: 13px; margin-top: 14px; }
+.bs-fiyat { font: 800 26px/1.2 var(--f-display, sans-serif); color: var(--accent, #1F6B5A); margin: 4px 0 8px; }
+#bsPremium[hidden] { display: none; }

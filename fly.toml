@@ -1,0 +1,33 @@
+# Fly.io — Bilinçli Sakin. Önce: fly launch --no-deploy --copy-config ; fly volumes create sakin_veri --region fra --size 1
+app = "bilincli-sakin"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  DB_PATH = "/data/site-app.sqlite"
+  TRUST_PROXY = "1"
+  # PUBLIC_ORIGIN = "https://bilincli-sakin.fly.dev"   # gizli olmayan; alan adınıza göre açın
+  # Gizliler: fly secrets set SESSION_SECRET=... SMS_PROVIDER=webhook SMS_WEBHOOK_URL=... PLATFORM_ADMIN_TELEFONLARI=+905...
+
+[[mounts]]
+  source = "sakin_veri"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+  max_machines_running = 1   # SQLite + bellek içi hız sınırı: tek makine
+
+  [[http_service.checks]]
+    grace_period = "15s"
+    interval = "30s"
+    method = "GET"
+    path = "/saglik"
+    timeout = "5s"

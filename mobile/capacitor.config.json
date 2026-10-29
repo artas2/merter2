@@ -1,6 +1,6 @@
 {
-  "appId": "com.bilinclisakin.mertercinar",
-  "appName": "Merter Çınar Evleri",
+  "appId": "com.bilinclisakin.app",
+  "appName": "Bilinçli Sakin",
   "webDir": "www",
   "server": {
     "androidScheme": "https"

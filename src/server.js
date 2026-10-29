@@ -28,8 +28,9 @@ function ayarlariOku(env = process.env) {
       platformAdminTelefonlari: String(env.PLATFORM_ADMIN_TELEFONLARI || "").split(",").map(s => s.trim()).filter(Boolean),
       incelemeHesabi: env.INCELEME_TELEFON ? { telefon: env.INCELEME_TELEFON, kod: env.INCELEME_KODU || "" } : null,
       abonelik: {
-        revenuecat: { apiAnahtari: env.REVENUECAT_API_ANAHTARI || "", hak: env.REVENUECAT_HAK || "premium", taban: env.REVENUECAT_API_TABAN || undefined },
-        webhookAnahtari: env.ABONELIK_WEBHOOK_ANAHTARI || "", fiyatMetni: env.ABONELIK_FIYAT_METNI || "100 TL / ay"
+        apple: { kokSertifika: env.APPLE_KOK_SERTIFIKA || "", bundleId: env.APPLE_BUNDLE_ID || "" },
+        google: { hizmetHesabi: env.GOOGLE_HIZMET_HESABI || "", paket: env.GOOGLE_PAKET_ADI || "", apiTaban: env.GOOGLE_API_TABAN || undefined },
+        bildirimAnahtari: env.GOOGLE_BILDIRIM_ANAHTARI || "", fiyatMetni: env.ABONELIK_FIYAT_METNI || "100 TL / ay"
       }
     }
   };

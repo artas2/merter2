@@ -1,162 +1,161 @@
 # App Store ve Google Play'e çıkış kılavuzu
 
-Bu belge, **Merter Çınar Evleri** mobil uygulamasını (klasör: `mobile/`) mağazalara göndermek için gereken her adımı listeler.
+Bu belge, **Bilinçli Sakin** mobil uygulamasını (klasör: `mobile/`) mağazalara göndermek için gereken her adımı listeler. Kodda hazır olanlar **✔**, sizin açmanız ya da karar vermeniz gerekenler **☐** ile işaretlidir.
 
-**Uygulamanın yapısı.** Telefondaki arayüz, claude.ai'de yayımlanan Merter Çınar Evleri sayfasının aynı kodudur (`merter/index.html`). Sayfa claude.ai'de `window.claude.use("db")` ile veri tutar. Uygulamada bu çağrıyı `merter/claude-uyum.js` karşılar ve veriyi sunucudaki belge deposuna (`src/belgeler.js`) yazar. Depo, claude.ai sayfasındaki 22 erişim kuralının aynısını uygular. Tarayıcıdan aynı arayüz `https://ALANADINIZ/m/` adresindedir. Genel Bilinçli Sakin arayüzü (`public/`) ise `/` adresinde çalışmaya devam eder; site yönetimi davet kodlarını oradan (Yönetim › Üyeler ve davetler) üretir.
+**Tek uygulama, her site kendi adıyla.** Mağazada tek bir uygulama vardır: "Bilinçli Sakin" (`com.bilinclisakin.app`). Sakin telefon numarasıyla giriş yapar ve site yönetiminden aldığı davet koduyla sitesine katılır. Sonra uygulama o sitenin adını (ör. "Merter Çınar Evleri"), rengini, bloklarını ve ayarlarını gösterir. Yeni siteler için yeni uygulama yayımlanmaz; yalnızca sunucuda site açılır (`npm run kur:site`). Bu yol Apple'ın 4.2.6 kuralına (bir kuruluş adına şablondan üretilen kopya uygulamalar) takılmaz.
 
-**Mağaza adı ve kimliği.** Uygulama adı "Merter Çınar Evleri", kimliği `com.bilinclisakin.mertercinar`. ☐ Apple'ın 4.2.6 kuralı: hazır bir şablondan bir kuruluş adına üretilen uygulamaları ancak **o kuruluşun kendi geliştirici hesabından** yayımlanırsa kabul eder. Bu yüzden Merter Çınar Evleri adıyla yayın için Apple Developer hesabını site yönetimi (ya da onu temsil eden tüzel kişi) adına açın. Uygulama sizin hesabınızdan yayımlanacak ve birden çok siteye satılacaksa, genel bir adla ("Bilinçli Sakin") tek uygulama yayımlayıp siteleri içinde ayırmak daha güvenlidir (`ARAYUZ=sakin`, `appId` değişikliği; bkz. bölüm 3). Kodda hazır olanlar **✔**, sizin açmanız ya da karar vermeniz gerekenler **☐** ile işaretlidir.
+**Arayüz.** Telefondaki arayüz, claude.ai'de yayımlanan Merter Çınar Evleri sayfasının aynı kodudur (`merter/index.html`). Sayfa claude.ai'de `window.claude.use("db")` ile veri tutar. Uygulamada bu çağrıyı `merter/claude-uyum.js` karşılar ve veriyi sunucudaki belge deposuna (`src/belgeler.js`) yazar; depo 22 erişim kuralının aynısını uygular. Tarayıcıdan aynı arayüz `https://ALANADINIZ/m/` adresindedir. Site yöneticisi davet kodlarını ve üyeleri uygulamanın içinden yönetir: Sakinler › **Davetler ve üyeler**.
 
 ## 1. Durum özeti
 
 | Konu | Durum |
 |---|---|
 | Android ve iOS projeleri (Capacitor 8) | ✔ `mobile/android`, `mobile/ios` |
-| Uygulama içi satın alma (RevenueCat SDK + sunucu doğrulaması) | ✔ kodda; ☐ mağaza ürünleri ve RevenueCat hesabı |
+| Uygulama içi satın alma, **üçüncü taraf hizmet olmadan** | ✔ iOS: StoreKit 2 imzalı kayıt sunucuda doğrulanır. Android: Google Play Developer API. Eklenti: `@capgo/native-purchases` (açık kaynak, ücretsiz) |
 | Sakin başına aylık abonelik + "site öder" modeli | ✔ `src/abonelik.js`, `sites.odeme_modeli` |
+| Davetler ve üyeler ekranı (uygulama içinde) | ✔ `merter/yonetim.js`, `merter/yonetim.css` |
 | Mobil giriş (Bearer jeton, CORS) | ✔ |
-| Uygulama içi hesap silme (Apple 5.1.1(v)) | ✔ Diğer › Hesabım › Hesabımı sil |
+| Uygulama içi hesap silme (Apple 5.1.1(v)) | ✔ Profil › Hesap ve abonelik › Hesabımı sil |
 | Web'den hesap silme sayfası (Google Play şartı) | ✔ `/hesap-sil.html` |
 | Gizlilik politikası, kullanım koşulları | ✔ şablon; ☐ hukukçu kontrolü ve köşeli parantezleri doldurma |
 | İnceleme hesabı (SMS'siz giriş) | ✔ `INCELEME_TELEFON`, `INCELEME_KODU` |
 | Yerel özellik: duvar kâğıdı (Android'de doğrudan ayarlama, iOS'ta Fotoğraflar'a kaydetme) | ✔ |
-| Uygulama ikonları | ✔ `mobile/kaynak/` (iOS 1024, Android mipmap ve uyarlanabilir ikon, Play 512) |
-| Derleme hattı (GitHub Actions) | ✔ taslak `.github/workflows/mobil.yml`; ☐ depo ve sırlar |
+| Uygulama ikonları | ✔ `mobile/kaynak/` |
+| Derleme hattı (GitHub Actions) | ✔ taslak `.github/workflows/mobil.yml`; ☐ sırlar, ilk çalıştırma |
 | Sunucu (barındırma, alan adı, SMS sağlayıcısı) | ☐ birlikte değerlendirilecek |
-| Bildirimler (push) | ☐ yok; Firebase ve APNs hesabı gerekir |
-| Gündem, Fırsatlar, Hizmetler, Bugün, oyun kartı | ☐ yalnızca Claude sayfasında var; uygulamaya taşınacak |
+| Bildirimler (push) | ☐ yok; Firebase (ücretsiz) ve Apple bildirim anahtarı gerekir |
 
-Bu ortamda Android SDK indirilemediği (Google sunucusu engelli) ve iOS derlemesi Mac gerektirdiği için **derleme burada yapılmadı**. Java ve Swift kodu Capacitor'ın kaynak kodundaki imzalarla karşılaştırıldı. Gerçek derleme ilk kez GitHub Actions'ta ya da bir bilgisayarda (Android Studio / Xcode) yapılacak.
+Bu ortamda Android SDK indirilemediği ve iOS derlemesi Mac gerektirdiği için **derleme burada yapılmadı**. Gerçek derleme ilk kez GitHub Actions'ta ya da bir bilgisayarda (Android Studio / Xcode) yapılacak.
 
-## 2. Açılması gereken hesaplar
+## 2. Hesaplar ve maliyet
 
-1. **Apple Developer Program**: yıllık 99 USD. Şirket adına açılacaksa D-U-N-S numarası gerekir (ücretsiz, birkaç gün sürebilir). Ücretli uygulama sözleşmesi ile vergi ve banka bilgileri App Store Connect'te doldurulmadan abonelik satılamaz.
-2. **Google Play Console**: bir kerelik 25 USD. ☐ Kişisel hesapla açılırsa Google, yayından önce en az 12 test kullanıcısıyla 14 gün kapalı test ister. Şirket hesabında bu şart yoktur (güncel kuralı açarken kontrol edin). Ödeme profili ve banka bilgisi gerekir.
-3. **RevenueCat**: ücretsiz başlar; aylık izlenen gelir 2.500 USD'ye kadar ücret yok, üstünde gelirin %1'i (güncel fiyatı kontrol edin).
+Kodun ve satın alma doğrulamasının hiçbir parçası ücretli bir hizmete bağlı değildir. Mağazaların kendi ücretleri ise kaçınılmazdır:
+
+| Hesap | Ücret | Not |
+|---|---|---|
+| **Apple Developer Program** | Yıllık 99 USD | App Store'da yayın için zorunlu. Kâr amacı gütmeyen kuruluşlar, eğitim ve devlet kurumları bazı ülkelerde ücret muafiyeti isteyebilir; ☐ Türkiye'nin ve kuruluşunuzun uygunluğunu Apple'ın "Fee waiver" sayfasından kontrol edin. Şirket adına açılırsa D-U-N-S numarası gerekir (ücretsiz). |
+| **Google Play Console** | Bir kerelik 25 USD | Kişisel hesapta yayından önce 12 test kullanıcısıyla 14 gün kapalı test istenir; kuruluş hesabında istenmez (açarken güncel kuralı kontrol edin). |
+| Google Cloud hizmet hesabı ve Pub/Sub | Ücretsiz | Abonelik doğrulaması ve bildirimleri için; bu kullanım ücretsiz kotanın çok altındadır. |
+| App Store Server Notifications | Ücretsiz | |
+| RevenueCat vb. | **Kullanılmıyor** | |
+
+Mağaza komisyonu: küçük işletme programında (yıllık 1 milyon USD altı) Apple %15, Google abonelikler için %15. 100 TL'lik fiyatın içinde %20 KDV varsa ve mağaza KDV'yi tahsil edip ödüyorsa, KDV hariç 83,33 TL'den komisyon düşülünce yaklaşık 70,8 TL kalır (hesap panelinizden doğrulayın). **Site öder** modelinde ödeme mağaza dışında (aidatla) alındığından komisyon yoktur. Apple 3.1.3(b) buna izin verir, yeter ki aynı abonelik uygulama içinde de satın alınabilsin.
 
 ## 3. İlk yüklemeden önce verilecek kararlar
 
-- ☐ **Uygulama kimliği**: şu an `com.bilinclisakin.mertercinar` (Android `applicationId`, iOS Bundle Identifier, `capacitor.config.json` › `appId`). Java paket adı `com.bilinclisakin.app` olarak kalır; bu bir sorun değildir. İlk yüklemeden sonra **değiştirilemez**. Şirket alan adınız varsa ona göre seçin (ör. `com.firmaniz.sakin`). Değiştirmek için: `mobile/capacitor.config.json` › `appId`, `android/app/build.gradle` › `namespace` ve `applicationId`, Java paket klasörü, Xcode › Bundle Identifier.
-- ☐ **Mağazadaki ad**: "Merter Çınar Evleri" (30 karakter sınırı).
-- ☐ **Premium'da ne olacak**: Merter uygulamasında Premium Gündem'i açar: fotoğraflı paylaşım, beğeni ve yorumlar, sonsuz kaydırma ve hikâye şeridi, gönderi sabitleme. Liste `merter/claude-uyum.js` › `PREMIUM_OZELLIK` içinde (genel arayüzde `public/shared.js` › `PREMIUM_OZELLIKLER`). Apple, abonelik ekranında yazan her özelliğin uygulamada çalışmasını ister; özellik eklendikçe listeye eklenmeli. Ayet ve hadis metinleri bilinçli olarak herkese ücretsizdir.
+- ☐ **Uygulama kimliği**: `com.bilinclisakin.app`. İlk yüklemeden sonra **değiştirilemez**. Şirket alan adınız varsa ona göre seçin (ör. `com.firmaniz.sakin`): `mobile/capacitor.config.json` › `appId`, `android/app/build.gradle` › `applicationId`, Xcode › Bundle Identifier. Sunucuda `APPLE_BUNDLE_ID` ve `GOOGLE_PAKET_ADI` aynı değer olmalı.
+- ☐ **Mağazadaki ad**: "Bilinçli Sakin" (30 karakter sınırı).
+- ☐ **Premium'un içeriği**: Premium Gündem'i açar (fotoğraflı paylaşım, beğeni ve yorumlar, sonsuz kaydırma ve hikâye şeridi, gönderi sabitleme). Liste `merter/claude-uyum.js` › `PREMIUM_OZELLIK` içindedir. Apple, abonelik ekranında yazan her özelliğin çalışmasını ister. Ayet ve hadis metinleri bilinçli olarak herkese ücretsizdir.
 
-## 4. Abonelik ürünü
+## 4. Abonelik ürünü ve doğrulama
 
-Her iki mağazada aynı ürün kimliğini kullanın: **`bs_premium_aylik`**.
+Her iki mağazada aynı ürün kimliği: **`bs_premium_aylik`**.
 
-**App Store Connect** › Uygulama › Abonelikler:
-1. Abonelik grubu: "Premium".
-2. Ürün: `bs_premium_aylik`, süre 1 ay.
-3. Fiyat: 100 TL'ye en yakın Türkiye fiyat noktası. Apple fiyat noktalarını kendisi belirler; listeden seçin.
-4. Türkçe görünen ad ve açıklama, inceleme ekran görüntüsü (Abonelik sayfası).
+**App Store Connect**
+1. Uygulama › Abonelikler: grup "Premium", ürün `bs_premium_aylik`, süre 1 ay, fiyat 100 TL'ye en yakın Türkiye fiyat noktası, Türkçe ad ve açıklama, inceleme ekran görüntüsü.
+2. Uygulama › Uygulama Bilgileri › **App Store Server Notifications**: Sürüm 2. Üretim ve Sandbox adresi: `https://ALANADINIZ/api/abonelik/apple-bildirim`. Bildirimler Apple imzalıdır; sunucu imzayı doğrular, ayrıca anahtar gerekmez.
+3. **Apple Root CA - G3** sertifikasını indirin: https://www.apple.com/certificateauthority/AppleRootCA-G3.cer . Sunucuya koyun ve yolunu `APPLE_KOK_SERTIFIKA` ile verin. Sunucu her satın alma kaydının imza zincirini bu köke kadar doğrular.
 
-**Google Play Console** › Para kazanma › Abonelikler:
-1. Ürün `bs_premium_aylik`.
-2. Temel plan: aylık, otomatik yenilenir, Türkiye fiyatı 100 TL.
+**Google Play Console**
+1. Para kazanma › Abonelikler: ürün `bs_premium_aylik`, temel plan kimliği **`aylik`** (otomatik yenilenen, 1 ay), Türkiye fiyatı 100 TL.
+2. Google Cloud'da bir proje ve **hizmet hesabı** açın, JSON anahtarını indirin. Play Console › Kullanıcılar ve izinler › bu hizmet hesabını davet edin, "Finansal verileri görüntüleme" ve "Siparişleri ve abonelikleri yönetme" izinlerini verin. JSON dosyasının yolunu sunucuda `GOOGLE_HIZMET_HESABI` yapın.
+3. **Gerçek zamanlı geliştirici bildirimleri**: Google Cloud Pub/Sub'da bir konu açın, Play Console › Para kazanma kurulumu'nda bu konuyu seçin. Konuya bir **itme (push) aboneliği** ekleyin, adresi `https://ALANADINIZ/api/abonelik/google-bildirim?anahtar=UZUN_RASTGELE_DEGER`. Aynı değeri sunucuda `GOOGLE_BILDIRIM_ANAHTARI` yapın.
 
-**RevenueCat**:
-1. Proje açın, iOS uygulaması (bundle id) ve Android uygulaması (paket adı) ekleyin. Mağaza bağlantıları: App Store Connect için "In-App Purchase Key"; Google Play için hizmet hesabı JSON'u (RevenueCat bunları adım adım anlatır).
-2. Entitlement: **`premium`** (sunucu bu adı arar; değiştirirseniz `REVENUECAT_HAK` ile bildirin).
-3. Offering: `default`, içinde aylık paket olarak `bs_premium_aylik`.
-4. Webhook: URL `https://ALANADINIZ/api/abonelik/webhook`. Authorization başlığına `Bearer ` ile başlayan uzun, rastgele bir değer yazın; aynı değer sunucuda `ABONELIK_WEBHOOK_ANAHTARI` olur (başındaki `Bearer ` olmadan).
-5. Anahtarlar:
-   - Gizli API anahtarı (`sk_…`, v1) yalnızca **sunucuya** konur: `REVENUECAT_API_ANAHTARI`.
-   - Genel SDK anahtarları (`appl_…`, `goog_…`) **uygulamaya** konur: `mobile/.env`.
+**Nasıl çalışır:**
+- Cihaz satın almayı sakinin rastgele hesap kimliğiyle (UUID) yapar. iOS'ta bu StoreKit `appAccountToken`, Android'de `obfuscatedAccountId` alanıdır.
+- iOS'ta cihaz Apple'ın imzaladığı işlem kaydını, Android'de satın alma jetonunu sunucuya gönderir.
+- Sunucu kaydı doğrular: iOS'ta imza zincirini, Android'de Google API yanıtını denetler. Kaydın uygulamaya, ürüne ve **o sakinin hesabına** ait olduğunu kontrol eder. Aynı mağaza kaydı başka hesaba bağlanamaz.
+- Yenileme, iptal, ödeme sorunu ve iade bildirimlerle gelir. Sakin "Satın alımları geri yükle" ile kanıtı yeniden gönderebilir.
 
-**Gelir örneği** (doğrulamak için hesap panelinize bakın): 100 TL'lik fiyatın içinde %20 KDV varsa ve mağaza KDV'yi tahsil edip ödüyorsa, KDV hariç tutar 83,33 TL olur. Küçük işletme programında (yıllık 1 milyon USD altı) komisyon Apple'da %15, Google'da abonelikler için %15'tir; geriye yaklaşık 70,8 TL kalır. Site öder modelinde ödeme mağaza dışında (aidatla) alındığından mağaza komisyonu yoktur. Apple 3.1.3(b) kuralı buna izin verir, yeter ki aynı abonelik uygulama içinde de satın alınabilsin.
-
-## 5. Sunucu ortam değişkenleri (yeni)
+## 5. Sunucu ortam değişkenleri (abonelik ve inceleme)
 
 | Değişken | Açıklama |
 |---|---|
-| `REVENUECAT_API_ANAHTARI` | RevenueCat gizli anahtarı (`sk_…`). Boşsa mağaza kapalıdır, uygulama "ücretsiz" çalışır |
-| `REVENUECAT_HAK` | Entitlement adı, varsayılan `premium` |
-| `ABONELIK_WEBHOOK_ANAHTARI` | RevenueCat webhook Authorization değeri (`Bearer ` hariç) |
+| `APPLE_KOK_SERTIFIKA` | Apple Root CA - G3 dosyasının yolu (`.cer` ya da `.pem`). Boşsa iOS satın alma kapalı |
+| `APPLE_BUNDLE_ID` | `com.bilinclisakin.app` |
+| `GOOGLE_HIZMET_HESABI` | Hizmet hesabı JSON dosyasının yolu (ya da JSON metni). Boşsa Android satın alma kapalı |
+| `GOOGLE_PAKET_ADI` | `com.bilinclisakin.app` |
+| `GOOGLE_BILDIRIM_ANAHTARI` | Pub/Sub itme adresindeki `anahtar` değeri |
 | `ABONELIK_FIYAT_METNI` | Web'de gösterilen fiyat metni, varsayılan `100 TL / ay` |
-| `INCELEME_TELEFON`, `INCELEME_KODU` | Mağaza incelemesi için SMS'siz giriş (6 haneli sabit kod). İnceleme bitince kaldırın ya da kodu değiştirin |
+| `INCELEME_TELEFON`, `INCELEME_KODU` | Mağaza incelemesi için SMS'siz giriş (6 haneli sabit kod). İnceleme bitince kaldırın |
 
-Site öder modelini platform panelinden açmak için: `PATCH /api/platform/siteler/:id` › `{"odemeModeli":"site"}`. Site askıya alınırsa sakinlerin Premium hakkı da durur.
+Mağaza ayarı yoksa uygulama tamamen ücretsiz çalışır, Premium satın alma düğmesi görünmez. Site öder modeli: platform panelinden `PATCH /api/platform/siteler/:id` › `{"odemeModeli":"site"}`. Site askıya alınırsa sakinlerin Premium hakkı da durur.
 
 ## 6. Uygulamayı derleme
 
 ```bash
 cd mobile
-cp .env.ornek .env            # API_TABAN, REVENUECAT_IOS, REVENUECAT_ANDROID
+cp .env.ornek .env            # API_TABAN=https://ALANADINIZ
 npm ci
-npm run senkron               # www/ üretir (public/ + köprü + ayarlar) ve cap sync
+npm run senkron               # merter/ → www/ ve Android/iOS projeleri
 npm run android:ac            # Android Studio: Build › Generate Signed Bundle (AAB)
 npm run ios:ac                # Xcode (Mac): Product › Archive › Distribute App
 ```
 
-`API_TABAN` https olmak zorundadır; `scripts/hazirla.js` başka değeri reddeder.
+`API_TABAN` https olmak zorundadır. iOS'ta Xcode › Signing & Capabilities › **In-App Purchase** yeteneğini ekleyin.
 
-**Android yükleme anahtarı** (bir kez üretin, yedekleyin; kaybolursa Google'dan sıfırlama istenir):
+**Android yükleme anahtarı** (bir kez üretin ve yedekleyin):
 ```bash
 keytool -genkeypair -v -keystore upload.jks -alias bsakin -keyalg RSA -keysize 2048 -validity 10000
 ```
-Google Play App Signing açık kalsın: asıl imza anahtarını Google saklar, sizinki yalnızca yükleme anahtarıdır.
+Google Play App Signing açık kalsın.
 
 ## 7. CI sırları (GitHub › Settings › Secrets and variables › Actions)
 
-- **Variables:** `API_TABAN`, `REVENUECAT_IOS`, `REVENUECAT_ANDROID`
+- **Variables:** `API_TABAN`
 - **Android sırları:** `ANDROID_KEYSTORE_BASE64` (`base64 -w0 upload.jks`), `ANDROID_KEYSTORE_SIFRE`, `ANDROID_ANAHTAR_ADI`, `ANDROID_ANAHTAR_SIFRE`
 - **iOS sırları:** `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_API_KEY_P8_BASE64`. App Store Connect › Kullanıcılar ve Erişim › Entegrasyonlar › API anahtarı, rol "App Manager".
 
-İş akışı `mobil-v1.0.0` gibi bir etiketle ya da elle başlatılır. Önce tüm testleri çalıştırır, sonra Android AAB üretir ve iOS'u App Store Connect'e (TestFlight) yükler.
+GitHub Actions açık depolarda ücretsizdir. Özel depolarda aylık ücretsiz dakika vardır; macOS dakikaları 10 kat sayılır. iOS derlemesini bir Mac'te Xcode ile de yapabilirsiniz.
 
 ## 8. İnceleme notu (App Review / Play inceleme için)
 
-> Giriş telefon numarası ve SMS koduyla yapılır. İnceleme için: telefon **[INCELEME_TELEFON]**, kod **[INCELEME_KODU]**. Giriş sonrası **[davet kodu]** ile sitesine katılın. Premium: Gündem › "Premium'u incele" ya da Profil › Hesap ve abonelik (sandbox). Hesap silme: Profil (sağ üstteki kişi simgesi) › Hesap ve abonelik › Hesabımı sil. Yerel özellik: Hikmet › Duvar kâğıdı. Android'de ana ekran ya da kilit ekranı doğrudan ayarlanır, iOS'ta resim Fotoğraflar'a kaydedilir.
+> Giriş telefon numarası ve SMS koduyla yapılır. İnceleme için: telefon **[INCELEME_TELEFON]**, kod **[INCELEME_KODU]**. Ardından davet kodu **[DAVET KODU]** ile örnek siteye katılın. Premium: Gündem › "Premium'u incele" ya da Profil (sağ üstteki kişi simgesi) › Hesap ve abonelik (sandbox). Hesap silme: Profil › Hesap ve abonelik › Hesabımı sil. Yerel özellik: Hikmet › Duvar kâğıdı. Android'de ana ekran ya da kilit ekranı doğrudan ayarlanır, iOS'ta resim Fotoğraflar'a kaydedilir.
 
-Bilinen riskler ve alınan önlemler:
-- **Apple 4.2 (yalnızca web sitesi sarmalayıcısı):** Uygulama dosyaları cihazın içindedir; mağaza içi satın alma, Fotoğraflar ve duvar kâğıdı gibi yerel özellikler, yerel paylaşım sayfası ve çevrimdışı açılış vardır. Bildirimler (push) eklenirse bu risk daha da azalır.
-- **Apple 3.1.1:** Dijital abonelik yalnızca uygulama içi satın almayla satılır; uygulamada dış ödeme bağlantısı yoktur.
-- **Apple 3.1.2:** Abonelik ekranında süre, fiyat, otomatik yenileme, iptal yolu, kullanım koşulları ve gizlilik bağlantıları vardır. Satın alımları geri yükleme düğmesi vardır.
-- **Apple 5.1.1(v), Google hesap silme:** Uygulama içinden ve web'den (`/hesap-sil.html`) hesap silinebilir.
+Bilinen riskler ve önlemler:
+- **Apple 4.2 (yalnızca web sitesi sarmalayıcısı):** Dosyalar cihazdadır. Mağaza içi satın alma, duvar kâğıdı, Fotoğraflar ve yerel paylaşım vardır. Bildirimler eklenirse risk daha da azalır.
+- **Apple 4.2.6 / 4.3:** Tek uygulama, siteler içinde ayrılır; her site için kopya uygulama yoktur.
+- **Apple 3.1.1 ve 3.1.2:** Dijital abonelik yalnızca uygulama içi satın almayla satılır. Abonelik ekranında süre, fiyat, otomatik yenileme, iptal yolu, koşullar ve gizlilik bağlantıları, geri yükleme düğmesi vardır.
+- **Hesap silme:** Uygulama içinden ve web'den (`/hesap-sil.html`).
 
 ## 9. Gizlilik formları
-
-**Apple App Privacy** ve **Google Data safety** için yanıt taslağı:
 
 | Veri | Toplanıyor mu | Amaç | Kimliğe bağlı mı | İzleme |
 |---|---|---|---|---|
 | Telefon numarası | Evet | Hesap, giriş | Evet | Hayır |
 | Ad (isteğe bağlı), konut ve hane bilgisi | Evet | Uygulama işlevi (site yönetimi) | Evet | Hayır |
 | Satın alma geçmişi (abonelik durumu) | Evet | Uygulama işlevi | Evet | Hayır |
-| Kullanıcı içeriği (sepet, puan kartı notları) | Evet | Uygulama işlevi | Evet | Hayır |
-| Konum, kişiler, fotoğraflar, sağlık, finans, tarama geçmişi, reklam kimliği | Hayır | | | |
+| Kullanıcı içeriği (sepet, gönderi, fotoğraf, yorum) | Evet | Uygulama işlevi | Evet | Hayır |
+| Konum, kişiler, sağlık, finans, tarama geçmişi, reklam kimliği | Hayır | | | |
 
-- Veriler aktarım sırasında şifrelenir (HTTPS).
-- Kullanıcı silme isteyebilir (uygulama içinden ve web'den).
-- Üçüncü taraf: SMS sağlayıcısı ve RevenueCat (hizmet sağlayıcı; "paylaşım" sayılmaz, formda nasıl işaretleneceğini kontrol edin).
-- Fotoğraf izni (iOS) yalnızca **ekleme** içindir; uygulama Fotoğraflar'ı okumaz.
+- Veriler aktarım sırasında şifrelenir (HTTPS); kullanıcı silme isteyebilir.
+- Üçüncü taraf: yalnızca SMS sağlayıcısı (giriş kodu). Satın alma bilgisi Apple ve Google'dan doğrudan doğrulanır.
+- iOS'ta fotoğraf izni yalnızca **ekleme** içindir. Gündem fotoğrafını kullanıcı kendisi seçer.
 
 ## 10. Mağaza metinleri (taslak)
 
-- **Ad:** Merter Çınar Evleri
-- **Alt başlık (iOS, 30 karakter):** Sitemizin ortak yaşam alanı
-- **Kısa açıklama (Google, 80 karakter):** Site sakinleri için duyuru, ortak alışveriş, profil ve günün ayeti/hadisi.
+- **Ad:** Bilinçli Sakin
+- **Alt başlık (iOS, 30 karakter):** Sitenizin ortak yaşam alanı
+- **Kısa açıklama (Google, 80 karakter):** Site sakinleri için duyuru, ortak alışveriş, hizmetler ve günün ayeti/hadisi.
 - **Açıklama:**
-  > Merter Çınar Evleri uygulaması, sitemizin günlük yaşamını tek yerde toplar.
+  > Bilinçli Sakin, yaşadığınız siteyi tek uygulamada toplar. Site yönetiminizden aldığınız davet koduyla katılın; uygulama sitenizin adı ve ayarlarıyla açılır.
   > • Ortak market ve pazar sepeti: siparişinizi verin, site toplu alsın, daha uygun fiyata gelsin.
-  > • Duyurular ve iletişim: yönetimin numaralarına tek dokunuşla ulaşın.
-  > • Profil: blok, kat, daire ve hane bilgisi; acil durumda kimin yardıma ihtiyacı olduğunu yönetim bilsin.
-  > • Hikmet: her gün bir ayet ya da hadis; Arapça metni, anlamı ve kaynağıyla. WhatsApp'ta paylaşın.
-  > • Hizmetler: ütü ve ev temizliği siparişi; görevli kapınızdan alır, teslim eder.
-  > • Fırsatlar ve Bugün: civardaki indirimler, namaz vakitleri.
-  > • Etkinlik, turnuva ve sakin kartı.
-  > • Hikmet duvar kâğıtları: ayet ve hadisleri ana ekran ve kilit ekranı görseli yapın.
+  > • Hizmetler: ütü ve ev temizliği siparişi.
+  > • Duyurular, etkinlikler, turnuvalar ve sakin kartı.
+  > • Fırsatlar ve Bugün: civardaki indirimler ve namaz vakitleri.
+  > • Hikmet: her gün bir ayet ya da hadis; Arapça metni, anlamı ve kaynağıyla. Duvar kâğıdı yapın, WhatsApp'ta paylaşın.
   > • Premium Gündem: fotoğraflı paylaşım, beğeni, yorum ve hikâyeler.
   > Temel özellikler ücretsizdir. Premium aylık abonelikle sunulur; site yönetiminiz bedeli tüm sakinler için ödeyebilir.
-- **Kategori:** Yaşam Tarzı (Lifestyle). İkinci kategori (iOS): Yardımcı Programlar.
-- **Yaş derecelendirmesi:** 4+ / Herkes. Kullanıcılar arası sohbet yoktur.
-- **Ekran görüntüleri:** iPhone 6,9" (1320×2868) ve Android telefon. `npm run ekran` ve `test/mobil.e2e.test.js` dar ekran görüntüleri üretir; mağaza boyutlarına göre ayrı bir komut eklenebilir.
+- **Kategori:** Yaşam Tarzı. İkinci kategori (iOS): Yardımcı Programlar.
+- **Yaş derecelendirmesi:** 4+ / Herkes. Gündem'de sakinler paylaşım ve yorum yapar; yönetici gizleyip silebilir. Kullanıcı içeriği olduğu için mağaza formunda "kullanıcı tarafından oluşturulan içerik" işaretlenmeli.
+- **Ekran görüntüleri:** iPhone 6,9" (1320×2868) ve Android telefon.
 
 ## 11. Yayına kadar kalan işler
 
-1. ☐ Barındırma ve alan adı. Sunucu https olmalı, `PUBLIC_ORIGIN` ayarlanmalı.
-2. ☐ Gerçek SMS sağlayıcısı (README: SMS sağlayıcı bağlama).
+1. ☐ Barındırma ve alan adı (https, `PUBLIC_ORIGIN`).
+2. ☐ Gerçek SMS sağlayıcısı.
 3. ☐ Yasal metinlerin doldurulması ve hukukçu kontrolü (KVKK, mesafeli satış, abonelik).
-4. ☐ Ayet ve hadis metinlerinin, anlamlarının ve kaynaklarının bir din görevlisince kontrolü.
-5. ☐ Mağaza hesapları, abonelik ürünü, RevenueCat.
-6. ☐ İlk derleme: Android'de kapalı test, iOS'ta TestFlight. Gerçek cihazda satın alma (sandbox), duvar kâğıdı ve hesap silme denemesi.
-7. ☐ Önerilen: bildirimler (duyuru, sipariş turu kapanıyor), Gündem ve Hizmetler modüllerinin uygulamaya taşınması.
+4. ☐ Ayet ve hadis metinlerinin bir din görevlisince kontrolü.
+5. ☐ Mağaza hesapları, abonelik ürünü, Apple kök sertifikası, Google hizmet hesabı ve Pub/Sub.
+6. ☐ İlk derleme: Android'de kapalı test, iOS'ta TestFlight. Gerçek cihazda sandbox satın alma, geri yükleme, duvar kâğıdı ve hesap silme.
+7. ☐ Önerilen: bildirimler (duyuru, sipariş turu kapanıyor) ve Gündem için içerik bildirme ("şikâyet et") düğmesi. Apple 1.2 kuralı, kullanıcı içeriği olan uygulamalarda bunu ister.

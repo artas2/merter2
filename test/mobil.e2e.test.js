@@ -1,7 +1,7 @@
 "use strict";
 /* Uçtan uca: Hikmet (günün ayeti/hadisi, arşiv, duvar kâğıdı) ve mobil uygulama modu.
    Mobil mod, Capacitor'ın yaptığı gibi web dosyalarını ayrı bir kaynaktan (https://localhost) sunar; API'ye Bearer jetonla gidilir.
-   Mağaza (RevenueCat) sahte bir yerel sunucuyla taklit edilir. */
+   Google Play (OAuth + Developer API) sahte bir yerel sunucuyla taklit edilir. */
 const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const { spawn, spawnSync } = require("node:child_process");
@@ -10,25 +10,19 @@ const path = require("node:path");
 const fs = require("node:fs");
 const os = require("node:os");
 const { chromium } = require("playwright");
+const { sahteGoogle } = require("./sahte-google");
 
 const KOK = path.join(__dirname, "..");
 const PORT = 4400 + Math.floor(Math.random() * 90);
 const BASE = `http://127.0.0.1:${PORT}`;
-let sunucu, log = "", browser, tmp, davet, rc, rcPort;
-const RC = new Map();
+let sunucu, log = "", browser, tmp, davet, gp;
 const bekle = ms => new Promise(r => setTimeout(r, ms));
 
 before(async () => {
-  rc = http.createServer((req, res) => {
-    const id = decodeURIComponent(req.url.split("/").pop());
-    if (req.headers.authorization !== "Bearer sk_e2e") { res.writeHead(401); return res.end(); }
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify({ subscriber: RC.get(id) || { entitlements: {}, subscriptions: {} } }));
-  });
-  await new Promise(r => rc.listen(0, "127.0.0.1", r)); rcPort = rc.address().port;
+  gp = await sahteGoogle();
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), "bsakin-mobil-"));
   const env = { ...process.env, DB_PATH: path.join(tmp, "a.sqlite"), PORT: String(PORT), HOST: "127.0.0.1", SMS_PROVIDER: "konsol", NODE_ENV: "development", SESSION_SECRET: "mobil".repeat(10),
-    REVENUECAT_API_ANAHTARI: "sk_e2e", REVENUECAT_API_TABAN: `http://127.0.0.1:${rcPort}`, ABONELIK_WEBHOOK_ANAHTARI: "wh" };
+    ...gp.env };
   const s = spawnSync(process.execPath, ["--disable-warning=ExperimentalWarning", "scripts/seed-demo.js"], { cwd: KOK, env, encoding: "utf8" });
   davet = /Sakin davet kodu: ([A-Z0-9-]+)/.exec(s.stdout)[1];
   sunucu = spawn(process.execPath, ["--disable-warning=ExperimentalWarning", "src/server.js"], { cwd: KOK, env });
@@ -40,7 +34,7 @@ before(async () => {
 after(async () => {
   if (browser) await browser.close();
   if (sunucu) { sunucu.kill("SIGTERM"); await new Promise(r => sunucu.once("exit", r)); }
-  if (rc) rc.close();
+  if (gp) gp.kapat();
   if (tmp) fs.rmSync(tmp, { recursive: true, force: true });
 });
 
@@ -107,10 +101,9 @@ test("Mobil mod: ayrı kaynaktan açılır, jetonla giriş, mağazadan satın al
   });
   await context.addInitScript(() => {
     window.Capacitor = { isNativePlatform: () => true, getPlatform: () => "android" };
-    let aboneId = null;
     window.BSNative = {
       tokenOku: async () => localStorage.getItem("t"), tokenYaz: async t => localStorage.setItem("t", t), tokenSil: async () => localStorage.removeItem("t"),
-      magaza: { hazirla: async id => { aboneId = id; }, satinAl: async () => { await window.__yerel("paylasilan", "satin:" + aboneId); return "tamam"; }, geriYukle: async () => {} },
+      magaza: { satinAl: async g => { await window.__yerel("paylasilan", "satin:" + g.hesapUuid); return { platform: "android", token: "tok-" + g.hesapUuid }; }, geriYukle: async () => [] },
       duvar: { ayarla: async o => window.__yerel("ayarlanan", o.hedef + ":" + o.base64.length), kaydet: async o => window.__yerel("kaydedilen", o.ad) },
       paylasDosya: async o => window.__yerel("paylasilan", o.ad + ":" + o.metin.length)
     };
@@ -125,11 +118,10 @@ test("Mobil mod: ayrı kaynaktan açılır, jetonla giriş, mağazadan satın al
   assert.equal(await P.$$eval('[data-act="abone"]', x => x.length), 1); assert.equal(await P.$$eval('[data-act="geriYukle"]', x => x.length), 1);
   const yasal = await P.textContent(".ab-yasal"); assert.match(yasal, /otomatik yenilenen/); assert.match(yasal, /24 saat/); assert.match(yasal, /Google Play/);
   assert.equal(await P.$$eval(".ab-yasal a", a => a.map(x => x.textContent).join("|")), "Kullanım koşulları|Gizlilik politikası");
-  // Satın alma: mağaza onayladıktan sonra sunucu RevenueCat'ten doğrular
-  const { aboneId } = await P.evaluate(async b => (await fetch(b + "/api/abonelik", { headers: { Authorization: "Bearer " + localStorage.getItem("t"), "X-Istemci": "mobil" } })).json(), BASE);
-  RC.set(aboneId, { entitlements: { premium: { expires_date: new Date(Date.now() + 30 * 864e5).toISOString(), product_identifier: "bs_aylik" } }, subscriptions: { bs_aylik: { store: "play_store", period_type: "normal" } } });
+  // Satın alma: cihaz Google Play jetonunu gönderir, sunucu Google'dan doğrular
+  const { hesapUuid } = await P.evaluate(async b => (await fetch(b + "/api/abonelik", { headers: { Authorization: "Bearer " + localStorage.getItem("t"), "X-Istemci": "mobil" } })).json(), BASE);
   await P.click('[data-act="abone"]'); await P.waitForSelector(".ab-kart.on");
-  assert.match(await P.textContent("main"), /Premium etkin/); assert.deepEqual(yerel.paylasilan, ["satin:" + aboneId]);
+  assert.match(await P.textContent("main"), /Premium etkin/); assert.deepEqual(yerel.paylasilan, ["satin:" + hesapUuid]);
   assert.match(await P.getAttribute('a[href*="play.google.com"]', "href"), /subscriptions/);
   // Duvar kâğıdı: önizleme, Android'de doğrudan ayarla, galeriye kaydet
   await git(P, "#hikmet"); await P.click(".hkk [data-hk-duvar]");

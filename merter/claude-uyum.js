@@ -33,11 +33,11 @@
   function kapiCiz() {
     let el = document.getElementById("bsKapi");
     if (!el) { el = document.createElement("div"); el.id = "bsKapi"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "bsKapiB"); document.body.appendChild(el); }
-    const site = (window.BS_AYAR && window.BS_AYAR.siteAdi) || "Merter Çınar Evleri";
+    const site = (window.BS_AYAR && window.BS_AYAR.siteAdi) || "Bilinçli Sakin";
     const govde = K.adim === "tel" ? `<label for="bsTel">Cep telefonunuz</label><input id="bsTel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" value="${esc(K.tel)}" maxlength="20"><button type="button" class="btn pri" data-bskapi="kodIste" ${K.bekle ? "disabled" : ""}>Kod gönder</button>`
       : K.adim === "kod" ? `<p class="lvl">${esc(K.tel)} numarasına 6 haneli bir kod gönderdik.</p><label for="bsKod">Giriş kodu</label><input id="bsKod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"><button type="button" class="btn pri" data-bskapi="kodDogrula" ${K.bekle ? "disabled" : ""}>Giriş yap</button><button type="button" class="btn" data-bskapi="geri">Numarayı değiştir</button>`
       : `<p class="lvl">Sitenize katılmak için yönetimden aldığınız davet kodunu girin.</p><label for="bsDavet">Davet kodu</label><input id="bsDavet" autocomplete="off" maxlength="12" placeholder="ABCD-EFGH"><button type="button" class="btn pri" data-bskapi="katil" ${K.bekle ? "disabled" : ""}>Siteye katıl</button><button type="button" class="btn" data-bskapi="cikis">Çıkış yap</button>`;
-    el.innerHTML = `<div class="bskapi-k"><p class="eyebrow">Hoş geldiniz</p><h2 class="title" id="bsKapiB">${esc(site)}</h2>${govde}<p class="err" role="alert">${esc(K.hata)}</p>
+    el.innerHTML = `<div class="bskapi-k"><p class="eyebrow">${K.adim === "davet" ? "Sitenize katılın" : "Sitenize giriş"}</p><h2 class="title" id="bsKapiB">${esc(site)}</h2>${govde}<p class="err" role="alert">${esc(K.hata)}</p>
       <p class="lvl bskapi-yasal">Giriş yaparak <a href="${esc(BS.yasal.kosullar)}" target="_blank" rel="noopener">kullanım koşullarını</a> kabul etmiş olursunuz. <a href="${esc(BS.url("/aydinlatma.html"))}" target="_blank" rel="noopener">KVKK aydınlatma metni</a> · <a href="${esc(BS.yasal.gizlilik)}" target="_blank" rel="noopener">Gizlilik</a></p></div>`;
     el.hidden = false;
     const odak = el.querySelector("input"); if (odak) setTimeout(() => odak.focus(), 0);
@@ -220,11 +220,15 @@
       const m = BS.magaza(); if (!m || abMesgul) return;
       abMesgul = true; premiumAc();
       try {
-        const { aboneId } = await api("GET", "/api/abonelik");
-        await m.hazirla(aboneId);
-        if (k === "abone") { if (await m.satinAl() === "vazgecildi") return; } else await m.geriYukle();
-        ab = (await api("POST", "/api/abonelik/yenile", {})).abonelik;
-        abDurum = ab.aktif ? "Teşekkürler, Premium etkin." : k === "geriYukle" ? "Geri yüklenecek bir abonelik bulunamadı." : "Ödeme onaylanınca Premium açılacak; birkaç dakika sonra tekrar bakın.";
+        const g = await api("GET", "/api/abonelik");
+        const kanitlar = k === "abone" ? [await m.satinAl(g)] : await m.geriYukle(g);
+        if (k === "abone" && !kanitlar[0]) return;
+        let son = null, not = "";
+        for (const x of kanitlar.filter(Boolean)) {
+          try { const r = await api("POST", "/api/abonelik/dogrula", x); if (r.abonelik) son = r.abonelik; else not = r.hata || ""; } catch (e) { not = e.message; }
+        }
+        ab = son || (await api("POST", "/api/abonelik/yenile", {})).abonelik;
+        abDurum = ab.aktif ? "Teşekkürler, Premium etkin." : not || (k === "geriYukle" ? "Geri yüklenecek bir abonelik bulunamadı." : "Ödeme onaylanınca Premium açılacak; birkaç dakika sonra tekrar bakın.");
         etkilenen(["lisans/site"]);
       } catch (e) { abDurum = e.message || "İşlem tamamlanamadı."; }
       finally { abMesgul = false; yeniden(); }
@@ -232,6 +236,9 @@
   }
   document.addEventListener("click", e => { const b = e.target.closest("[data-bshesap]"); if (b) hesapIslem(b.dataset.bshesap); });
   window.BS_HESAP = { bolum, premiumKarti };
+  /* Yönetim ekranı (yonetim.js) için sunucu çağrısı ve oturum bilgisi */
+  window.BS_API = api;
+  window.BS_ME = () => ME;
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", baslat); else baslat();
 })();

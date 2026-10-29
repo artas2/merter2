@@ -27,10 +27,16 @@ services:
         sync: false          # ör. https://sakin.ornek.com (özel alan adı) veya https://bilincli-sakin.onrender.com
       - key: PLATFORM_ADMIN_TELEFONLARI
         sync: false          # ör. +905xxxxxxxxx
-      - key: REVENUECAT_API_ANAHTARI
-        sync: false          # RevenueCat gizli anahtarı (sk_…); boşsa Premium satın alma kapalı
-      - key: ABONELIK_WEBHOOK_ANAHTARI
-        sync: false          # RevenueCat webhook Authorization değeri
+      - key: APPLE_KOK_SERTIFIKA
+        sync: false          # Apple Root CA - G3 dosya yolu; boşsa iOS satın alma kapalı
+      - key: APPLE_BUNDLE_ID
+        value: com.bilinclisakin.app
+      - key: GOOGLE_HIZMET_HESABI
+        sync: false          # Play Developer API hizmet hesabı JSON (yol ya da metin)
+      - key: GOOGLE_PAKET_ADI
+        value: com.bilinclisakin.app
+      - key: GOOGLE_BILDIRIM_ANAHTARI
+        sync: false          # Pub/Sub itme adresindeki ?anahtar= değeri
       - key: INCELEME_TELEFON
         sync: false          # yalnızca mağaza incelemesi süresince
       - key: INCELEME_KODU

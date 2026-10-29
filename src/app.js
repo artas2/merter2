@@ -6,7 +6,7 @@ const O = require("../public/shared.js");
 const { tx } = require("./db");
 const V = require("./validate");
 const { Hata } = V;
-const { createAbonelik } = require("./abonelik");
+const { createAbonelik, MagazaHatasi } = require("./abonelik");
 const { createBelgeler } = require("./belgeler");
 const { merterSayfasi, merterDosyalari } = require("../merter/sablon");
 
@@ -488,7 +488,7 @@ function createApp(opts) {
     return { ok: true };
   }, { yazma: true });
   rota("GET", "/api/yonetim/uyeler", "yonetici", ctx => ({
-    uyeler: q.uyelerSite.all(ctx.site.id).map(u => { const p = u.veri ? parse(u.veri, null) : null; return { userId: u.user_id, telefon: u.telefon, rol: u.rol, katilim: u.olusturma, konum: p ? { blok: p.blok, kat: p.kat, daire: p.daire } : null, ben: u.user_id === ctx.user.id }; })
+    uyeler: q.uyelerSite.all(ctx.site.id).map(u => { const p = u.veri ? parse(u.veri, null) : null; return { userId: u.user_id, kimlik: BL.kimlik(ctx.site.id, u.user_id), telefon: u.telefon, rol: u.rol, katilim: u.olusturma, konum: p ? { blok: p.blok, kat: p.kat, daire: p.daire } : null, ben: u.user_id === ctx.user.id }; })
   }));
   rota("PATCH", "/api/yonetim/uyeler/:id", "yonetici", ctx => {
     const id = Number(ctx.params.id);
@@ -586,18 +586,27 @@ function createApp(opts) {
     const site = s && s.site_id ? q.site.get(s.site_id) : null;
     return AB.durum(user.id, site, site ? etkinDurum(site) : null);
   };
-  rota("GET", "/api/abonelik", "giris", ctx => ({ abonelik: abonelikDurumu(ctx.user, ctx.s), aboneId: AB.aboneIdAl(ctx.user.id) }));
-  rota("POST", "/api/abonelik/yenile", "giris", async ctx => {
-    if (!AB.saglayici) throw new Hata(503, "Mağaza aboneliği henüz yapılandırılmadı.");
-    if (!izin("ab-yenile:" + ctx.user.id, 10, 60000)) throw new Hata(429, "Çok sık denendi. Biraz sonra tekrar deneyin.");
-    try { await AB.yenile(ctx.user.id); } catch (e) { cfg.log("[abonelik]", e.message); throw new Hata(502, "Mağazaya ulaşılamadı. Biraz sonra tekrar deneyin."); }
+  rota("GET", "/api/abonelik", "giris", ctx => ({ abonelik: abonelikDurumu(ctx.user, ctx.s), hesapUuid: AB.aboneIdAl(ctx.user.id), urun: AB.urun, androidPlan: AB.androidPlan }));
+  /* Durumu yeniden okur (mağaza değişiklikleri bildirimlerle gelir; cihaz ayrıca geri yüklemeyle kanıtı yeniden gönderebilir). */
+  rota("POST", "/api/abonelik/yenile", "giris", ctx => ({ abonelik: abonelikDurumu(ctx.user, ctx.s) }));
+  const magazaHata = e => {
+    if (e instanceof MagazaHatasi) return new Hata(e.kod, e.message);
+    cfg.log("[abonelik]", e.message); return new Hata(502, "Mağazaya ulaşılamadı. Biraz sonra tekrar deneyin.");
+  };
+  rota("POST", "/api/abonelik/dogrula", "giris", async ctx => {
+    if (!izin("ab-dogrula:" + ctx.user.id, 20, 60000)) throw new Hata(429, "Çok sık denendi. Biraz sonra tekrar deneyin.");
+    try { await AB.dogrula(ctx.user.id, ctx.body); } catch (e) { throw magazaHata(e); }
     return { abonelik: abonelikDurumu(ctx.user, ctx.s) };
   });
-  rota("POST", "/api/abonelik/webhook", null, async ctx => {
-    const beklenen = cfg.abonelik.webhookAnahtari || "";
-    if (!beklenen || !esit(ctx.req.headers.authorization || "", "Bearer " + beklenen)) throw new Hata(401, "Yetkisiz.");
-    try { return { ok: true, islenen: await AB.webhook(ctx.body) }; }
-    catch (e) { cfg.log("[abonelik webhook]", e.message); throw new Hata(502, "Sağlayıcı sorgulanamadı."); }
+  /* App Store Server Notifications V2 (App Store Connect › Uygulama Bilgileri › sunucu bildirim adresi). İmzalı olduğundan anahtar gerekmez. */
+  rota("POST", "/api/abonelik/apple-bildirim", null, async ctx => {
+    try { return { ok: true, islenen: AB.appleBildirim(ctx.body) }; } catch (e) { throw magazaHata(e); }
+  }, { sunucudanSunucuya: true });
+  /* Google Play gerçek zamanlı bildirimler (Pub/Sub itme aboneliği): adres ?anahtar=… ile korunur. */
+  rota("POST", "/api/abonelik/google-bildirim", null, async ctx => {
+    const beklenen = cfg.abonelik.bildirimAnahtari || "";
+    if (!beklenen || !esit(ctx.url.searchParams.get("anahtar") || "", beklenen)) throw new Hata(401, "Yetkisiz.");
+    try { return { ok: true, islenen: await AB.googleBildirim(ctx.body) }; } catch (e) { throw magazaHata(e); }
   }, { sunucudanSunucuya: true });
 
   // --- Belge deposu (Merter arayüzü) ---
@@ -636,7 +645,7 @@ function createApp(opts) {
     res.setHeader("Content-Security-Policy", M_CSP);
     if (p === "") {
       const site = (() => { try { const o = oturumYukle(req); return o && o.s.site_id ? siteYukle(o.s.site_id) : null; } catch (_) { return null; } })();
-      const html = merterSayfasi({ kok: "/m/", mobil: false, ayarJs: `window.BS_AYAR=${JSON.stringify({ siteAdi: (site && (site.ayar.siteAdi || site.ad)) || "Merter Çınar Evleri" }).replace(/</g, "\\u003c")};` });
+      const html = merterSayfasi({ kok: "/m/", mobil: false, ayarJs: `window.BS_AYAR=${JSON.stringify({ siteAdi: (site && (site.ayar.siteAdi || site.ad)) || "Bilinçli Sakin" }).replace(/</g, "\\u003c")};` });
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache, private" });
       return res.end(req.method === "HEAD" ? undefined : html);
     }

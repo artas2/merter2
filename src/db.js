@@ -144,7 +144,11 @@ const MIGRATIONS = [
      veri BLOB NOT NULL,
      boyut INTEGER NOT NULL,
      olusturma INTEGER NOT NULL
-   );`
+   );`,
+  /* 5: abonelik doğrudan mağazalarla (RevenueCat yok): mağaza kaydı kimliği; hesap kimliği artık UUID (StoreKit appAccountToken). */
+  `ALTER TABLE abonelikler ADD COLUMN harici_id TEXT;
+   CREATE UNIQUE INDEX abonelikler_harici ON abonelikler(magaza, harici_id) WHERE harici_id IS NOT NULL;
+   UPDATE users SET abone_id = NULL WHERE abone_id NOT LIKE '%-%';`
 ];
 
 function openDb(file) {

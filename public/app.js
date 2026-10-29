@@ -682,13 +682,16 @@ async function magazaIslem(k) {
   const m = BS.magaza(); if (!m || abMesgul) return;
   abMesgul = true; abDurum = ""; render(false);
   try {
-    const { aboneId } = await api("GET", "/api/abonelik");
-    await m.hazirla(aboneId);
-    if (k === "abone") { const s = await m.satinAl(); if (s === "vazgecildi") { abDurum = ""; return; } }
-    else await m.geriYukle();
-    const r = await api("POST", "/api/abonelik/yenile", {});
-    ME.abonelik = r.abonelik;
-    abDurum = r.abonelik.aktif ? "Teşekkürler, Premium etkin." : (k === "geriYukle" ? "Geri yüklenecek bir abonelik bulunamadı." : "Ödeme onaylanınca Premium açılacak. Birkaç dakika içinde 'Abonelik durumunu yenile'ye dokunun.");
+    const g = await api("GET", "/api/abonelik");
+    const kanitlar = k === "abone" ? [await m.satinAl(g)] : await m.geriYukle(g);
+    if (k === "abone" && !kanitlar[0]) { abDurum = ""; return; }
+    let son = null, not = "";
+    for (const x of kanitlar.filter(Boolean)) {
+      try { const r = await api("POST", "/api/abonelik/dogrula", x); if (r.abonelik) son = r.abonelik; else not = r.hata || ""; } catch (e) { not = e.message; }
+    }
+    if (!son) son = (await api("POST", "/api/abonelik/yenile", {})).abonelik;
+    ME.abonelik = son;
+    abDurum = son.aktif ? "Teşekkürler, Premium etkin." : not || (k === "geriYukle" ? "Geri yüklenecek bir abonelik bulunamadı." : "Ödeme onaylanınca Premium açılacak.");
   } catch (e) { abDurum = e && e.message ? e.message : "İşlem tamamlanamadı."; }
   finally { abMesgul = false; render(false); }
 }

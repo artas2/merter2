@@ -22,6 +22,8 @@
     magaza() { const k = K(); return native && k && k.magaza ? k.magaza : null; },
     duvar() { const k = K(); return native && k && k.duvar ? k.duvar : null; },
     paylas() { const k = K(); return native && k && k.paylasDosya ? k.paylasDosya : null; },
+    /* Mağaza ekranı: önce yerel yönetim sayfası, yoksa mağaza adresi */
+    async abonelikYonet() { const m = BS.magaza(); if (m && m.yonet) { try { await m.yonet(); return; } catch (e) { /* adrese düş */ } } window.open(BS.abonelikYonetUrl(), "_blank"); },
     abonelikYonetUrl() {
       return BS.platform === "ios" ? "https://apps.apple.com/account/subscriptions" : "https://play.google.com/store/account/subscriptions";
     },

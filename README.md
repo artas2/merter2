@@ -1,12 +1,12 @@
-# Merter Çınar Evleri · Bilinçli Sakin
+# Bilinçli Sakin
 
-Merter Çınar Evleri (5 blok × 12 daire) için site uygulaması: **telefon uygulaması (iOS / Android)**, tarayıcı sürümü ve sunucu.
+Site sakinleri için tek uygulama (iOS / Android), tarayıcı sürümü ve sunucu. Her site (ilk site: Merter Çınar Evleri, 5 blok × 12 daire) davet koduyla katılınan, kendi adı ve ayarlarıyla açılan ayrı bir alandır.
 
 | Klasör | İçerik |
 |---|---|
-| `merter/` | Merter Çınar Evleri arayüzü (Ana sayfa, Gündem, Sepet, Hizmetler, Etkinlik ve turnuva, Fırsatlar, Bugün, Hikmet, sakin kartı). claude.ai sayfasıyla aynı kod; `claude-uyum.js` onu sunucuya bağlar |
-| `mobile/` | Capacitor 8 projeleri (`android/`, `ios/`), yerel köprü (mağaza satın alma, duvar kâğıdı, güvenli oturum) |
-| `src/` | Node 22 sunucu: giriş (SMS kodu), siteler ve roller, belge deposu (`belgeler.js`, 22 erişim kuralı), abonelik (`abonelik.js`) |
+| `merter/` | Uygulama arayüzü (Ana sayfa, Gündem, Sepet, Hizmetler, Etkinlik ve turnuva, Fırsatlar, Bugün, Hikmet, sakin kartı; yönetici için Davetler ve üyeler). claude.ai Merter Çınar Evleri sayfasıyla aynı kod; `claude-uyum.js` onu sunucuya bağlar |
+| `mobile/` | Capacitor 8 projeleri (`android/`, `ios/`), yerel köprü (mağaza satın alma, duvar kâğıdı, oturum) |
+| `src/` | Node 22 sunucu: giriş (SMS kodu), siteler ve roller, belge deposu (`belgeler.js`, 22 erişim kuralı), abonelik (`abonelik.js`: App Store ve Google Play doğrudan, üçüncü taraf yok) |
 | `public/` | Genel Bilinçli Sakin arayüzü ve yönetim paneli (davet kodları, üyeler, platform yönetimi), yasal sayfalar |
 | `docs/MAGAZA.md` | App Store ve Google Play adım adım yayın kılavuzu |
 
@@ -18,12 +18,12 @@ cp .env.example .env          # geliştirme için SESSION_SECRET yeterli; SMS ko
 npm run kur:site -- --ad "Merter Çınar Evleri" --bloklar A,B,C,D,E --daire 12 --kat 0-5
 npm start                     # http://localhost:3000/m/  (Merter arayüzü)
 ```
-Kurulum komutunun verdiği **yönetici davet kodu** ile `/m/` adresinden giriş yapın. Sakin davet kodlarını yönetici `/` › Yönetim › Üyeler ve davetler sayfasından üretir.
+Kurulum komutunun verdiği **yönetici davet kodu** ile `/m/` adresinden giriş yapın. Sakin davet kodlarını yönetici uygulamada Sakinler › **Davetler ve üyeler** ekranından üretir ve WhatsApp'tan gönderir.
 
 **Telefon uygulaması:**
 ```bash
 cd mobile && npm ci
-cp .env.ornek .env            # API_TABAN=https://sunucunuz, RevenueCat genel anahtarları
+cp .env.ornek .env            # API_TABAN=https://sunucunuz
 npm run senkron               # merter/ → www/ ve Android/iOS projelerine kopyalar
 npm run android:ac            # Android Studio
 npm run ios:ac                # Xcode (Mac)
@@ -66,7 +66,7 @@ docs/screenshots/      uçtan uca testin ürettiği ekran görüntüleri (390 px
 
 ## Mobil uygulama (App Store / Google Play)
 
-`mobile/` klasörü Capacitor 8 ile Android ve iOS projelerini içerir. Web dosyaları uygulamanın içine gömülür; API'ye `Authorization: Bearer` jetonuyla gidilir (`public/native.js`, `mobile/src/kopru.js`). Sakin aboneliği (aylık, uygulama içi satın alma) RevenueCat ile alınır, sunucu RevenueCat REST API'sinden doğrular (`src/abonelik.js`). Site yönetimi bedeli aidatla ödeyecekse `odeme_modeli = 'site'` seçilir. Mağaza adımları, ortam değişkenleri, gizlilik formları ve inceleme notu: **[docs/MAGAZA.md](docs/MAGAZA.md)**.
+`mobile/` klasörü Capacitor 8 ile Android ve iOS projelerini içerir. Web dosyaları uygulamanın içine gömülür; API'ye `Authorization: Bearer` jetonuyla gidilir (`public/native.js`, `mobile/src/kopru.js`). Sakin aboneliği (aylık, uygulama içi satın alma) üçüncü taraf hizmet olmadan doğrulanır. iOS'ta StoreKit 2 imzalı işlem kaydının sertifika zinciri sunucuda Apple köküne kadar denetlenir. Android'de Google Play Developer API kullanılır. Ayrıntı: `src/abonelik.js`. Site yönetimi bedeli aidatla ödeyecekse `odeme_modeli = 'site'` seçilir. Mağaza adımları, ortam değişkenleri, gizlilik formları ve inceleme notu: **[docs/MAGAZA.md](docs/MAGAZA.md)**.
 
 ## Sakin arayüzü
 

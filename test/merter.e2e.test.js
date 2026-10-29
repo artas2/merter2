@@ -1,7 +1,7 @@
 "use strict";
 /* Uçtan uca: Merter Çınar Evleri arayüzü gerçek sunucuda.
    - Yönetici tarayıcıdan (/m/), sakin telefon uygulaması modunda (Capacitor gibi ayrı kaynak, Bearer jeton).
-   - Giriş kapısı, profil, sepet, Premium satın alma (sahte RevenueCat), Gündem paylaşımı ve canlı güncelleme,
+   - Giriş kapısı, profil, sepet, Premium satın alma (sahte Google Play), Gündem paylaşımı ve canlı güncelleme,
      yönetici sakin listesi, duvar kâğıdı (yerel köprü), hesap silme. */
 const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
@@ -11,26 +11,21 @@ const path = require("node:path");
 const fs = require("node:fs");
 const os = require("node:os");
 const { chromium } = require("playwright");
+const { sahteGoogle } = require("./sahte-google");
 
 const KOK = path.join(__dirname, "..");
 const PORT = 4500 + Math.floor(Math.random() * 90);
 const BASE = `http://127.0.0.1:${PORT}`;
 const MOB = "http://localhost";
-let sunucu, log = "", browser, tmp, yonDavet, rc, www;
-const RC = new Map();
+let sunucu, log = "", browser, tmp, yonDavet, gp, www;
 const bekle = ms => new Promise(r => setTimeout(r, ms));
 const gun = n => { const d = new Date(Date.now() + n * 864e5); return d.toISOString().slice(0, 10); };
 
 before(async () => {
-  rc = http.createServer((req, res) => {
-    const id = decodeURIComponent(req.url.split("/").pop());
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify({ subscriber: RC.get(id) || { entitlements: {}, subscriptions: {} } }));
-  });
-  await new Promise(r => rc.listen(0, "127.0.0.1", r));
+  gp = await sahteGoogle();
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), "bsakin-merter-"));
   const env = { ...process.env, DB_PATH: path.join(tmp, "a.sqlite"), PORT: String(PORT), HOST: "127.0.0.1", SMS_PROVIDER: "konsol", NODE_ENV: "development", SESSION_SECRET: "merter".repeat(8),
-    REVENUECAT_API_ANAHTARI: "sk_e2e", REVENUECAT_API_TABAN: `http://127.0.0.1:${rc.address().port}`, PLATFORM_ADMIN_TELEFONLARI: "05000000999" };
+    ...gp.env, PLATFORM_ADMIN_TELEFONLARI: "05000000999" };
   const k = spawnSync(process.execPath, ["--disable-warning=ExperimentalWarning", "scripts/kur-site.js", "--ad", "Merter Çınar Evleri", "--bloklar", "A,B,C,D,E", "--daire", "12", "--kat", "0-5"], { cwd: KOK, env, encoding: "utf8" });
   yonDavet = /Yönetici davet : ([A-Z0-9-]+)/.exec(k.stdout)[1];
   // Telefon uygulamasının dosyaları (mobile/www) bu test sunucusunu gösterecek şekilde üretilir
@@ -45,7 +40,7 @@ before(async () => {
 after(async () => {
   if (browser) await browser.close();
   if (sunucu) { sunucu.kill("SIGTERM"); await new Promise(r => sunucu.once("exit", r)); }
-  if (rc) rc.close();
+  if (gp) gp.kapat();
   if (tmp) fs.rmSync(tmp, { recursive: true, force: true });
 });
 
@@ -82,9 +77,9 @@ let Y, S, davet;
 test("Yönetici: tarayıcıdan /m/ giriş kapısı, Merter arayüzü, yönetim yetkisi", { timeout: 90000 }, async () => {
   Y = await sayfa();
   await Y.page.goto(BASE + "/m/");
-  assert.match(await Y.page.textContent("#bsKapi h2"), /Merter Çınar Evleri/);
+  assert.match(await Y.page.textContent("#bsKapi h2"), /Bilinçli Sakin/, "giriş ekranında genel uygulama adı");
   await kapidanGir(Y.page, "0532 000 00 01", yonDavet);
-  assert.match(await Y.page.textContent(".brand h1"), /Merter/);
+  assert.match(await Y.page.textContent(".brand h1"), /Merter Çınar Evleri/, "girişten sonra sitenin kendi adı");
   assert.equal(await Y.page.isVisible("#hYon"), true, "yönetici düğmesi görünür (canEdit)");
   const fontlar = await Y.page.evaluate(async () => Promise.all(["Bricolage Grotesque", "Atkinson Hyperlegible"].map(async f => { await document.fonts.load(`16px "${f}"`, "Çınar ğüşiöç"); return document.fonts.check(`16px "${f}"`, "Çınar ğüşiöç"); })));
   assert.deepEqual(fontlar, [true, true], "yerel yazı tipleri");
@@ -105,9 +100,8 @@ test("Sakin: telefon uygulaması modu (ayrı kaynak, jeton), profil, sepet, Prem
     let u = new URL(r.request().url()).pathname; if (u === "/") u = "/index.html";
     if (u === "/kopru.js") return r.fulfill({ contentType: "text/javascript", body: `
       window.Capacitor = { isNativePlatform: () => true, getPlatform: () => "android" };
-      let aid = null;
       window.BSNative = { tokenOku: async () => localStorage.getItem("t"), tokenYaz: async t => localStorage.setItem("t", t), tokenSil: async () => localStorage.removeItem("t"),
-        magaza: { hazirla: async id => { aid = id; }, satinAl: async () => { await window.__yerel("satin"); return "tamam"; }, geriYukle: async () => {} },
+        magaza: { satinAl: async g => { await window.__yerel("satin"); return { platform: "android", token: "tok-" + g.hesapUuid }; }, geriYukle: async () => [] },
         duvar: { ayarla: async o => window.__yerel("ayar", o.hedef), kaydet: async o => window.__yerel("kayit", o.ad) }, paylasDosya: async () => {} };` });
     const f = path.join(www, u);
     if (!fs.existsSync(f)) return r.fulfill({ status: 404, body: "" });
@@ -130,8 +124,6 @@ test("Sakin: telefon uygulaması modu (ayrı kaynak, jeton), profil, sepet, Prem
   // Premium: Gündem'de kart, satın alma, sonra paylaşım
   await git(P, "#gundem");
   assert.match(await P.textContent("main"), /Premium Gündem/);
-  const aboneId = await P.evaluate(async b => (await (await fetch(b + "/api/abonelik", { headers: { Authorization: "Bearer " + localStorage.getItem("t"), "X-Istemci": "mobil" } })).json()).aboneId, BASE);
-  RC.set(aboneId, { entitlements: { premium: { expires_date: new Date(Date.now() + 30 * 864e5).toISOString(), product_identifier: "bs_premium_aylik" } }, subscriptions: { bs_premium_aylik: { store: "play_store" } } });
   await P.click('[data-bshesap="premium"]'); await P.waitForSelector('[data-bshesap="abone"]');
   assert.match(await P.textContent("#bsPremium"), /24 saat/);
   await P.click('[data-bshesap="abone"]'); await P.waitForFunction(() => /Premium etkin/.test(document.getElementById("bsPremium").textContent), null, { timeout: 10000 });
@@ -183,5 +175,56 @@ test("Sakin: hesabını uygulamadan siler; veriler gider, giriş kapısı döner
   await git(Y.page, "#sakinler");
   assert.doesNotMatch(await Y.page.textContent("main"), /Ayşe/);
   assert.deepEqual(S.hatalar, []);
-  await S.context.close(); await Y.context.close();
+  await S.context.close();
+});
+
+test("Yönetici: damla tasarımlı davet ekranı — kod üret, paylaş, iptal; üyeler ve roller", { timeout: 90000 }, async () => {
+  const Z = Y, p = Z.page;
+  await Z.context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
+  await git(p, "#sakinler");
+  assert.equal(await p.isVisible('a.dm-giris[href="#davetler"]'), true, "Sakinler sayfasında giriş kabarcığı");
+  await p.click("a.dm-giris"); await p.waitForSelector(".dm-form");
+  assert.match(await p.textContent(".dm .title"), /Davetler ve üyeler/);
+  const once = await p.$$eval(".dm-liste:not(details .dm-liste) .dm-kabarcik", x => x.length);
+  // Denetçi daveti, 3 kişi, 7 gün
+  await p.click('.dm-rol-k:has(input[value="site_denetci"])');
+  assert.equal(await p.$eval('.dm-rol-k.on input', e => e.value), "site_denetci");
+  await p.fill("#dmMax", "3"); await p.fill("#dmGun", "7"); await p.fill("#dmAciklama", "Denetim kurulu");
+  await p.click('[data-dm="gun:1"]'); assert.equal(await p.inputValue("#dmGun"), "8", "artır düğmesi");
+  await p.click('[data-dm="olustur"]'); await p.waitForSelector(".dm-yeni-damla output");
+  const kod = (await p.textContent(".dm-yeni-damla output")).trim();
+  assert.match(kod, /^[A-Z0-9]{4}-[A-Z0-9]{4}$/);
+  assert.match(await p.textContent(".dm-yeni-damla"), /Denetçi · 3 kişi · 8 gün/);
+  await p.waitForTimeout(800); await (await p.$(".dm-yeni")).screenshot({ path: path.join(KOK, "docs/screenshots/merter-davet-kodu.png") });
+  const wa = decodeURIComponent(await p.getAttribute(".dm-yeni .wa", "href"));
+  assert.match(wa, new RegExp(kod)); assert.match(wa, /Merter Çınar Evleri/);
+  await p.click(`.dm-yeni [data-dm="kopya:${kod}"]`); await p.waitForSelector(".dm-not");
+  assert.equal(await p.evaluate(() => navigator.clipboard.readText()), kod);
+  await p.waitForFunction(n => document.querySelectorAll(".dm > .dm-liste .dm-kabarcik").length === n + 1, once, { timeout: 10000 });
+  // Kod gerçekten çalışır: yeni kişi denetçi olarak katılır
+  const Q = await sayfa(); await Q.page.goto(BASE + "/m/"); await kapidanGir(Q.page, "0534 000 00 07", kod);
+  assert.equal(await Q.page.isVisible("#hYon"), false, "denetçi yönetici değil"); await Q.context.close();
+  await p.evaluate(() => { location.hash = "#sakinler"; }); await p.waitForTimeout(300); await p.evaluate(() => { location.hash = "#davetler"; });
+  await p.waitForFunction(k => [...document.querySelectorAll(".dm-kabarcik")].some(x => x.textContent.includes(k) && x.textContent.includes("1/3")), kod, { timeout: 10000 });
+  // İptal: önce onay
+  await p.click(`[data-dm="iptalSor:${kod}"]`); await p.click(`[data-dm="iptalEvet:${kod}"]`);
+  await p.waitForFunction(k => ![...document.querySelectorAll(".dm > .dm-liste .dm-kabarcik")].some(x => x.textContent.includes(k)), kod, { timeout: 10000 });
+  // Üyeler: denetçiyi sakin yap
+  await p.click('[data-dm="sekme:uye"]'); await p.waitForSelector(".dm-kabarcik.uye");
+  assert.match(await p.textContent(".dm-liste"), /\(siz\)/);
+  const sec = await p.$('select[data-dm-rol]');
+  const n = await p.$$eval('select[data-dm-rol]', s => s.length); assert.ok(n >= 1);
+  const den = await p.$$eval('select[data-dm-rol]', s => { const x = s.find(e => e.value === "site_denetci"); return x && x.dataset.dmRol; });
+  await p.selectOption(`select[data-dm-rol="${den}"]`, "sakin");
+  await p.waitForSelector(".dm-not"); assert.match(await p.textContent(".dm-not"), /Rol güncellendi/);
+  assert.equal(await p.$eval(`select[data-dm-rol="${den}"]`, e => e.value), "sakin");
+  // Tasarım: damla biçimi ve dokunma hedefleri
+  const r = await p.$eval(".dm-avatar", e => getComputedStyle(e).borderTopLeftRadius);
+  assert.ok(/%/.test(r) || parseFloat(r) > 10, "oval/damla köşe");
+  const kucuk = await p.$$eval(".dm button, .dm a, .dm select", a => a.filter(e => e.offsetParent).map(e => e.getBoundingClientRect()).filter(b => b.height < 43.5).length);
+  assert.equal(kucuk, 0, "44 px altı dokunma hedefi yok");
+  assert.equal(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "yatay kayma yok");
+  await p.click('[data-dm="sekme:davet"]'); await p.waitForTimeout(700);
+  await p.screenshot({ path: path.join(KOK, "docs/screenshots/merter-davetler.png"), fullPage: true });
+  assert.deepEqual(Z.hatalar, []); await Z.context.close();
 });

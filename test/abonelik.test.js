@@ -1,79 +1,150 @@
 "use strict";
+/* Abonelik: App Store (StoreKit 2 JWS, sunucuda imza zinciri doğrulaması) ve Google Play (Developer API) — üçüncü taraf yok. */
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
+const fs = require("node:fs");
+const path = require("node:path");
 const { sunucuBaslat, Istemci, ortam, tel } = require("./yardimci");
-const { revenueCatSaglayici } = require("../src/abonelik");
+const { appleJwsDogrula } = require("../src/abonelik");
 
-/* Sahte RevenueCat: aboneId -> abone yanıtı */
-const RC = new Map();
-let rcCagri = 0;
+/* Test sertifika zinciri (test/fixtures/apple): kök → ara (WWDR OID) → yaprak (makbuz imzalama OID) */
+const FX = path.join(__dirname, "fixtures", "apple");
+const pem = f => fs.readFileSync(path.join(FX, f), "utf8");
+const der = f => new crypto.X509Certificate(pem(f)).raw.toString("base64");
+const KOK = pem("kok.pem");
+function jws(yuk, { anahtar = pem("yaprak.key"), x5c = [der("yaprak.pem"), der("ara.pem"), der("kok.pem")] } = {}) {
+  const b = o => Buffer.from(JSON.stringify(o)).toString("base64url");
+  const g = b({ alg: "ES256", x5c }) + "." + b(yuk);
+  return g + "." + crypto.sign("sha256", Buffer.from(g), { key: anahtar, dsaEncoding: "ieee-p1363" }).toString("base64url");
+}
+const BUNDLE = "com.bilinclisakin.app";
+const ileri = g => Date.now() + g * 864e5;
+const islem = (uuid, ek = {}) => ({ bundleId: BUNDLE, productId: "bs_premium_aylik", originalTransactionId: "2000000" + Math.floor(Math.random() * 1e8),
+  transactionId: "1", expiresDate: ileri(30), appAccountToken: uuid, environment: "Sandbox", type: "Auto-Renewable Subscription", ...ek });
+
+/* Sahte Google: OAuth jeton uç noktası (JWT imzası gerçekten doğrulanır) ve Play Developer API */
+const { publicKey: GPUB, privateKey: GPRIV } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
+const HH = { client_email: "magaza@test.iam.gserviceaccount.com", private_key: GPRIV.export({ type: "pkcs8", format: "pem" }), token_uri: "https://oauth2.googleapis.com/token" };
+const GP = new Map(); let gCagri = 0;
 const sahteFetch = async (url, o) => {
-  rcCagri++;
-  assert.equal(o.headers.Authorization, "Bearer sk_test");
-  const id = decodeURIComponent(url.split("/").pop());
-  const sub = RC.get(id) || { entitlements: {}, subscriptions: {} };
-  return { ok: true, status: 200, json: async () => ({ subscriber: sub }) };
+  gCagri++;
+  if (url === HH.token_uri) {
+    const a = new URLSearchParams(o.body).get("assertion").split(".");
+    assert.ok(crypto.verify("sha256", Buffer.from(a[0] + "." + a[1]), GPUB, Buffer.from(a[2], "base64url")), "JWT imzası");
+    assert.equal(JSON.parse(Buffer.from(a[1], "base64url")).scope, "https://www.googleapis.com/auth/androidpublisher");
+    return { ok: true, status: 200, json: async () => ({ access_token: "ya29.test", expires_in: 3600 }) };
+  }
+  assert.equal(o.headers.Authorization, "Bearer ya29.test");
+  assert.match(url, /applications\/com\.bilinclisakin\.app\/purchases\/subscriptionsv2\/tokens\//);
+  const t = decodeURIComponent(url.split("/").pop());
+  if (!GP.has(t)) return { ok: false, status: 404, json: async () => ({}) };
+  return { ok: true, status: 200, json: async () => GP.get(t) };
 };
-const ileri = g => new Date(Date.now() + g * 864e5).toISOString();
-const abone = (ek = {}, bitis = ileri(30)) => ({ entitlements: { premium: { expires_date: bitis, product_identifier: "bs_aylik" } },
-  subscriptions: { bs_aylik: { store: "app_store", period_type: "normal", is_sandbox: true, ...ek } } });
+const gAbone = (uuid, durum = "SUBSCRIPTION_STATE_ACTIVE", gun = 30) => ({ subscriptionState: durum, lineItems: [{ productId: "bs_premium_aylik", expiryTime: new Date(ileri(gun)).toISOString() }],
+  externalAccountIdentifiers: { obfuscatedExternalAccountId: uuid }, testPurchase: {} });
 
 let C, OR;
-test.before(async () => { C = await sunucuBaslat({ config: { abonelik: { revenuecat: { apiAnahtari: "sk_test", hak: "premium" }, fetch: sahteFetch, webhookAnahtari: "wh_gizli" } } }); OR = await ortam(C); });
+test.before(async () => {
+  C = await sunucuBaslat({ config: { abonelik: { apple: { kokSertifika: KOK, bundleId: BUNDLE }, google: { hizmetHesabi: HH, paket: BUNDLE }, fetch: sahteFetch, bildirimAnahtari: "pubsub_gizli" } } });
+  OR = await ortam(C);
+});
 test.after(() => C.kapat());
 
-test("RevenueCat ayrıştırma: durumlar", async () => {
-  const s = revenueCatSaglayici({ apiAnahtari: "sk_test" }, sahteFetch);
-  RC.set("x1", abone()); assert.equal((await s.sorgula("x1")).durum, "aktif");
-  RC.set("x2", abone({ unsubscribe_detected_at: ileri(-1) })); assert.equal((await s.sorgula("x2")).durum, "iptal_edildi");
-  RC.set("x3", abone({ billing_issues_detected_at: ileri(-1) })); assert.equal((await s.sorgula("x3")).durum, "odeme_sorunu");
-  RC.set("x4", abone({}, ileri(-2))); assert.equal((await s.sorgula("x4")).durum, "suresi_doldu");
-  RC.set("x5", abone({ refunded_at: ileri(-1) })); assert.equal((await s.sorgula("x5")).durum, "iade");
-  RC.set("x6", abone({ store: "play_store" })); assert.equal((await s.sorgula("x6")).magaza, "google");
-  assert.equal((await s.sorgula("yok")).durum, "yok");
+test("Apple JWS: geçerli zincir kabul; değiştirilmiş yük, sahte kök, eksik zincir reddedilir", () => {
+  const k = new crypto.X509Certificate(KOK);
+  const iyi = jws({ a: 1 });
+  assert.deepEqual(appleJwsDogrula(iyi, k), { a: 1 });
+  const [h, , i] = iyi.split(".");
+  assert.throws(() => appleJwsDogrula(h + "." + Buffer.from(JSON.stringify({ a: 2 })).toString("base64url") + "." + i, k), /imzası geçersiz/);
+  assert.throws(() => appleJwsDogrula(jws({ a: 1 }, { anahtar: pem("sahte.key"), x5c: [der("sahte-kok.pem"), der("sahte-kok.pem"), der("sahte-kok.pem")] }), k), /Apple tarafından imzalanmamış/);
+  // Sahte kökü başa koyup gerçek kökü sona eklemek: zincir kırılır
+  assert.throws(() => appleJwsDogrula(jws({ a: 1 }, { anahtar: pem("sahte.key"), x5c: [der("sahte-kok.pem"), der("ara.pem"), der("kok.pem")] }), k), /zinciri geçersiz/);
+  // Ara sertifika yaprak gibi kullanılırsa OID denetimi yakalar
+  assert.throws(() => appleJwsDogrula(jws({ a: 1 }, { anahtar: pem("ara.key"), x5c: [der("ara.pem"), der("kok.pem"), der("kok.pem")] }), k), /App Store imzası değil|zinciri/);
+  assert.throws(() => appleJwsDogrula("a.b", k), /Geçersiz/);
+  assert.throws(() => appleJwsDogrula(jws({ a: 1 }, { x5c: [der("yaprak.pem")] }), k), /imzası/);
 });
 
-test("Abonelik: ücretsiz başlar, satın alım sonrası sunucu doğrular, webhook günceller", async () => {
-  const o = OR;
-  const sk = o.sakinA1;
-  assert.equal(sk.me.abonelik.aktif, false);
-  assert.equal(sk.me.abonelik.fiyatMetni, "100 TL / ay");
-  assert.equal(sk.me.abonelik.magazaHazir, true);
-  const g = await sk.get("/api/abonelik");
-  assert.match(g.body.aboneId, /^bs_[0-9a-f]{24}$/);
-  assert.equal((await sk.get("/api/abonelik")).body.aboneId, g.body.aboneId, "abone kimliği kalıcı");
-  // Satın almadan yenile: hâlâ pasif
-  let y = await sk.post("/api/abonelik/yenile", {});
-  assert.equal(y.status, 200); assert.equal(y.body.abonelik.aktif, false);
-  // Mağazada satın aldı
-  RC.set(g.body.aboneId, abone());
-  y = await sk.post("/api/abonelik/yenile", {});
-  assert.equal(y.body.abonelik.aktif, true); assert.equal(y.body.abonelik.kaynak, "apple");
+test("iOS: ücretsiz başlar; satın alma kaydı doğrulanınca Premium açılır; hesaba bağlıdır", async () => {
+  const sk = OR.sakinA1;
+  assert.equal(sk.me.abonelik.aktif, false); assert.deepEqual(sk.me.abonelik.magazalar, { ios: true, android: true });
+  const g = (await sk.get("/api/abonelik")).body;
+  assert.match(g.hesapUuid, /^[0-9a-f-]{36}$/); assert.equal(g.urun, "bs_premium_aylik"); assert.equal(g.androidPlan, "aylik");
+  // Başkasının hesabına yapılmış satın alma
+  assert.equal((await sk.post("/api/abonelik/dogrula", { platform: "ios", jws: jws(islem(crypto.randomUUID())) })).status, 409);
+  assert.equal((await sk.post("/api/abonelik/dogrula", { platform: "ios", jws: jws(islem(g.hesapUuid, { bundleId: "com.baska" })) })).status, 400);
+  assert.equal((await sk.post("/api/abonelik/dogrula", { platform: "ios", jws: jws(islem(g.hesapUuid, { productId: "x" })) })).status, 400);
+  assert.equal((await sk.post("/api/abonelik/dogrula", { platform: "ios", jws: "sahte.kayit.imza" })).status, 400);
+  const t = islem(g.hesapUuid);
+  const r = await sk.post("/api/abonelik/dogrula", { platform: "ios", jws: jws(t) });
+  assert.equal(r.status, 200); assert.equal(r.body.abonelik.aktif, true); assert.equal(r.body.abonelik.kaynak, "apple");
   await sk.yenile(); assert.equal(sk.me.abonelik.aktif, true);
-  // Başka sakin etkilenmez
-  assert.equal(o.sakinA2.me.abonelik.aktif, false);
-  // İptal: dönem sonuna kadar sürer
-  RC.set(g.body.aboneId, abone({ unsubscribe_detected_at: ileri(0) }));
-  const w = await fetch(C.base + "/api/abonelik/webhook", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer wh_gizli" },
-    body: JSON.stringify({ event: { type: "CANCELLATION", app_user_id: g.body.aboneId } }) });
-  assert.equal(w.status, 200); assert.equal((await w.json()).islenen, 1);
-  await sk.yenile(); assert.equal(sk.me.abonelik.aktif, true); assert.equal(sk.me.abonelik.durum, "iptal_edildi");
-  // Süre doldu
-  RC.set(g.body.aboneId, abone({}, ileri(-1)));
-  await fetch(C.base + "/api/abonelik/webhook", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer wh_gizli" },
-    body: JSON.stringify({ event: { type: "EXPIRATION", app_user_id: g.body.aboneId } }) });
-  await sk.yenile(); assert.equal(sk.me.abonelik.aktif, false);
+  assert.equal(OR.sakinA2.me.abonelik.aktif, false, "başka sakin etkilenmez");
+  // Aynı mağaza kaydını başka hesap kullanamaz (kendi UUID'siyle imzalanmış olsa bile)
+  const g2 = (await OR.sakinA2.get("/api/abonelik")).body;
+  assert.equal((await OR.sakinA2.post("/api/abonelik/dogrula", { platform: "ios", jws: jws({ ...t, appAccountToken: g2.hesapUuid }) })).status, 409);
+  OR.appleT = t;
 });
 
-test("Webhook: yanlış anahtar ve sahte kimlik reddedilir, gövdeye güvenilmez", async () => {
-  const kotu = await fetch(C.base + "/api/abonelik/webhook", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer yanlis" }, body: "{}" });
-  assert.equal(kotu.status, 401);
-  const yok = await fetch(C.base + "/api/abonelik/webhook", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
-  assert.equal(yok.status, 401);
-  const n = rcCagri;
-  const r = await fetch(C.base + "/api/abonelik/webhook", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer wh_gizli" },
-    body: JSON.stringify({ event: { type: "INITIAL_PURCHASE", app_user_id: "1", expiration_at_ms: Date.now() + 1e10 } }) });
-  assert.equal((await r.json()).islenen, 0); assert.equal(rcCagri, n, "bilinmeyen kimlik için sağlayıcı sorgulanmaz");
+test("App Store bildirimleri: iptal dönem sonuna kadar sürer, süre dolunca ve iadede biter; imzasız bildirim reddedilir", async () => {
+  const sk = OR.sakinA1, t = OR.appleT;
+  const bildir = (tip, tx, yen) => fetch(C.base + "/api/abonelik/apple-bildirim", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ signedPayload: jws({ notificationType: tip, data: { bundleId: BUNDLE, signedTransactionInfo: jws(tx), ...(yen ? { signedRenewalInfo: jws(yen) } : {}) } }) }) });
+  let r = await bildir("DID_CHANGE_RENEWAL_STATUS", t, { autoRenewStatus: 0 });
+  assert.equal(r.status, 200); assert.equal((await r.json()).islenen, 1);
+  await sk.yenile(); assert.equal(sk.me.abonelik.aktif, true); assert.equal(sk.me.abonelik.durum, "iptal_edildi");
+  await bildir("DID_RENEW", { ...t, expiresDate: ileri(60) }, { autoRenewStatus: 1 });
+  await sk.yenile(); assert.equal(sk.me.abonelik.durum, "aktif"); assert.ok(sk.me.abonelik.bitis > ileri(59));
+  await bildir("EXPIRED", { ...t, expiresDate: ileri(-1) });
+  await sk.yenile(); assert.equal(sk.me.abonelik.aktif, false);
+  await bildir("REFUND", { ...t, revocationDate: Date.now() });
+  await sk.yenile(); assert.equal(sk.me.abonelik.durum, "iade");
+  const sahte = jws({ notificationType: "DID_RENEW", data: { bundleId: BUNDLE } }, { anahtar: pem("sahte.key"), x5c: [der("sahte-kok.pem"), der("sahte-kok.pem"), der("sahte-kok.pem")] });
+  r = await fetch(C.base + "/api/abonelik/apple-bildirim", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ signedPayload: sahte }) });
+  assert.equal(r.status, 400);
+});
+
+test("Android: Google Play jetonu sunucuda sorgulanır; bekleyen ödeme, başka hesap ve bildirimler", async () => {
+  const sk = OR.sakinA2, u = (await sk.get("/api/abonelik")).body.hesapUuid;
+  assert.equal((await sk.post("/api/abonelik/dogrula", { platform: "android", token: "yok" })).status, 400);
+  GP.set("tok-baska", gAbone(crypto.randomUUID()));
+  assert.equal((await sk.post("/api/abonelik/dogrula", { platform: "android", token: "tok-baska" })).status, 409);
+  GP.set("tok-bekle", { ...gAbone(u), subscriptionState: "SUBSCRIPTION_STATE_PENDING" });
+  assert.equal((await sk.post("/api/abonelik/dogrula", { platform: "android", token: "tok-bekle" })).status, 202);
+  GP.set("tok-1", gAbone(u));
+  const r = await sk.post("/api/abonelik/dogrula", { platform: "android", token: "tok-1" });
+  assert.equal(r.status, 200); assert.equal(r.body.abonelik.aktif, true); assert.equal(r.body.abonelik.kaynak, "google");
+  // RTDN: yalnızca jeton gelir; durum Google'dan yeniden okunur
+  const rtdn = (anahtar, token) => fetch(C.base + "/api/abonelik/google-bildirim?anahtar=" + anahtar, { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ message: { data: Buffer.from(JSON.stringify({ subscriptionNotification: { notificationType: 13, purchaseToken: token } })).toString("base64") } }) });
+  GP.set("tok-1", gAbone(u, "SUBSCRIPTION_STATE_IN_GRACE_PERIOD", 2));
+  assert.equal((await rtdn("pubsub_gizli", "tok-1")).status, 200);
+  await sk.yenile(); assert.equal(sk.me.abonelik.aktif, true); assert.equal(sk.me.abonelik.durum, "odeme_sorunu");
+  GP.set("tok-1", gAbone(u, "SUBSCRIPTION_STATE_EXPIRED", -1));
+  await rtdn("pubsub_gizli", "tok-1");
+  await sk.yenile(); assert.equal(sk.me.abonelik.aktif, false);
+  const n = gCagri;
+  assert.equal((await rtdn("yanlis", "tok-1")).status, 401); assert.equal(gCagri, n, "yanlış anahtarla Google sorgulanmaz");
+});
+
+test("Mağaza yapılandırılmamışsa satın alma kapalı (503), uygulama ücretsiz çalışır", async () => {
+  const D = await sunucuBaslat();
+  try {
+    const u = await new Istemci(D).giris(tel());
+    assert.equal(u.me.abonelik.magazaHazir, false);
+    assert.equal((await u.post("/api/abonelik/dogrula", { platform: "ios", jws: "a.b.c" })).status, 503);
+    assert.equal((await u.post("/api/abonelik/dogrula", { platform: "android", token: "x" })).status, 503);
+  } finally { await D.kapat(); }
+});
+
+test("Hesap silme aboneliği de siler ve mağaza iptal notu verir", async () => {
+  const u = await new Istemci(C).giris(tel());
+  const id = (await u.get("/api/abonelik")).body.hesapUuid;
+  await u.post("/api/abonelik/dogrula", { platform: "ios", jws: jws(islem(id)) });
+  const s = await u.del("/api/hesap", { onay: true });
+  assert.equal(s.status, 200); assert.match(s.body.not, /App Store ya da Google Play/);
+  assert.equal(C.db.prepare("SELECT COUNT(*) n FROM users WHERE abone_id = ?").get(id).n, 0);
 });
 
 test("Site öder modeli: tüm sakinler kapsanır; site askıya alınınca biter", async () => {
@@ -86,15 +157,6 @@ test("Site öder modeli: tüm sakinler kapsanır; site askıya alınınca biter"
   await o.sakinA2.yenile(); assert.equal(o.sakinA2.me.abonelik.aktif, false);
   assert.equal((await o.admin.patch(`/api/platform/siteler/${o.siteA.id}`, { odemeModeli: "bedava" })).status, 400);
   assert.equal((await o.yonA.patch(`/api/platform/siteler/${o.siteA.id}`, { odemeModeli: "site" })).status, 403, "site yöneticisi kendine açamaz");
-});
-
-test("Mağaza yapılandırılmamışsa yenile 503", async () => {
-  const D = await sunucuBaslat();
-  try {
-    const u = await new Istemci(D).giris(tel());
-    assert.equal(u.me.abonelik.magazaHazir, false);
-    assert.equal((await u.post("/api/abonelik/yenile", {})).status, 503);
-  } finally { await D.kapat(); }
 });
 
 test("Mobil jeton: yalnızca uygulama kaynağına verilir, CSRF'siz çalışır, çerezle karışmaz", async () => {
@@ -132,16 +194,6 @@ test("Mobil jeton: yalnızca uygulama kaynağına verilir, CSRF'siz çalışır,
   r = await fetch(C.base + "/api/auth/cikis", { method: "POST", headers: B, body: "{}" });
   assert.equal(r.status, 200);
   assert.equal((await (await fetch(C.base + "/api/me", { headers: B })).json()).user, null);
-});
-
-test("Hesap silme aboneliği de siler ve mağaza iptal notu verir", async () => {
-  const u = await new Istemci(C).giris(tel());
-  const id = (await u.get("/api/abonelik")).body.aboneId;
-  RC.set(id, abone()); await u.post("/api/abonelik/yenile", {});
-  const s = await u.del("/api/hesap", { onay: true });
-  assert.equal(s.status, 200); assert.match(s.body.not, /App Store ya da Google Play/);
-  assert.equal(C.db.prepare("SELECT COUNT(*) n FROM abonelikler a JOIN users x ON x.id = a.user_id WHERE x.abone_id = ?").get(id).n, 0);
-  assert.equal(C.db.prepare("SELECT COUNT(*) n FROM users WHERE abone_id = ?").get(id).n, 0);
 });
 
 test("Mağaza inceleme hesabı: SMS gönderilmez, sabit kod çalışır, diğer numaralar etkilenmez", async () => {

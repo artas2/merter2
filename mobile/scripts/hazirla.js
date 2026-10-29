@@ -2,11 +2,9 @@
 /* public/ klasöründen uygulama içine gömülecek www/ klasörünü üretir.
    Ortam değişkenleri (mobile/.env ya da kabuk):
      API_TABAN            zorunlu, ör. https://app.bilinclisakin.com  (https olmalı)
-     REVENUECAT_IOS       RevenueCat "Apple" genel SDK anahtarı (appl_…)
-     REVENUECAT_ANDROID   RevenueCat "Google" genel SDK anahtarı (goog_…)
      KOSULLAR_URL, GIZLILIK_URL   mağaza sayfasında da verilen yasal metin adresleri (varsayılan: API_TABAN/kosullar.html, /gizlilik.html)
-     ARAYUZ               merter (varsayılan: Merter Çınar Evleri arayüzü, merter/) | sakin (genel Bilinçli Sakin arayüzü, public/)
-     SITE_ADI             giriş ekranında görünen ad (varsayılan: Merter Çınar Evleri) */
+     ARAYUZ               merter (varsayılan: tam site arayüzü, merter/; her site kendi adı ve ayarlarıyla) | sakin (sade arayüz, public/)
+     SITE_ADI             giriş ekranında görünen ad (varsayılan: Bilinçli Sakin; girişten sonra her site kendi adını görür) */
 const fs = require("node:fs");
 const path = require("node:path");
 const esbuild = require("esbuild");
@@ -21,9 +19,9 @@ function ayarlar(env = process.env) {
   const taban = String(env.API_TABAN || "").replace(/\/$/, "");
   if (!/^https:\/\/[^/]+$/.test(taban) && env.GELISTIRME !== "1") throw new Error("API_TABAN https://alanadi biçiminde olmalı (ör. https://app.bilinclisakin.com).");
   return {
-    apiTaban: taban, revenuecatIos: env.REVENUECAT_IOS || "", revenuecatAndroid: env.REVENUECAT_ANDROID || "",
+    apiTaban: taban,
     kosullarUrl: env.KOSULLAR_URL || taban + "/kosullar.html", gizlilikUrl: env.GIZLILIK_URL || taban + "/gizlilik.html",
-    siteAdi: env.SITE_ADI || "Merter Çınar Evleri", arayuz: env.ARAYUZ || "merter"
+    siteAdi: env.SITE_ADI || "Bilinçli Sakin", arayuz: env.ARAYUZ || "merter"
   };
 }
 
@@ -70,5 +68,5 @@ async function hazirla(env) {
   return a;
 }
 
-if (require.main === module) hazirla().then(a => console.log(`www/ hazır (arayüz: ${a.arayuz}, API: ${a.apiTaban}, iOS mağaza: ${a.revenuecatIos ? "var" : "yok"}, Android mağaza: ${a.revenuecatAndroid ? "var" : "yok"})`)).catch(e => { console.error(e.message); process.exit(1); });
+if (require.main === module) hazirla().then(a => console.log(`www/ hazır (arayüz: ${a.arayuz}, API: ${a.apiTaban})`)).catch(e => { console.error(e.message); process.exit(1); });
 module.exports = { hazirla, ayarlar };

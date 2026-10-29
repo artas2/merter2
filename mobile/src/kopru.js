@@ -4,7 +4,7 @@ import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 import { Share } from "@capacitor/share";
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import { Purchases } from "@revenuecat/purchases-capacitor";
+import { NativePurchases, PURCHASE_TYPE } from "@capgo/native-purchases";
 
 const Duvar = registerPlugin("BSDuvar");
 const A = () => window.BS_AYAR || {};
@@ -17,30 +17,32 @@ async function tokenYaz(t) { await Preferences.set({ key: ANAHTAR, value: t }); 
 async function tokenSil() { await Preferences.remove({ key: ANAHTAR }); }
 
 const platform = Capacitor.getPlatform();
-const rcAnahtar = () => (platform === "ios" ? A().revenuecatIos : A().revenuecatAndroid) || "";
-let hazirKullanici = null;
-const magaza = rcAnahtar() ? {
-  async hazirla(aboneId) {
-    if (hazirKullanici === aboneId) return;
-    const { isConfigured } = await Purchases.isConfigured();
-    if (!isConfigured) await Purchases.configure({ apiKey: rcAnahtar(), appUserID: aboneId });
-    else await Purchases.logIn({ appUserID: aboneId });
-    hazirKullanici = aboneId;
+/* Mağaza satın alma: StoreKit 2 / Google Play Billing (ücretsiz, açık kaynak eklenti). Kanıt sunucuya gider, sunucu doğrular.
+   g = /api/abonelik yanıtı: { hesapUuid, urun, androidPlan } */
+const kanit = t => platform === "ios" ? (t.jwsRepresentation ? { platform: "ios", jws: t.jwsRepresentation } : null)
+  : (t.purchaseToken ? { platform: "android", token: t.purchaseToken } : null);
+const vazgecildi = e => /cancel/i.test(String((e && (e.code || e.message)) || ""));
+const magaza = {
+  async destekli() { try { return (await NativePurchases.isBillingSupported()).isBillingSupported; } catch (e) { return false; } },
+  async fiyat(g) {
+    const { products } = await NativePurchases.getProducts({ productIdentifiers: [g.urun], productType: PURCHASE_TYPE.SUBS });
+    return (products && products[0] && products[0].priceString) || "";
   },
-  async fiyat() {
-    const o = await Purchases.getOfferings();
-    const p = o.current && o.current.availablePackages[0];
-    return p ? p.product.priceString : "";
+  /* Kanıt döner; kullanıcı vazgeçerse null */
+  async satinAl(g) {
+    try {
+      const t = await NativePurchases.purchaseProduct({ productIdentifier: g.urun, planIdentifier: g.androidPlan, productType: PURCHASE_TYPE.SUBS, appAccountToken: g.hesapUuid });
+      const k = kanit(t); if (!k) throw new Error("Mağaza satın alma kaydı vermedi.");
+      return k;
+    } catch (e) { if (vazgecildi(e)) return null; throw new Error("Satın alma tamamlanamadı: " + ((e && e.message) || "bilinmeyen hata")); }
   },
-  async satinAl() {
-    const o = await Purchases.getOfferings();
-    const p = o.current && (o.current.monthly || o.current.availablePackages[0]);
-    if (!p) throw new Error("Abonelik ürünü mağazada bulunamadı.");
-    try { await Purchases.purchasePackage({ aPackage: p }); return "tamam"; }
-    catch (e) { if (e && (e.userCancelled || e.code === "1")) return "vazgecildi"; throw new Error("Satın alma tamamlanamadı: " + (e && e.message || "bilinmeyen hata")); }
+  async geriYukle(g) {
+    await NativePurchases.restorePurchases();
+    const { purchases } = await NativePurchases.getPurchases({ productType: PURCHASE_TYPE.SUBS });
+    return (purchases || []).filter(t => t.productIdentifier === g.urun).map(kanit).filter(Boolean);
   },
-  async geriYukle() { await Purchases.restorePurchases(); }
-} : null;
+  yonet() { return NativePurchases.manageSubscriptions(); }
+};
 
 async function paylasDosya({ ad, metin, tip }) {
   const r = await Filesystem.writeFile({ path: ad, data: metin, directory: Directory.Cache, encoding: "utf8" });

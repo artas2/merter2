@@ -4,7 +4,7 @@ android {
     namespace = "com.bilinclisakin.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.bilinclisakin.mertercinar"
+        applicationId "com.bilinclisakin.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Mağazaya her yüklemede artar: CI'da SURUM_KODU (ör. çalıştırma numarası), yerelde 1

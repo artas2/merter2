@@ -1852,7 +1852,7 @@ function bnav(){
 let current="anasayfa";
 function route(){
   gnSay=10;
-  let v=(location.hash||"#anasayfa").slice(1); if(!(v in BY)&&!["anasayfa","bugun","hikmet","hizmet","gundem","harita","profil","sepet","etkinlik","magaza","firsat","kart","projeler","cerceve","sakinler","ayarlar"].includes(v)) v="anasayfa";
+  let v=(location.hash||"#anasayfa").slice(1); if(!(v in BY)&&!["anasayfa","bugun","hikmet","hizmet","gundem","harita","profil","sepet","etkinlik","magaza","firsat","kart","projeler","cerceve","sakinler","ayarlar","davetler"].includes(v)) v="anasayfa";
   current=v; render(true);
 }
 function render(scrollTop){
@@ -1862,7 +1862,8 @@ function render(scrollTop){
   if(v==="anasayfa") main.innerHTML=viewAnasayfa();
   else if(v==="harita") main.innerHTML=viewHarita();
   else if(v==="profil"){ const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input:not([type=checkbox])")) return; main.innerHTML=viewProfil(); }
-  else if(v==="sakinler") main.innerHTML=viewSakinler();
+  else if(v==="sakinler") main.innerHTML=(window.BS_YONETIM&&ADMIN?BS_YONETIM.giris():"")+viewSakinler();
+  else if(v==="davetler") main.innerHTML=window.BS_YONETIM&&ADMIN?BS_YONETIM.view():`<div class="pending">Bu bölüm yalnızca site yönetimine açık.</div>`;
   else if(v==="firsat"||v==="magaza"){ if(v==="magaza"){current="firsat";fSekme="hizmet"} const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input:not([type=checkbox]):not(#frAra),textarea")) return; main.innerHTML=viewFirsat(); }
   else if(v==="hikmet"){ main.innerHTML=viewHikmet(); }
   else if(v==="hizmet"){ const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input:not([type=checkbox]):not([type=radio]),textarea")) return; main.innerHTML=viewHizmet(); }

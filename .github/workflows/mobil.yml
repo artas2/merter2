@@ -27,7 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       API_TABAN: ${{ vars.API_TABAN }}
-      REVENUECAT_ANDROID: ${{ vars.REVENUECAT_ANDROID }}
       SURUM_KODU: ${{ github.run_number }}
       SURUM_ADI: ${{ inputs.surum || github.ref_name }}
     steps:
@@ -55,7 +54,6 @@ jobs:
     runs-on: macos-15
     env:
       API_TABAN: ${{ vars.API_TABAN }}
-      REVENUECAT_IOS: ${{ vars.REVENUECAT_IOS }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

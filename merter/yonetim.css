@@ -19,11 +19,11 @@
 .dm .title { margin-bottom: 12px; }
 
 /* Akan sekme: gösterge damla gibi yer değiştirir */
-.dm-sekme { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 5px; border-radius: 999px; background: var(--accent-soft); }
+.dm-sekme { position: relative; display: grid; grid-template-columns: repeat(var(--adet, 2), 1fr); padding: 5px; border-radius: 999px; background: var(--accent-soft); }
 .dm-sekme button { position: relative; z-index: 1; min-height: 44px; border: 0; background: none; border-radius: 999px; font: 700 15px var(--f-body); color: var(--muted); cursor: pointer; }
 .dm-sekme button[aria-selected="true"] { color: var(--ink); }
 .dm-sekme button b { display: inline-grid; place-items: center; min-width: 22px; height: 22px; margin-left: 4px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--sheet); font-size: 12px; }
-.dm-sekme-iz { position: absolute; top: 5px; bottom: 5px; left: 5px; width: calc(50% - 5px); border-radius: 999px; background: var(--sheet);
+.dm-sekme-iz { position: absolute; top: 5px; bottom: 5px; left: 5px; width: calc((100% - 10px) / var(--adet, 2)); border-radius: 999px; background: var(--sheet);
   box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 22%, transparent); transform: translateX(calc(var(--konum) * 100%)); }
 
 .dm-not { margin: 0 0 12px; padding: 10px 16px; border-radius: 999px; background: var(--ok-soft, var(--accent-soft)); font-size: 14px; }
@@ -139,3 +139,9 @@
 @keyframes dm-dalga { 0%, 100% { border-radius: 45% 55% 0 0 / 14px 14px 0 0; transform: translateX(0); } 50% { border-radius: 55% 45% 0 0 / 14px 14px 0 0; transform: translateX(6%); } }
 @keyframes dm-damla-dol { 0% { transform: scale(.4); } 100% { transform: scale(1); } }
 @keyframes dm-zipla { 0%, 100% { transform: translateY(0) scale(1, 1); opacity: .35; } 40% { transform: translateY(-12px) scale(.9, 1.1); opacity: 1; } 70% { transform: translateY(0) scale(1.15, .85); } }
+
+/* Şikâyetler */
+.dm-alinti { margin: 4px 0; padding: 8px 14px; border-radius: 18px; background: var(--paper); font-style: italic; overflow-wrap: anywhere; }
+.dm-hap.on { background: var(--accent); border-color: var(--accent); color: var(--sheet); }
+.dm-uyari-k { color: var(--warn) !important; }
+.dm-kabarcik.sk .dm-avatar { background: radial-gradient(circle at 32% 28%, color-mix(in srgb, #fff 35%, var(--warn)), var(--warn) 70%); }

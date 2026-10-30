@@ -9,6 +9,11 @@ const { Hata } = V;
 const { createAbonelik, MagazaHatasi } = require("./abonelik");
 const { createBelgeler } = require("./belgeler");
 const { merterSayfasi, merterDosyalari } = require("../merter/sablon");
+const { Hub } = require("./hub");
+const { createOrtak } = require("./arena-ortak");
+const { createArena } = require("./arena");
+const { createSohbet } = require("./sohbet");
+const { arenaRotalari } = require("./arena-rotalar");
 
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 const MARKED_PATH = path.join(__dirname, "..", "node_modules", "marked", "marked.min.js");
@@ -112,13 +117,23 @@ function createApp(opts) {
   };
 
   /* ---------- Yardımcılar ---------- */
+  /* Site ayarı ve kataloğu her istekte okunur; JSON yalnızca değiştiğinde yeniden ayrıştırılır (yoğun trafikte CPU tasarrufu). */
+  const siteOnbellek = new Map();
   function siteYukle(id) {
     const s = q.site.get(id);
     if (!s) return null;
+    const e = siteOnbellek.get(id);
+    if (e && e.ayarlar === s.ayarlar && e.katalog === s.katalog) return { ...s, ayar: e.v.ayar, katalog: e.v.katalog };
+    const v = siteAyristir(s);
+    if (siteOnbellek.size > 5000) siteOnbellek.clear();
+    siteOnbellek.set(id, { ayarlar: s.ayarlar, katalog: s.katalog, v });
+    return { ...s, ayar: v.ayar, katalog: v.katalog };
+  }
+  function siteAyristir(s) {
     let ayar = {}, katalog = {};
     try { ayar = JSON.parse(s.ayarlar); } catch (_) { /* boş */ }
     try { katalog = JSON.parse(s.katalog); } catch (_) { /* boş */ }
-    return { ...s, ayar: { ...O.varsayilanAyar(), ...ayar }, katalog: { urunler: Array.isArray(katalog.urunler) ? katalog.urunler : [], tur: { id: "", ad: "", sonTarih: "", teslim: "", acik: false, ...(katalog.tur || {}) } } };
+    return { ayar: { ...O.varsayilanAyar(), ...ayar }, katalog: { urunler: Array.isArray(katalog.urunler) ? katalog.urunler : [], tur: { id: "", ad: "", sonTarih: "", teslim: "", acik: false, ...(katalog.tur || {}) } } };
   }
   function etkinDurum(site) {
     if (site.durum === "deneme" && site.deneme_bitis) {
@@ -613,6 +628,14 @@ function createApp(opts) {
   const BL = createBelgeler({ db, now, sirri: cfg.sessionSecret, abonelikAktif: (userId, siteId) => {
     const site = q.site.get(siteId); return !!site && AB.durum(userId, site, etkinDurum(site)).aktif;
   } });
+  // --- Arena, sohbet, şikâyet ---
+  const HUB = new Hub();
+  const ORT = createOrtak({ db, now, kimlik: BL.kimlik });
+  const AR = createArena({ db, now, hub: HUB, ortak: ORT, kimlik: BL.kimlik, ayar: cfg.arena });
+  const SH = createSohbet({ db, now, hub: HUB, ortak: ORT, kimlik: BL.kimlik, bl: BL });
+  arenaRotalari({ rota, izin, AR, SH, premiumMu: ctx => AB.durum(ctx.user.id, ctx.site, etkinDurum(ctx.site)).aktif });
+  if (cfg.arenaTick !== false) { const z = setInterval(() => { try { AR.tick(); } catch (e) { cfg.log("[arena]", e.message); } }, 10000); z.unref(); }
+
   rota("POST", "/api/db", "uye", ctx => {
     if (["set", "update", "delete"].includes(ctx.body.op)) {
       if (etkinDurum(ctx.site) === "askida") throw new Hata(403, "Site aboneliği askıda: şu anda yalnızca görüntüleme yapılabilir.");
@@ -706,6 +729,7 @@ function createApp(opts) {
       }
     }
     const sonuc = await r.fn(ctx);
+    if (sonuc && sonuc._akis) return; // yanıtı rota kendisi yazdı (canlı akış)
     if (sonuc && sonuc._ham !== undefined) {
       res.writeHead(200, { "Content-Type": sonuc._tip || "text/csv; charset=utf-8", "Cache-Control": "no-store",
         "Content-Disposition": `attachment; filename="${sonuc._dosya}"` });
@@ -794,7 +818,7 @@ function createApp(opts) {
     }
   }
 
-  return { handler, db, sms, cfg, siteYukle, davetOlustur, davetGoster };
+  return { handler, db, sms, cfg, siteYukle, davetOlustur, davetGoster, arena: AR, sohbet: SH, hub: HUB, ortak: ORT, belgeler: BL };
 }
 
 module.exports = { createApp, csv };

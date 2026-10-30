@@ -148,7 +148,77 @@ const MIGRATIONS = [
   /* 5: abonelik doğrudan mağazalarla (RevenueCat yok): mağaza kaydı kimliği; hesap kimliği artık UUID (StoreKit appAccountToken). */
   `ALTER TABLE abonelikler ADD COLUMN harici_id TEXT;
    CREATE UNIQUE INDEX abonelikler_harici ON abonelikler(magaza, harici_id) WHERE harici_id IS NOT NULL;
-   UPDATE users SET abone_id = NULL WHERE abone_id NOT LIKE '%-%';`
+   UPDATE users SET abone_id = NULL WHERE abone_id NOT LIKE '%-%';`,
+  /* 6: Arena (bilgi yarışması, sezon, turnuva), sohbet, şikâyet, engel ve susturma. */
+  `CREATE TABLE sezonlar (
+     id INTEGER PRIMARY KEY, site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+     ad TEXT NOT NULL, baslangic INTEGER NOT NULL, bitis INTEGER NOT NULL
+   );
+   CREATE INDEX sezonlar_site ON sezonlar(site_id, bitis);
+   CREATE TABLE sezon_puan (
+     sezon_id INTEGER NOT NULL REFERENCES sezonlar(id) ON DELETE CASCADE,
+     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     site_id INTEGER NOT NULL, blok TEXT NOT NULL DEFAULT '', ad TEXT NOT NULL DEFAULT '',
+     puan INTEGER NOT NULL DEFAULT 0, mac INTEGER NOT NULL DEFAULT 0, galibiyet INTEGER NOT NULL DEFAULT 0,
+     gun TEXT NOT NULL DEFAULT '', gun_puan INTEGER NOT NULL DEFAULT 0,
+     PRIMARY KEY (sezon_id, user_id)
+   );
+   CREATE INDEX sezon_puan_sira ON sezon_puan(sezon_id, puan DESC);
+   CREATE TABLE kart_ogrenme (site_id INTEGER NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     kart_id TEXT NOT NULL, zaman INTEGER NOT NULL, PRIMARY KEY (site_id, user_id, kart_id));
+   CREATE TABLE turnuvalar (
+     id INTEGER PRIMARY KEY, site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+     ad TEXT NOT NULL, baslangic INTEGER NOT NULL, tur_araligi_ms INTEGER NOT NULL, max_kisi INTEGER NOT NULL,
+     durum TEXT NOT NULL DEFAULT 'kayit' CHECK (durum IN ('kayit','oynaniyor','bitti','iptal')),
+     sezon_id INTEGER, sampiyon INTEGER, olusturan INTEGER, olusturma INTEGER NOT NULL
+   );
+   CREATE INDEX turnuvalar_site ON turnuvalar(site_id, durum);
+   CREATE TABLE turnuva_katilim (
+     turnuva_id INTEGER NOT NULL REFERENCES turnuvalar(id) ON DELETE CASCADE,
+     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     tohum INTEGER NOT NULL, zaman INTEGER NOT NULL, PRIMARY KEY (turnuva_id, user_id)
+   );
+   CREATE TABLE maclar (
+     id TEXT PRIMARY KEY, site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+     tur TEXT NOT NULL CHECK (tur IN ('canli','antrenman','turnuva')), turnuva_mac_id INTEGER,
+     a_user INTEGER REFERENCES users(id) ON DELETE SET NULL, b_user INTEGER REFERENCES users(id) ON DELETE SET NULL,
+     t0 INTEGER NOT NULL, soru_ms INTEGER NOT NULL, ara_ms INTEGER NOT NULL, sorular TEXT NOT NULL,
+     bitti INTEGER NOT NULL DEFAULT 0, a_puan INTEGER NOT NULL DEFAULT 0, b_puan INTEGER NOT NULL DEFAULT 0, kazanan INTEGER,
+     sezon_id INTEGER, olusturma INTEGER NOT NULL
+   );
+   CREATE INDEX maclar_a ON maclar(a_user, bitti); CREATE INDEX maclar_b ON maclar(b_user, bitti);
+   CREATE TABLE mac_cevap (
+     mac_id TEXT NOT NULL REFERENCES maclar(id) ON DELETE CASCADE, user_id INTEGER NOT NULL, soru_no INTEGER NOT NULL,
+     secim INTEGER NOT NULL, sure_ms INTEGER NOT NULL, dogru INTEGER NOT NULL, puan INTEGER NOT NULL,
+     PRIMARY KEY (mac_id, user_id, soru_no)
+   );
+   CREATE TABLE turnuva_mac (
+     id INTEGER PRIMARY KEY, turnuva_id INTEGER NOT NULL REFERENCES turnuvalar(id) ON DELETE CASCADE,
+     tur INTEGER NOT NULL, sira INTEGER NOT NULL,
+     a_user INTEGER REFERENCES users(id) ON DELETE SET NULL, b_user INTEGER REFERENCES users(id) ON DELETE SET NULL,
+     slot INTEGER NOT NULL, a_hazir INTEGER NOT NULL DEFAULT 0, b_hazir INTEGER NOT NULL DEFAULT 0,
+     durum TEXT NOT NULL DEFAULT 'bekle' CHECK (durum IN ('bekle','oynuyor','bitti')),
+     kazanan INTEGER, neden TEXT NOT NULL DEFAULT '', mac_id TEXT
+   );
+   CREATE INDEX turnuva_mac_t ON turnuva_mac(turnuva_id, tur, sira);
+   CREATE TABLE sohbet (
+     id INTEGER PRIMARY KEY AUTOINCREMENT, site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, oda TEXT NOT NULL,
+     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, kim TEXT NOT NULL, ad TEXT NOT NULL, blok TEXT NOT NULL DEFAULT '',
+     metin TEXT NOT NULL, zaman INTEGER NOT NULL, gizli INTEGER NOT NULL DEFAULT 0
+   );
+   CREATE INDEX sohbet_oda ON sohbet(site_id, oda, id);
+   CREATE TABLE sikayetler (
+     id INTEGER PRIMARY KEY AUTOINCREMENT, site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+     bildiren INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, hedef_tur TEXT NOT NULL, hedef_ref TEXT NOT NULL,
+     hedef_user INTEGER REFERENCES users(id) ON DELETE SET NULL, sebep TEXT NOT NULL, aciklama TEXT NOT NULL DEFAULT '',
+     ozet TEXT NOT NULL DEFAULT '', durum TEXT NOT NULL DEFAULT 'acik' CHECK (durum IN ('acik','kapandi')),
+     karar TEXT NOT NULL DEFAULT '', zaman INTEGER NOT NULL, UNIQUE (site_id, bildiren, hedef_tur, hedef_ref)
+   );
+   CREATE INDEX sikayetler_site ON sikayetler(site_id, durum, id);
+   CREATE TABLE engeller (site_id INTEGER NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     engellenen INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, PRIMARY KEY (site_id, user_id, engellenen));
+   CREATE TABLE susturmalar (site_id INTEGER NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     bitis INTEGER NOT NULL, neden TEXT NOT NULL DEFAULT '', PRIMARY KEY (site_id, user_id));`
 ];
 
 function openDb(file) {

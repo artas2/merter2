@@ -16,8 +16,9 @@
   async function yukle() {
     if (S.yukleniyor) return; S.yukleniyor = true;
     try {
-      const [d, u, sk] = await Promise.all([api("GET", "/api/yonetim/davetler"), api("GET", "/api/yonetim/uyeler"), api("POST", "/api/db", { op: "koleksiyon", yol: "sakinler" }).catch(() => ({ belgeler: [] }))]);
-      S.davetler = d.davetler; S.uyeler = u.uyeler; S.adlar = Object.fromEntries(sk.belgeler.map(b => [b.id, (b.veri && b.veri.ad) || ""])); S.hata = "";
+      const [d, u, sk, sik] = await Promise.all([api("GET", "/api/yonetim/davetler"), api("GET", "/api/yonetim/uyeler"), api("POST", "/api/db", { op: "koleksiyon", yol: "sakinler" }).catch(() => ({ belgeler: [] })),
+        api("GET", "/api/yonetim/sikayetler" + (S.kapananlar ? "?durum=kapandi" : "")).catch(() => ({ sikayetler: [] }))]);
+      S.davetler = d.davetler; S.uyeler = u.uyeler; S.sikayetler = sik.sikayetler; S.adlar = Object.fromEntries(sk.belgeler.map(b => [b.id, (b.veri && b.veri.ad) || ""])); S.hata = "";
     } catch (e) { S.hata = e.message; S.davetler = S.davetler || []; S.uyeler = S.uyeler || []; }
     S.yukleniyor = false; yenidenCiz();
   }
@@ -33,12 +34,28 @@
   function gorunum() {
     if (S.davetler === null && !S.yukleniyor) setTimeout(yukle, 0);
     const ust = `<div class="dm-ust"><p class="eyebrow">${h(site())} · yalnızca yönetim</p><h2 class="title">Davetler ve üyeler</h2>
-      <div class="dm-sekme" role="tablist" style="--konum:${S.sekme === "davet" ? 0 : 1}"><span class="dm-sekme-iz" aria-hidden="true"></span>
+      <div class="dm-sekme" role="tablist" style="--adet:3;--konum:${{ davet: 0, uye: 1, sikayet: 2 }[S.sekme]}"><span class="dm-sekme-iz" aria-hidden="true"></span>
         <button type="button" role="tab" aria-selected="${S.sekme === "davet"}" data-dm="sekme:davet">Davet kodları</button>
-        <button type="button" role="tab" aria-selected="${S.sekme === "uye"}" data-dm="sekme:uye">Üyeler${S.uyeler ? ` <b>${S.uyeler.length}</b>` : ""}</button></div></div>`;
+        <button type="button" role="tab" aria-selected="${S.sekme === "uye"}" data-dm="sekme:uye">Üyeler${S.uyeler ? ` <b>${S.uyeler.length}</b>` : ""}</button>
+        <button type="button" role="tab" aria-selected="${S.sekme === "sikayet"}" data-dm="sekme:sikayet">Şikâyet${S.sikayetler && S.sikayetler.length && !S.kapananlar ? ` <b>${S.sikayetler.length}</b>` : ""}</button></div></div>`;
     const not = `${S.hata ? `<p class="dm-not hata" role="alert">${h(S.hata)}</p>` : ""}${S.durum ? `<p class="dm-not" role="status">${h(S.durum)}</p>` : ""}`;
     if (S.davetler === null) return `<section class="dm">${ust}<div class="dm-bekle" aria-busy="true"><span></span><span></span><span></span></div></section>`;
-    return `<section class="dm">${ust}${not}${S.sekme === "davet" ? davetGorunum() : uyeGorunum()}</section>`;
+    return `<section class="dm">${ust}${not}${S.sekme === "davet" ? davetGorunum() : S.sekme === "uye" ? uyeGorunum() : sikayetGorunum()}</section>`;
+  }
+
+  /* Şikâyetler: aynı içeriğe gelen şikâyetler tek kartta toplanır. Karar: içeriği gizle, yoksay ya da kişiyi sustur. */
+  const TUR = { mesaj: "Sohbet mesajı", gonderi: "Gündem gönderisi", yorum: "Yorum", kisi: "Kişi" };
+  function sikayetGorunum() {
+    const l = S.sikayetler || [];
+    let x = `<p class="lvl">Sakinler uygunsuz içeriği şikâyet eder; 3 farklı kişi şikâyet edince içerik kendiliğinden gizlenir. Kimin şikâyet ettiği içerik sahibine gösterilmez.</p>
+      <div class="dm-eylem" style="justify-content:flex-start"><button type="button" class="dm-hap kucuk${S.kapananlar ? "" : " on"}" data-dm="skListe:acik">Açık</button><button type="button" class="dm-hap kucuk${S.kapananlar ? " on" : ""}" data-dm="skListe:kapandi">Karar verilenler</button></div>`;
+    if (!l.length) return x + `<div class="dm-bos">${damla(0, "")}<p>${S.kapananlar ? "Karar verilmiş şikâyet yok." : "Açık şikâyet yok."}</p></div>`;
+    return x + `<ul class="dm-liste">${l.map((s, i) => `<li class="dm-kabarcik sk" style="--i:${i}"><span class="dm-avatar" aria-hidden="true">${s.adet}</span>
+      <div class="dm-govde"><b>${h(TUR[s.tur] || s.tur)}${s.kisi ? ` · ${h(s.kisi.ad)}${s.kisi.blok ? " (" + h(s.kisi.blok) + " Blok)" : ""}` : ""}</b>
+        ${s.ozet ? `<p class="dm-alinti">“${h(s.ozet)}”</p>` : ""}<small>${s.adet} şikâyet · ${h(s.sebepler.join(", "))} · ${new Date(s.son).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small>
+        ${s.aciklamalar.length ? `<small>Açıklama: ${s.aciklamalar.map(h).join(" · ")}</small>` : ""}${s.kisi && s.kisi.susturma ? `<small class="dm-uyari-k">Susturuldu: ${new Date(s.kisi.susturma).toLocaleString("tr-TR")}</small>` : ""}</div>
+      ${S.kapananlar ? "" : `<div class="dm-eylem">${s.tur !== "kisi" ? `<button type="button" class="dm-hap kucuk" data-dm="skKarar:${s.id}:gizle">İçeriği gizle</button>` : ""}<button type="button" class="dm-hap kucuk" data-dm="skKarar:${s.id}:yoksay">Yoksay</button>
+        <button type="button" class="dm-hap kucuk tehlike" data-dm="skKarar:${s.id}:sustur">24 saat sustur</button>${s.kisi && s.kisi.susturma ? `<button type="button" class="dm-hap kucuk" data-dm="susturKaldir:${h(s.kisi.kim)}">Susturmayı kaldır</button>` : ""}</div>`}</li>`).join("")}</ul>`;
   }
 
   function davetGorunum() {
@@ -101,6 +118,14 @@
     if (k === "max" || k === "gun") { formOku(); if (k === "max") S.form.max = Math.min(500, Math.max(1, S.form.max + Number(x) * (S.form.max >= 10 ? 5 : 1))); else S.form.gun = Math.min(90, Math.max(1, S.form.gun + Number(x))); return yenidenCiz(); }
     if (k === "kopya") { try { await navigator.clipboard.writeText(x); S.durum = `${x} kopyalandı.`; } catch (e) { S.durum = "Kopyalanamadı; kodu basılı tutup seçebilirsiniz."; } return yenidenCiz(); }
     if (k === "paylas") { const d = S.davetler.find(z => z.kod === x) || S.yeni; try { await navigator.share({ title: "Davet kodu", text: paylasMetni(d) }); } catch (e) { /* vazgeçildi */ } return; }
+    if (k === "skListe") { S.kapananlar = x === "kapandi"; return yukle(); }
+    if (k === "skKarar" || k === "susturKaldir") {
+      try {
+        if (k === "skKarar") { const [id, karar] = x.split(":"); await api("PATCH", "/api/yonetim/sikayetler/" + id, { karar, saat: 24 }); S.durum = { gizle: "İçerik gizlendi.", yoksay: "Şikâyet kapatıldı.", sustur: "Kişi 24 saat susturuldu ve içerik gizlendi." }[karar]; }
+        else { await api("DELETE", "/api/yonetim/sustur/" + encodeURIComponent(x)); S.durum = "Susturma kaldırıldı."; }
+        return yukle();
+      } catch (e) { S.hata = e.message; return yenidenCiz(); }
+    }
     if (k === "iptalSor") { S.iptalSor = x; return yenidenCiz(); }
     if (k === "iptalHayir") { S.iptalSor = null; return yenidenCiz(); }
     if (k === "cikarSor") { S.cikarSor = Number(x); return yenidenCiz(); }

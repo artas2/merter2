@@ -195,7 +195,14 @@ function createBelgeler({ db, now, sirri, abonelikAktif }) {
     return satirlar.length;
   }
 
-  return { islem, akis, varlikYukle, varlikSil, varlik, kimlik, baglam, kisiSil };
+  /* Sistem içi (kullanıcı kurallarından bağımsız) okuma ve birleştirme: moderasyon gibi sunucu işleri için. */
+  function sistemOku(siteId, yol) { return oku({ siteId }, yol.split("/")); }
+  function sistemGuncelle(siteId, yol, yama) {
+    const p = yol.split("/"), b = { siteId }, eski = oku(b, p);
+    if (eski === null) return false;
+    kaydet(b, p, birlestir(eski, yama)); return true;
+  }
+  return { islem, akis, varlikYukle, varlikSil, varlik, kimlik, baglam, kisiSil, sistemOku, sistemGuncelle };
 }
 
 module.exports = { createBelgeler, KURALLAR, kuralBul, birlestir };

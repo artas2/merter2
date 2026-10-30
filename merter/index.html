@@ -1685,12 +1685,12 @@ function gundemOgeleri(){
   TRN.filter(t=>t.aktif!==false).forEach(t=>(t.maclar||[]).filter(m=>m.evS!==""&&m.depS!=="").forEach(m=>o.push({k:"mac:"+m.id,tip:"mac",t:(m.tarih&&new Date(m.tarih).getTime())||tsId(m.id)||0,baslik:t.ad,metin:`${m.ev} ${m.evS} – ${m.depS} ${m.dep}`,link:"#etkinlik",m})));
   FRS.filter(gecerli).forEach(f=>o.push({k:"frs:"+f.id,tip:"firsat",t:f.eklendi||0,baslik:`${f.isletme}${f.oran?" · %"+f.oran:""}`,metin:f.baslik+(f.bitis?` · son gün ${new Date(f.bitis+"T12:00").toLocaleDateString("tr-TR")}`:""),link:"#firsat"}));
   if(KAT.tur.id)o.push({k:"tur:"+KAT.tur.id,tip:"tur",t:tsId(KAT.tur.id),baslik:"Alışveriş turu açıldı",metin:`${KAT.tur.ad||"Pazar ve market"}${KAT.tur.teslim?" · Teslim: "+KAT.tur.teslim:""}`,link:"#sepet"});
-  if(premium())Object.entries(GND).forEach(([uid,d])=>Object.entries(d.posts||{}).forEach(([pid,p])=>{if(!p||(p.gizli&&!ADMIN&&uid!==UID))return;o.push({k:`p:${uid}:${pid}`,tip:"gonderi",uid,pid,t:p.t||0,metin:p.metin||"",foto:p.foto||"",yazar:p.yazar||"Sakin",sabit:!!p.sabit,gizli:!!p.gizli})}));
+  if(premium())Object.entries(GND).forEach(([uid,d])=>Object.entries(d.posts||{}).forEach(([pid,p])=>{if(!p||(p.gizli&&!ADMIN&&uid!==UID)||(window.BS_SIKAYET&&BS_SIKAYET.engelli(uid)))return;o.push({k:`p:${uid}:${pid}`,tip:"gonderi",uid,pid,t:p.t||0,metin:p.metin||"",foto:p.foto||"",yazar:p.yazar||"Sakin",sabit:!!p.sabit,gizli:!!p.gizli})}));
   return o.sort((a,b)=>(b.sabit?1:0)-(a.sabit?1:0)||b.t-a.t);
 }
 const ETIKET={firsat:["etiket","Fırsat"],duyuru:["duyuru","Duyuru"],etkinlik:["takvim","Etkinlik"],mac:["kupa","Turnuva"],tur:["sepet","Pazar ve market"],gonderi:["kisi","Paylaşım"]};
 function begSay(k){return Object.values(BEG).reduce((n,d)=>n+(d?.liked?.[k]?1:0),0)}
-function yorumlar(k){const l=[];Object.entries(YRM).forEach(([uid,d])=>Object.entries(d?.items||{}).forEach(([cid,c])=>{if(c&&c.k===k&&(!c.gizli||ADMIN))l.push({uid,cid,...c})}));return l.sort((a,b)=>a.t-b.t)}
+function yorumlar(k){const l=[];Object.entries(YRM).forEach(([uid,d])=>Object.entries(d?.items||{}).forEach(([cid,c])=>{if(c&&c.k===k&&(!c.gizli||ADMIN)&&!(window.BS_SIKAYET&&BS_SIKAYET.engelli(uid)))l.push({uid,cid,...c})}));return l.sort((a,b)=>a.t-b.t)}
 const zaman=t=>{if(!t)return "";const d=(Date.now()-t)/6e4;if(d<1)return "şimdi";if(d<60)return `${Math.floor(d)} dk`;if(d<1440)return `${Math.floor(d/60)} sa`;if(d<10080)return `${Math.floor(d/1440)} gün`;return new Date(t).toLocaleDateString("tr-TR")};
 function benimEtiket(){if(ADMIN&&!profil)return "Site yönetimi";const ad=profil?.ad?String(profil.ad).split(" ")[0]:"";return profil?`${ad?ad+" · ":""}${profil.blok} Blok · Daire ${profil.daire}`:"Sakin"}
 function ogeKart(x){
@@ -1698,13 +1698,13 @@ function ogeKart(x){
   if(!premium())return `<article class="gk"><div class="gkh">${ikon(ik,"acc")}<span class="gkt">${et}</span><span class="gkz">${zaman(x.t)}</span></div><b>${esc(x.baslik||"")}</b><p>${esc(x.metin)}</p>${x.link?`<a class="mini lnk" href="${x.link}">Aç</a>`:""}</article>`;
   return `<article class="pk${x.sabit?" sabit":""}${x.gizli?" gizli":""}" data-k="${esc(x.k)}">
    <header class="pkh"><span class="av ${x.tip}">${x.tip==="gonderi"?esc(String(x.yazar).trim().charAt(0).toLocaleUpperCase("tr")):ikon(ik)}</span><div><b>${esc(x.tip==="gonderi"?x.yazar:et)}</b><small>${x.sabit?"Sabitlendi · ":""}${x.gizli?"Gizli · ":""}${zaman(x.t)}</small></div>
-    ${x.tip==="gonderi"&&(ADMIN||sahip)?`<details class="pkm"><summary aria-label="Seçenekler">⋯</summary><div>${ADMIN?`<button type="button" class="mini" data-gn="sabit:${x.uid}:${x.pid}">${x.sabit?"Sabitlemeyi kaldır":"Sabitle"}</button><button type="button" class="mini" data-gn="gizle:${x.uid}:${x.pid}">${x.gizli?"Göster":"Gizle"}</button>`:""}${sahip?`<button type="button" class="mini" data-gn="sil:${x.pid}">Sil</button>`:""}</div></details>`:""}</header>
+    ${x.tip==="gonderi"&&(ADMIN||sahip||window.BS_SIKAYET)?`<details class="pkm"><summary aria-label="Seçenekler">⋯</summary><div>${ADMIN?`<button type="button" class="mini" data-gn="sabit:${x.uid}:${x.pid}">${x.sabit?"Sabitlemeyi kaldır":"Sabitle"}</button><button type="button" class="mini" data-gn="gizle:${x.uid}:${x.pid}">${x.gizli?"Göster":"Gizle"}</button>`:""}${sahip?`<button type="button" class="mini" data-gn="sil:${x.pid}">Sil</button>`:""}${!sahip&&window.BS_SIKAYET?BS_SIKAYET.menu("gonderi",x.uid+":"+x.pid,x.uid):""}</div></details>`:""}</header>
    ${x.foto?`<div class="pkf"><img src="${esc(blobUrl(x.foto))}" alt="${esc((x.metin||"Gönderi fotoğrafı").slice(0,80))}" loading="lazy" onerror="this.parentNode.classList.add('yok')"><span>Fotoğraf yalnızca site üyelerine görünür</span></div>`
      :x.tip!=="gonderi"?`<div class="pkb ${x.tip}">${ikon(ik)}<b>${esc(x.baslik||"")}</b>${x.tip==="mac"?`<span class="skor">${esc(x.metin)}</span>`:""}</div>`:""}
    <div class="pka"><button type="button" class="lk${lk?" on":""}" data-gn="begen:${esc(x.k)}" aria-pressed="${lk}" aria-label="Beğen">${lk?"♥":"♡"}</button><span>${begSay(x.k)||""}</span>
     <button type="button" class="lk" data-gn="yac:${esc(x.k)}" aria-label="Yorumlar">${ikon("mesaj")}</button><span>${yl.length||""}</span>${x.link?`<a class="mini lnk" href="${x.link}" style="margin-left:auto">Aç</a>`:""}</div>
    ${x.tip!=="mac"&&x.metin?`<p class="pkt">${x.tip==="gonderi"?`<b>${esc(x.yazar)}</b> `:""}${esc(x.metin)}</p>`:""}
-   ${yl.length?`<div class="pky">${(acik?yl:yl.slice(-2)).map(c=>`<p${c.gizli?' class="gizli"':""}><b>${esc(c.yazar||"Sakin")}</b> ${esc(c.metin)}${c.uid===UID||ADMIN?` <button type="button" class="ys" data-gn="ysil:${c.uid}:${c.cid}" aria-label="Yorumu kaldır">×</button>`:""}</p>`).join("")}${yl.length>2&&!acik?`<button type="button" class="ys" data-gn="yac:${esc(x.k)}">${yl.length} yorumun tümünü gör</button>`:""}</div>`:""}
+   ${yl.length?`<div class="pky">${(acik?yl:yl.slice(-2)).map(c=>`<p${c.gizli?' class="gizli"':""}><b>${esc(c.yazar||"Sakin")}</b> ${esc(c.metin)}${c.uid===UID||ADMIN?` <button type="button" class="ys" data-gn="ysil:${c.uid}:${c.cid}" aria-label="Yorumu kaldır">×</button>`:""}${c.uid!==UID&&window.BS_SIKAYET?BS_SIKAYET.yorumDugme(c.uid+":"+c.cid,c.uid):""}</p>`).join("")}${yl.length>2&&!acik?`<button type="button" class="ys" data-gn="yac:${esc(x.k)}">${yl.length} yorumun tümünü gör</button>`:""}</div>`:""}
    ${acik?`<div class="pkc"><input id="yz-${esc(x.k)}" data-yz="${esc(x.k)}" maxlength="300" placeholder="Yorum yazın…"><button type="button" class="mini" data-gn="yorum:${esc(x.k)}">Gönder</button></div>`:""}
   </article>`;
 }
@@ -1833,6 +1833,7 @@ function viewAnasayfa(){
     const tr=TRN.find(t=>t.aktif!==false);if(tr){const tab=puanTablosu(tr),sira=tab.findIndex(r=>bizMi(r.ad))+1;
       h+=`<a class="hcard link" href="#etkinlik" data-tp-go="turnuva"><div class="hhead">${ikon("kupa","acc")}<h3>${esc(tr.ad)}</h3>${ikon("sag","go")}</div><p class="big">${sira?`${esc(AYAR.siteAdi)} ${sira}. sırada · ${tab[sira-1].p} puan`:`${tab.length} site yarışıyor`}</p><p class="meta">${esc(tr.brans||"")}${tab[0]&&tab[0].o?` · Lider: ${esc(tab[0].ad)}`:""}</p></a>`}
     h+=hizmetKarti();
+    if(window.BS_ARENA)h+=BS_ARENA.kart();
     {const fl=FRS.filter(gecerli).sort((a,b)=>(a.bitis||"9999").localeCompare(b.bitis||"9999")).slice(0,3);
      h+=`<a class="hcard link" href="#firsat"><div class="hhead">${ikon("etiket","acc")}<h3>Yakındaki fırsatlar</h3>${ikon("sag","go")}</div>${fl.length?`<ul class="mods">${fl.map(f=>`<li>${esc(f.isletme)} · ${esc(f.baslik)}${f.oran?`<span class="pill">%${+f.oran}</span>`:""}</li>`).join("")}</ul>`:`<p class="meta">Çevredeki indirimleri keşfedin, gördüğünüz fırsatları komşularınızla paylaşın.</p>`}</a>`;}}
   const yol=profil?onerilenYol(profil).slice(0,3):aktifM().slice(0,3).map(m=>m.code);
@@ -1852,7 +1853,7 @@ function bnav(){
 let current="anasayfa";
 function route(){
   gnSay=10;
-  let v=(location.hash||"#anasayfa").slice(1); if(!(v in BY)&&!["anasayfa","bugun","hikmet","hizmet","gundem","harita","profil","sepet","etkinlik","magaza","firsat","kart","projeler","cerceve","sakinler","ayarlar","davetler"].includes(v)) v="anasayfa";
+  let v=(location.hash||"#anasayfa").slice(1); if(!(v in BY)&&!["anasayfa","bugun","hikmet","hizmet","gundem","harita","profil","sepet","etkinlik","magaza","firsat","kart","projeler","cerceve","sakinler","ayarlar","davetler","arena"].includes(v)) v="anasayfa";
   current=v; render(true);
 }
 function render(scrollTop){
@@ -1863,6 +1864,7 @@ function render(scrollTop){
   else if(v==="harita") main.innerHTML=viewHarita();
   else if(v==="profil"){ const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input:not([type=checkbox])")) return; main.innerHTML=viewProfil(); }
   else if(v==="sakinler") main.innerHTML=(window.BS_YONETIM&&ADMIN?BS_YONETIM.giris():"")+viewSakinler();
+  else if(v==="arena") { if(window.BS_ARENA&&BS_ARENA.odakta())return; main.innerHTML=window.BS_ARENA?BS_ARENA.view():`<div class="pending">Arena telefon uygulamasında ve site sunucusunda çalışır.</div>`; }
   else if(v==="davetler") main.innerHTML=window.BS_YONETIM&&ADMIN?BS_YONETIM.view():`<div class="pending">Bu bölüm yalnızca site yönetimine açık.</div>`;
   else if(v==="firsat"||v==="magaza"){ if(v==="magaza"){current="firsat";fSekme="hizmet"} const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input:not([type=checkbox]):not(#frAra),textarea")) return; main.innerHTML=viewFirsat(); }
   else if(v==="hikmet"){ main.innerHTML=viewHikmet(); }

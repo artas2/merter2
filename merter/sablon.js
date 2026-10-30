@@ -22,10 +22,12 @@ ${csp ? `<meta http-equiv="Content-Security-Policy" content="${csp}">\n` : ""}<m
 <style>${SIFIRLAMA}</style>
 <link rel="stylesheet" href="${kok}claude-uyum.css">
 <link rel="stylesheet" href="${kok}yonetim.css">
+<link rel="stylesheet" href="${kok}arena.css">
 ${ayar}
 ${mobil ? `<script src="${kok}kopru.js"></script>\n` : ""}<script src="${kok}native.js"></script>
 <script src="${kok}claude-uyum.js"></script>
 <script src="${kok}yonetim.js"></script>
+<script src="${kok}arena.js"></script>
 </head><body>
 ${g}
 </body></html>
@@ -35,7 +37,7 @@ ${g}
 /* Sayfanın ihtiyaç duyduğu ek dosyalar: yayınlanan yol -> kaynak dosya */
 function merterDosyalari(depoKoku) {
   const m = __dirname, d = {};
-  for (const f of ["claude-uyum.js", "claude-uyum.css", "yonetim.js", "yonetim.css", "fonts.css"]) d[f] = path.join(m, f);
+  for (const f of ["claude-uyum.js", "claude-uyum.css", "yonetim.js", "yonetim.css", "arena.js", "arena.css", "fonts.css"]) d[f] = path.join(m, f);
   for (const f of fs.readdirSync(path.join(m, "fonts"))) d["fonts/" + f] = path.join(m, "fonts", f);
   for (const f of fs.readdirSync(path.join(m, "md"))) d["md/" + f] = path.join(m, "md", f);
   d["native.js"] = path.join(depoKoku, "public", "native.js");

@@ -10,6 +10,17 @@ Site sakinleri için tek uygulama (iOS / Android), tarayıcı sürümü ve sunuc
 | `public/` | Genel Bilinçli Sakin arayüzü ve yönetim paneli (davet kodları, üyeler, platform yönetimi), yasal sayfalar |
 | `docs/MAGAZA.md` | App Store ve Google Play adım adım yayın kılavuzu |
 
+## Arena (bilgi yarışması, sezon, turnuva, sohbet)
+
+- **Bilgi kartları:** Okunur, "kendini dene" ile öğrenilir (ücretsiz).
+- **Canlı düello:** Rastgele eşleşen iki sakin, 5 soru, sunucu puanlar.
+- **Sezon:** 28 gün; kişisel sıralama ve blok savaşı.
+- **Turnuva:** Belirli saatlerde oynanır; iki taraf da "hazırım" demelidir.
+- **Sohbet:** Site ve blok odaları, canlı akış (SSE).
+- **Şikâyet ve engelleme:** Gündem'de ve sohbette.
+
+Düello, turnuva ve sohbet Premium'dur. Kod: `src/arena.js`, `src/sohbet.js`, `merter/arena.js`. Ölçülen kapasite ve x100 yol haritası: **[docs/PERFORMANS.md](docs/PERFORMANS.md)** (`npm run yuk -- --kisi 1000 --sure 90`). Komutların yapay zekâ diline çevrilmesi: [docs/retorik-ustasi.md](docs/retorik-ustasi.md), [docs/KOMUT-GUNLUGU.md](docs/KOMUT-GUNLUGU.md).
+
 ## Hızlı başlangıç
 
 ```bash

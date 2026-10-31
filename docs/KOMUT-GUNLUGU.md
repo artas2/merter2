@@ -4,6 +4,31 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-10-31 · Rastgele aralıklarla değişsin, ekranlar aynı olmak zorunda değil
+
+**Kullanıcının sözleri:** "Ekran aynısı olmak zorunda değil, sadece random aralıklar ile değişmesini istiyorum; bu ileride belirli bir sürede olabilir."
+
+```
+HEDEF       : Duvar kâğıdı rastgele aralıklarla, rastgele metinle değişsin; ileride sabit süreye geçilebilsin.
+KAPSAM      : 1) Android "Rastgele aralıklarla" (önerilen): ana ve kilit ekranına birbirinden bağımsız rastgele metin;
+                 süre Sık 15–60 dk / Orta 1–3 sa / Seyrek 3–8 sa ya da sabit 30 dk–24 sa.
+              2) Rastgelelik deste mantığıyla: hepsi bir kez görünmeden tekrar yok, arka arkaya aynı metin yok.
+              3) "Her açılışta yeni" de rastgele ve iki ekran bağımsız.
+              4) iPhone Kestirmeler eylemine "Rastgele" seçeneği (varsayılan açık).
+KISITLAR    : Önce sor (push, yayın); doğrulanmayanı yazma; ücretsiz.
+BAŞARI      : Deste ve süre fonksiyonları testle doğrulanır (tekrar 0, sınırlar 15 dk–24 sa); arayüz testi seçimleri doğrular.
+VARSAYIMLAR : "Ekran aynısı olmak zorunda değil" iki anlama da geldiği için ikisi de karşılandı:
+              uygulamadaki günün metninden bağımsız, ana ve kilit ekranı da birbirinden bağımsız. Varsayılan: Orta (1–3 saat).
+BELİRSİZ    : "Belirli süre"nin değeri (seçeneklerle bırakıldı); iPhone'da rastgele aralık mümkün değil (sabit saatler).
+```
+
+**Puan: 90 (baş usta).**
+- Niyete sadakat 4, ölçülebilirlik 4, kısıtlar 4, yapı 4, dil 4.
+- Belirsizlik 3: iki anlam açıkça yazıldı.
+- Kısalık 3.
+
+---
+
 ## 2026-10-31 · Duvar kâğıdı ve kilit ekranı Hikmet ile birlikte değişsin
 
 **Kullanıcının sözleri (özet):** Ana sayfadaki günün ayeti/hadisi bölümünde duvar kâğıdı yapılabiliyor. Sayfa her değiştiğinde duvar kâğıdı ve kilit ekranı da değişsin; kişi telefonu her açtığında farklı bir hadis ya da ayet görsün.

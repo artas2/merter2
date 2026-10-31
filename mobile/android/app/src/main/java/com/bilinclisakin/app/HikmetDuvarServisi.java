@@ -17,7 +17,8 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.SurfaceHolder;
 
-/* Canlı duvar kâğıdı: telefon her açıldığında (ekran açılınca) sıradaki ayet ya da hadise geçer.
+/* Canlı duvar kâğıdı: telefon her açıldığında (ekran açılınca) rastgele yeni bir ayet ya da hadise geçer;
+   ana ve kilit ekranı birbirinden bağımsız seçilir.
    Kilit ekranındayken "kilit" düzeni (yazı aşağıda, saat alanı boş), kilit açılınca "ana" düzeni çizilir.
    Günlük modda her gün uygulamadaki "Günün ayeti/hadisi" gösterilir. Çizim yalnızca görünürken ve olay olunca yapılır (pil dostu). */
 public class HikmetDuvarServisi extends WallpaperService {
@@ -34,7 +35,10 @@ public class HikmetDuvarServisi extends WallpaperService {
             @Override
             public void onReceive(Context c, Intent i) {
                 if (Intent.ACTION_SCREEN_ON.equals(i.getAction())) {
-                    if (HikmetHavuz.MOD_ACILIS.equals(HikmetHavuz.mod(c)) && !isPreview()) HikmetHavuz.ilerlet(c);
+                    if (HikmetHavuz.MOD_ACILIS.equals(HikmetHavuz.mod(c)) && !isPreview()) {
+                        HikmetHavuz.siradakiRastgele(c, "ana");
+                        HikmetHavuz.siradakiRastgele(c, "kilit");
+                    }
                     ciz();
                 } else if (Intent.ACTION_USER_PRESENT.equals(i.getAction())) {
                     ciz();
@@ -74,7 +78,7 @@ public class HikmetDuvarServisi extends WallpaperService {
             if (s == null || en <= 0 || boy <= 0) return;
             KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
             String ekran = km != null && km.isKeyguardLocked() ? "kilit" : "ana";
-            int i = HikmetHavuz.sira(HikmetDuvarServisi.this);
+            int i = HikmetHavuz.gosterilen(HikmetDuvarServisi.this, ekran);
             String anahtar = ekran + ":" + i + ":" + en + "x" + boy;
             if (!anahtar.equals(sonAnahtar)) {
                 if (resim != null) { resim.recycle(); resim = null; }

@@ -137,15 +137,28 @@ public class BSDuvarPlugin extends Plugin {
         if (n <= 0 || n > 999) { call.reject("Geçersiz adet."); return; }
         HikmetHavuz.tercih(getContext()).edit().putInt("n", n).putString("surum", call.getString("surum", "")).remove("uygulanan").apply();
         if (HikmetHavuz.MOD_GUNLUK.equals(HikmetHavuz.mod(getContext()))) getBridge().execute(() -> GunlukDuvarAlici.uygula(getContext(), true));
+        else if (HikmetHavuz.MOD_ARALIK.equals(HikmetHavuz.mod(getContext()))) getBridge().execute(() -> GunlukDuvarAlici.degistir(getContext()));
         call.resolve(durumNesnesi());
     }
 
-    /* mod: "acilis" (canlı duvar kâğıdı, her açılışta yeni), "gunluk" (her gün yeni), "kapali" */
+    /* mod: "acilis" (canlı duvar kâğıdı, her açılışta rastgele yeni), "aralik" (rastgele ya da sabit aralıklarla),
+       "gunluk" (her gün günün metni), "kapali". aralik için aralikMin ve aralikMax dakika (eşitse sabit süre). */
     @PluginMethod
     public void otomatikAyarla(PluginCall call) {
         String mod = call.getString("mod", HikmetHavuz.MOD_KAPALI);
-        if (!HikmetHavuz.MOD_ACILIS.equals(mod) && !HikmetHavuz.MOD_GUNLUK.equals(mod) && !HikmetHavuz.MOD_KAPALI.equals(mod)) { call.reject("Geçersiz mod."); return; }
+        if (!HikmetHavuz.MOD_ACILIS.equals(mod) && !HikmetHavuz.MOD_GUNLUK.equals(mod) && !HikmetHavuz.MOD_ARALIK.equals(mod) && !HikmetHavuz.MOD_KAPALI.equals(mod)) { call.reject("Geçersiz mod."); return; }
         if (!HikmetHavuz.MOD_KAPALI.equals(mod) && HikmetHavuz.adet(getContext()) <= 0) { call.reject("Önce görseller hazırlanmalı."); return; }
+        if (HikmetHavuz.MOD_ARALIK.equals(mod)) {
+            int enAz = call.getInt("aralikMin", HikmetHavuz.aralikEnAz(getContext())), enCok = call.getInt("aralikMax", HikmetHavuz.aralikEnCok(getContext()));
+            if (enAz < HikmetHavuz.ARALIK_EN_AZ_DK || enCok > HikmetHavuz.ARALIK_EN_COK_DK || enAz > enCok) { call.reject("Aralık 15 dakika ile 24 saat arasında olmalı."); return; }
+            HikmetHavuz.tercih(getContext()).edit().putString("mod", mod).putInt("aralikMin", enAz).putInt("aralikMax", enCok).apply();
+            getBridge().execute(() -> {
+                boolean ok = GunlukDuvarAlici.degistir(getContext());
+                GunlukDuvarAlici.sonrakiniKur(getContext(), true);
+                JSObject r = durumNesnesi(); r.put("uygulandi", ok); call.resolve(r);
+            });
+            return;
+        }
         HikmetHavuz.tercih(getContext()).edit().putString("mod", mod).apply();
         if (HikmetHavuz.MOD_GUNLUK.equals(mod)) {
             GunlukDuvarAlici.zamanla(getContext());
@@ -181,7 +194,11 @@ public class BSDuvarPlugin extends Plugin {
         r.put("n", HikmetHavuz.adet(getContext()));
         r.put("surum", HikmetHavuz.tercih(getContext()).getString("surum", ""));
         r.put("canli", canliEtkin());
-        r.put("sira", HikmetHavuz.sira(getContext()));
+        r.put("ana", HikmetHavuz.adet(getContext()) > 0 ? HikmetHavuz.gosterilen(getContext(), "ana") : -1);
+        r.put("kilit", HikmetHavuz.adet(getContext()) > 0 ? HikmetHavuz.gosterilen(getContext(), "kilit") : -1);
+        r.put("aralikMin", HikmetHavuz.aralikEnAz(getContext()));
+        r.put("aralikMax", HikmetHavuz.aralikEnCok(getContext()));
+        r.put("sonraki", HikmetHavuz.tercih(getContext()).getLong("sonraki", 0));
         return r;
     }
 }

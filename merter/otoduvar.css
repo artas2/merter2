@@ -18,3 +18,9 @@
 .od-ios { margin-top: 12px; padding: 14px 16px; border-radius: 22px; background: var(--paper); font-size: 14px; }
 .od-ios ol { margin: 6px 0; padding-left: 20px; } .od-ios li { margin: 4px 0; } .od-ios small { color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) { .od-sec { transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), background-color .25s, border-color .25s; } .od-sec:active { transform: scale(.97); } }
+.od-aralik { margin: -2px 0 4px; padding: 12px 14px; border-radius: 22px; background: var(--paper); }
+.od-alt { margin: 4px 2px 6px; font: 700 12px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.od-cipler { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.od-cip { display: grid; justify-items: center; min-height: 44px; min-width: 64px; padding: 4px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--sheet); color: var(--ink); font: inherit; cursor: pointer; }
+.od-cip b { font-size: 14px; } .od-cip small { font-size: 11px; color: var(--muted); }
+.od-cip.on { background: var(--accent); border-color: var(--accent); color: var(--sheet); } .od-cip.on small { color: var(--sheet); opacity: .85; }

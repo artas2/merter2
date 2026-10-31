@@ -21,6 +21,8 @@ jobs:
       - run: npm ci && cd mobile && npm ci
       - run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
       - run: npm test
+      - name: Android yerel kod denetimi (Android 15 sınıflarına karşı derleme + mantık testleri)
+        run: cd mobile && ./denetim/java-denetim.sh
 
   android:
     needs: test

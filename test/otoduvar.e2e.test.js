@@ -45,13 +45,16 @@ const otp = async tel => {
 const kopru = plat => `
   window.Capacitor = { isNativePlatform: () => true, getPlatform: () => ${JSON.stringify(plat)} };
   const L = k => JSON.parse(localStorage.getItem(k) || "null"), Y = (k, v) => localStorage.setItem(k, JSON.stringify(v));
-  const durum = () => ({ platform: ${JSON.stringify(plat)}, mod: L("od-mod") || "kapali", n: L("od-n") || 0, surum: L("od-surum") || "", canli: !!L("od-canli") });
+  const durum = () => ({ platform: ${JSON.stringify(plat)}, mod: L("od-mod") || "kapali", n: L("od-n") || 0, surum: L("od-surum") || "", canli: !!L("od-canli"),
+    aralikMin: L("od-min") || 60, aralikMax: L("od-max") || 180, sonraki: L("od-sonraki") || 0 });
   window.__havuz = window.__havuz || {};
   window.BSNative = { tokenOku: async () => localStorage.getItem("t"), tokenYaz: async t => localStorage.setItem("t", t), tokenSil: async () => localStorage.removeItem("t"), magaza: null, paylasDosya: async () => {},
     duvar: { ayarla: null, kaydet: async () => {},
       havuzYaz: async ({ ad, base64 }) => { Y("od-yazim", (L("od-yazim") || 0) + 1); window.__havuz[ad] = base64.length; window.__son = { ad, base64 }; if (!window.__ilk) window.__ilk = { ad, base64 }; },
       havuzBitir: async ({ n, surum }) => { Y("od-n", n); Y("od-surum", surum); return durum(); },
-      otomatikAyarla: async ({ mod }) => { Y("od-mod", mod); if (mod === "acilis") Y("od-canli", true); Y("od-cagri", [...(L("od-cagri") || []), mod]); return { ...durum(), uygulandi: true }; },
+      otomatikAyarla: async ({ mod, aralikMin, aralikMax }) => { Y("od-mod", mod); if (mod === "acilis") Y("od-canli", true);
+        if (mod === "aralik") { Y("od-min", aralikMin); Y("od-max", aralikMax); Y("od-sonraki", Date.now() + aralikMin * 60000); }
+        Y("od-cagri", [...(L("od-cagri") || []), mod === "aralik" ? mod + ":" + aralikMin + "-" + aralikMax : mod]); return { ...durum(), uygulandi: true }; },
       otomatikDurum: async () => durum() } };`;
 async function uygulama(plat) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -82,7 +85,7 @@ test("Android: Hikmet'te otomatik duvar kâğıdı; 'Her açılışta yeni' tüm
   await git(p, "#hikmet");
   await p.waitForSelector(".od");
   const secenekler = await p.$$eval(".od-sec b", b => b.map(x => x.textContent));
-  assert.deepEqual(secenekler, ["Her açılışta yeni", "Her gün yeni", "Kapalı"]);
+  assert.deepEqual(secenekler, ["Rastgele aralıklarla", "Her açılışta yeni", "Her gün yeni", "Kapalı"]);
   assert.equal(await p.$eval('.od-sec[data-od="kapali"]', e => e.classList.contains("on")), true, "varsayılan kapalı");
   await p.screenshot({ path: path.join(KOK, "docs/screenshots/otomatik-duvar-kagidi.png") });
   const n = await p.evaluate(() => HK.length);
@@ -98,6 +101,15 @@ test("Android: Hikmet'te otomatik duvar kâğıdı; 'Her açılışta yeni' tüm
   const d = await p.evaluate(() => ({ n: JSON.parse(localStorage.getItem("od-n")), cagri: JSON.parse(localStorage.getItem("od-cagri")), surum: JSON.parse(localStorage.getItem("od-surum")), beklenen: BS_OTODUVAR._surum() }));
   assert.equal(d.n, n); assert.deepEqual(d.cagri, ["acilis"]); assert.equal(d.surum, d.beklenen);
   assert.match(await p.textContent(".od"), /telefonu her açtığınızda yeni bir ayet ya da hadis/);
+  // Rastgele aralıklarla (varsayılan 1–3 saat), sonra "Sık" ve sabit "3 saat"
+  await p.click('.od-sec[data-od="aralik"]');
+  await p.waitForFunction(() => document.querySelector('.od-sec[data-od="aralik"]')?.classList.contains("on") && document.querySelector(".od-aralik"));
+  assert.match(await p.textContent(".od"), /Sonraki değişim yaklaşık/);
+  assert.equal(await p.$eval(".od-cip.on b", e => e.textContent), "Orta");
+  await p.click('.od-cip[data-od-aralik="15:60"]'); await p.waitForFunction(() => document.querySelector(".od-cip.on b")?.textContent === "Sık");
+  await p.click('.od-cip[data-od-aralik="180:180"]'); await p.waitForFunction(() => document.querySelector(".od-cip.on b")?.textContent === "3 saat");
+  assert.deepEqual(await p.evaluate(() => JSON.parse(localStorage.getItem("od-cagri"))), ["acilis", "aralik:60-180", "aralik:15-60", "aralik:180-180"]);
+  await p.screenshot({ path: path.join(KOK, "docs/screenshots/otomatik-duvar-kagidi-aralik.png") });
   // "Her gün yeni"ye geçiş: görseller yeniden üretilmez
   const once = await p.evaluate(() => JSON.parse(localStorage.getItem("od-yazim")));
   await p.click('.od-sec[data-od="gunluk"]');
@@ -127,7 +139,7 @@ test("iPhone: 'Her açılışta' seçeneği yok; 'Her gün yeni' görselleri ür
   const { page: p, hatalar, context } = await uygulama("ios");
   await gir(p, "0532 200 00 02", sakinDavet);
   await git(p, "#hikmet"); await p.waitForSelector(".od");
-  assert.deepEqual(await p.$$eval(".od-sec b", b => b.map(x => x.textContent)), ["Her gün yeni", "Kapalı"]);
+  assert.deepEqual(await p.$$eval(".od-sec b", b => b.map(x => x.textContent)), ["Belirli saatlerde", "Kapalı"]);
   await p.click('.od-sec[data-od="gunluk"]');
   await p.waitForSelector(".od-ios", { timeout: 150000 });
   const t = await p.textContent(".od-ios");

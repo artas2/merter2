@@ -20,7 +20,7 @@ Bu belge, **Bilinçli Sakin** mobil uygulamasını (klasör: `mobile/`) mağazal
 | Gizlilik politikası, kullanım koşulları | ✔ şablon; ☐ hukukçu kontrolü ve köşeli parantezleri doldurma |
 | İnceleme hesabı (SMS'siz giriş) | ✔ `INCELEME_TELEFON`, `INCELEME_KODU` |
 | Yerel özellik: duvar kâğıdı (Android'de doğrudan ayarlama, iOS'ta Fotoğraflar'a kaydetme) | ✔ |
-| Otomatik Hikmet duvar kâğıdı | ✔ Android: canlı duvar kâğıdı (her açılışta) ve günlük değişim; iOS: Kestirmeler eylemi. ☐ Gerçek cihazda deneme (özellikle Samsung kilit ekranı) |
+| Otomatik Hikmet duvar kâğıdı | ✔ Android: rastgele ya da sabit aralıkla (15 dk–24 sa), her açılışta (canlı duvar kâğıdı) ya da günlük; ana ve kilit ekranı ayrı ayrı. iOS: Kestirmeler eylemi (rastgele). Yerel kod `mobile/denetim/java-denetim.sh` ile Android 15 sınıflarına karşı denetlenir. ☐ Gerçek cihazda deneme (özellikle Samsung kilit ekranı) |
 | Uygulama ikonları | ✔ `mobile/kaynak/` |
 | Derleme hattı (GitHub Actions) | ✔ taslak `.github/workflows/mobil.yml`; ☐ sırlar, ilk çalıştırma |
 | Sunucu (barındırma, alan adı, SMS sağlayıcısı) | ☐ birlikte değerlendirilecek |

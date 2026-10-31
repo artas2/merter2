@@ -153,12 +153,19 @@ struct HikmetGorselIntent: AppIntent {
     static var description = IntentDescription("Günün ayeti ya da hadisinin duvar kâğıdı görselini verir. \"Duvar Kâğıdını Ayarla\" eylemiyle birlikte kullanın.")
     @Parameter(title: "Ekran", default: .kilit) var ekran: HikmetEkran
     @Parameter(title: "Her çalışmada sıradaki", default: false) var siradaki: Bool
+    @Parameter(title: "Rastgele", description: "Günün metni yerine rastgele bir ayet ya da hadis (son gösterilenden farklı).", default: true) var rastgele: Bool
 
     func perform() async throws -> some IntentResult & ReturnsValue<IntentFile> {
         let n = HikmetHavuz.adet
         guard n > 0 else { throw HikmetHata.havuzYok }
         var i = HikmetHavuz.gunIndeksi(n)
-        if siradaki {
+        if rastgele {
+            let d = UserDefaults.standard, anahtar = "bsHikmetSon_\(ekran.rawValue)"
+            let son = d.object(forKey: anahtar) == nil ? -1 : d.integer(forKey: anahtar)
+            i = Int.random(in: 0..<n)
+            if n > 1 && i == son { i = (i + 1 + Int.random(in: 0..<(n - 1))) % n }
+            d.set(i, forKey: anahtar)
+        } else if siradaki {
             let d = UserDefaults.standard
             i = (d.object(forKey: "bsHikmetSira") == nil ? i : (d.integer(forKey: "bsHikmetSira") + 1)) % n
             d.set(i, forKey: "bsHikmetSira")

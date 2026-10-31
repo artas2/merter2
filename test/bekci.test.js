@@ -27,7 +27,7 @@ test("Kurallar: masum sözcükler ve gündelik cümleler engellenmez (Scunthorpe
 test("Kişisel bilgi: IBAN, geçerli TC kimlik numarası ve e-posta maskelenir; geçersiz 11 haneli sayı korunur", () => {
   const d = B.degerlendir("Hesap TR33 0006 1005 1978 6457 8413 26 ve mail ali@ornek.com, TC 10000000146");
   assert.equal(d.metin, "Hesap [IBAN gizlendi] ve mail [e-posta gizlendi], TC [kimlik no gizlendi]"); assert.deepEqual(d.maskelenen.sort(), ["IBAN", "TC kimlik", "e-posta"]);
-  assert.equal(B.degerlendir("Sipariş no 12345678901").metin, "Sipariş no 12345678901"); assert.equal(B.tcGecerli("10000000146"), true); assert.equal(B.tcGecerli("10000000147"), false);
+  assert.equal(B.degerlendir("Sipariş no 12345678901").metin, "Sipariş no [numara gizlendi]", "geçersiz 11 haneli sayı TC değil, telefon benzeri olarak gizlenir"); assert.equal(B.tcGecerli("10000000146"), true); assert.equal(B.tcGecerli("10000000147"), false);
 });
 
 test("Eğitilmiş model: ayrı değerlendirme kümesinde ölçülen doğruluk; engelleme kararında temiz mesaj engellenmez", () => {

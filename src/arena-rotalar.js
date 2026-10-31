@@ -4,7 +4,7 @@
 const { Hata } = require("./validate");
 const PREMIUM_MESAJ = "Bu özellik Premium'a dahildir. Profil › Hesap ve abonelik'ten inceleyebilirsiniz; site yönetiminiz tüm sakinler için de açabilir.";
 
-function arenaRotalari({ rota, izin, AR, SH, premiumMu, GR, BK }) {
+function arenaRotalari({ rota, izin, AR, SH, premiumMu, GR, BK, MN }) {
   const premium = ctx => { if (!premiumMu(ctx)) throw new Hata(403, PREMIUM_MESAJ, "premium"); };
   const yonetimMi = ctx => ["site_yonetici", "site_denetci"].includes(ctx.uyelik.rol);
   const sayi = (v, ad) => { const n = Number(v); if (!Number.isInteger(n)) throw new Hata(400, `Geçersiz ${ad}.`); return n; };
@@ -78,6 +78,10 @@ function arenaRotalari({ rota, izin, AR, SH, premiumMu, GR, BK }) {
   // --- Moderasyon (yönetim) ---
   rota("GET", "/api/yonetim/sikayetler", "yonetim", ctx => SH.sikayetler(sk(ctx), ctx.url.searchParams.get("durum")));
   rota("PATCH", "/api/yonetim/sikayetler/:id", "yonetim", ctx => SH.sikayetKarar(sk(ctx), ctx.params.id, ctx.body.karar, ctx.body.saat || 24), { yazma: true });
+  /* Minnoş (bekçi kedi): yapay zekâ ile soru cevabı ve kahve falı. Servis kapalıysa { kaynak: "yok" } döner; istemci hazır cevaplarını kullanır. */
+  rota("GET", "/api/minnos/bilgi", "uye", ctx => ({ ...MN.bilgi(), kalan: MN.kalan(sk(ctx), uk(ctx)), premium: premiumMu(ctx) }));
+  rota("POST", "/api/minnos/sor", "uye", ctx => { if (!izin("minnos:" + uk(ctx), 8, 60000)) throw new Hata(429, "Minnoş biraz dinlensin, bir dakika sonra tekrar sor."); return MN.sor(sk(ctx), uk(ctx), premiumMu(ctx), ctx.body && ctx.body.soru); }, { yazma: true });
+  rota("POST", "/api/minnos/fal", "uye", ctx => { if (!izin("minnos:" + uk(ctx), 8, 60000)) throw new Hata(429, "Fincan biraz soğusun, bir dakika sonra tekrar dene."); return MN.fal(sk(ctx), uk(ctx), premiumMu(ctx), ctx.body || {}); }, { yazma: true });
   /* Bekçi: yönetim olayları görür ve "doğru/yanlış alarm" geri bildirimi verir (sonraki eğitimde kullanılır) */
   rota("GET", "/api/yonetim/bekci", "yonetim", ctx => BK.olaylar(sk(ctx)));
   rota("POST", "/api/yonetim/bekci/:id/geri-bildirim", "yonetim", ctx => { const r = BK.geriBildirim(sk(ctx), ctx.params.id, !!ctx.body.dogru); if (!r) throw new Hata(404, "Olay bulunamadı."); return r; }, { yazma: true });

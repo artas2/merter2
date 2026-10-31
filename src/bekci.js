@@ -44,6 +44,7 @@ const REKLAM = ["bahis", "casino", "kumar", "bet", "bonus", "kripto", "yatirim",
 const REKLAM_RE = REKLAM.map(k => new RegExp("(?:^|[^a-z0-9])" + k + "(?:[^a-z0-9]|$)"));
 const IBAN_RE = /\bTR\d{2}(?:\s?\d{4}){5}\s?\d{2}\b/gi;
 const EPOSTA_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+const TEL_RE = /(?:\+?9\s?0[\s.-]?)?\(?0?5\d{2}\)?[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}|\b\d{11}\b/g;
 const TC_RE = /\b[1-9]\d{10}\b/g;
 function tcGecerli(s) {
   const d = s.split("").map(Number); if (d.length !== 11 || d[0] === 0) return false;
@@ -134,6 +135,7 @@ function maskele(metin) {
   m = m.replace(IBAN_RE, () => { bulunan.push("IBAN"); return "[IBAN gizlendi]"; });
   m = m.replace(EPOSTA_RE, () => { bulunan.push("e-posta"); return "[e-posta gizlendi]"; });
   m = m.replace(TC_RE, s => { if (tcGecerli(s)) { bulunan.push("TC kimlik"); return "[kimlik no gizlendi]"; } return s; });
+  m = m.replace(TEL_RE, () => { bulunan.push("telefon"); return "[numara gizlendi]"; });
   return { metin: m, bulunan };
 }
 
@@ -181,7 +183,7 @@ function createBekci({ db, now, model = modelYukle() }) {
       if (karar === "engelle") {
         const gecmis = q.ihlal.get(siteId, userId, t - 24 * 3600e3).n + 1; // bu ihlal dahil
         const susturSayi = gecmis >= 6 ? 24 : gecmis >= 3 ? 1 : 0; susturSaat = susturSayi;
-        mesaj = `Bekçi Kedi uyarıyor: mesajınız gönderilmedi (${gerekce || "uygunsuz içerik"}). Lütfen komşularınıza saygılı olun.` + (susturSayi ? ` Tekrarlayan ihlal nedeniyle sohbete ${susturSayi === 24 ? "24 saat" : "1 saat"} yazamazsınız.` : gecmis === 2 ? " Bir ihlal daha olursa sohbete 1 saat yazamazsınız." : "");
+        mesaj = `Minnoş uyarıyor: mesajınız gönderilmedi (${gerekce || "uygunsuz içerik"}). Lütfen komşularınıza saygılı olun.` + (susturSayi ? ` Tekrarlayan ihlal nedeniyle sohbete ${susturSayi === 24 ? "24 saat" : "1 saat"} yazamazsınız.` : gecmis === 2 ? " Bir ihlal daha olursa sohbete 1 saat yazamazsınız." : "");
       }
       if (karar !== "izin" || turler.length) {
         const r = q.ekle.run(siteId, userId, oda, t, karar === "izin" ? "maske" : karar, d.skor, JSON.stringify(turler), kisalt(d.metin), kisalt(norm, 300), null);

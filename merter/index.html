@@ -306,7 +306,7 @@ table.lig td,table.lig th{padding:6px 8px;text-align:center;min-width:0}table.li
 textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);margin-top:6px;min-height:64px}
 @media (max-width:420px){.pcards{grid-template-columns:repeat(2,minmax(0,1fr))}.citem{flex-wrap:wrap}.step.big{width:100%}}
 
-/* ===== Bekçi Kedi: alaca dişi sokak kedisi maskot (kendi çizimimiz) ===== */
+/* ===== Minnoş (bekçi kedi): alaca dişi sokak kedisi maskot (kendi çizimimiz) ===== */
 .kedi{position:fixed;right:max(6px,env(safe-area-inset-right,0px));bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:25;width:78px;transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .3s}
 @media (min-width:821px){.kedi{bottom:18px}}
 .kedi.gizli{display:none}.kedi.kay{transform:translateX(46%)}
@@ -348,6 +348,46 @@ textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--l
 @keyframes kKalp{0%{opacity:0;transform:translate(0,0) scale(.4)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx,0),-70px) scale(1.15)}}
 @keyframes kGel{0%{transform:translateY(120%) scale(.8)}100%{transform:none}}
 @keyframes kKutu{0%{opacity:0;transform:translateY(40px) scale(.94)}100%{opacity:1;transform:none}}
+
+/* Minnoş paneli: soru-cevap ve kahve falı */
+.mn{position:fixed;inset:0;z-index:68;display:grid;place-items:end center;background:rgba(10,20,17,.5);backdrop-filter:blur(2px)}
+.mn-kutu{display:flex;flex-direction:column;width:min(480px,100%);height:min(640px,92vh);border-radius:30px 30px 0 0;background:var(--sheet);color:var(--ink);border:1px solid var(--line);box-shadow:0 -20px 60px rgba(0,0,0,.35);overflow:hidden}
+.mn-ust{display:flex;align-items:center;gap:10px;padding:12px 14px 8px}
+.mn-kedi{width:46px;flex:none}.mn-kedi svg{display:block;width:100%;height:auto;filter:none;overflow:visible}
+.mn-ad{display:grid;min-width:0;flex:1}.mn-ad b{font:800 17px var(--f-display)}.mn-ad small{font:600 12px var(--f-body);color:var(--muted)}
+.mn-kapat{min-width:44px;min-height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:700 18px var(--f-body);cursor:pointer}
+.mn-sekme{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 14px 8px;padding:4px;border-radius:999px;background:var(--accent-soft)}
+.mn-sekme button{min-height:44px;border:0;border-radius:999px;background:none;color:var(--muted);font:700 14px var(--f-body);cursor:pointer}.mn-sekme button[aria-selected="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.mn-durum{margin:0 14px 6px;padding:6px 12px;border-radius:999px;background:var(--paper);color:var(--muted);font:600 12px var(--f-body)}
+.mn-govde{flex:1;min-height:0;overflow-y:auto;padding:6px 14px 10px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain}
+.mn-msj{max-width:86%;padding:10px 14px;border-radius:20px 20px 20px 6px;background:var(--paper);border:1px solid var(--line);font:500 15px/1.45 var(--f-body);white-space:pre-wrap;overflow-wrap:anywhere}
+.mn-msj.ben{align-self:flex-end;border-radius:20px 20px 6px 20px;background:var(--accent);color:#fff;border-color:transparent}
+.mn-msj small{display:block;margin-top:4px;font:700 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.mn-msj.ai small{color:var(--accent)}
+.mn-oneri{display:flex;flex-wrap:wrap;gap:6px}.mn-oneri button{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--sheet);color:var(--ink);font:600 13px var(--f-body);cursor:pointer}
+.mn-yaz{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.mn-yaz input{min-width:0;min-height:48px;padding:0 18px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:16px var(--f-body)}
+.mn-yaz button,.mn-ana{min-height:48px;padding:0 20px;border-radius:999px;border:0;background:var(--accent);color:#fff;font:800 15px var(--f-body);cursor:pointer}
+.mn-yaz button:disabled,.mn-ana:disabled{opacity:.5;cursor:default}
+.mn-nokta{display:inline-flex;gap:4px;padding:4px 2px}.mn-nokta i{width:8px;height:8px;border-radius:50%;background:var(--muted);opacity:.5}
+.mn-etiket{margin:8px 0 4px;font:800 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mn-cip{display:flex;flex-wrap:wrap;gap:6px}.mn-cip button{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--sheet);color:var(--ink);font:700 13px var(--f-body);cursor:pointer}
+.mn-cip button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.mn-sem{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.mn-sem button{display:grid;justify-items:center;gap:2px;min-height:58px;padding:6px 2px;border-radius:18px;border:1.5px solid var(--line);background:var(--sheet);color:var(--ink);font:700 11px var(--f-body);cursor:pointer}
+.mn-sem button span{font-size:22px;line-height:1}.mn-sem button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.mn-niyet{min-height:48px;padding:0 18px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:16px var(--f-body);width:100%}
+.mn-fincan{display:grid;justify-items:center;gap:8px;padding:10px 0}.mn-fincan svg{width:120px;height:auto;overflow:visible}
+.mn-fal{padding:16px;border-radius:24px;background:linear-gradient(150deg,var(--accent-soft),var(--sheet));border:1px solid var(--line);font:500 15px/1.6 var(--f-body);white-space:pre-wrap}
+.mn-not{margin:0;font:500 12px/1.4 var(--f-body);color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+ .mn-kutu{animation:mnAc .45s cubic-bezier(.34,1.56,.64,1) both}.mn-msj{animation:mnMsj .35s cubic-bezier(.34,1.56,.64,1) both}
+ .mn-nokta i{animation:mnNokta 1s ease-in-out infinite}.mn-nokta i:nth-child(2){animation-delay:.15s}.mn-nokta i:nth-child(3){animation-delay:.3s}
+ .mn-fincan.kapat svg .fin{animation:mnFincan 2.2s cubic-bezier(.65,0,.35,1) both}.mn-fincan svg .buhar{animation:mnBuhar 2.2s ease-in-out infinite}
+ .mn-fal{animation:mnFal .8s ease-out both}
+}
+@keyframes mnAc{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}@keyframes mnMsj{from{transform:translateY(10px) scale(.94);opacity:0}to{transform:none;opacity:1}}
+@keyframes mnNokta{0%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
+@keyframes mnFincan{0%{transform:rotate(0) translateY(0)}35%{transform:translateY(-16px) rotate(0)}70%{transform:translateY(-16px) rotate(180deg)}100%{transform:translateY(0) rotate(180deg)}}
+@keyframes mnBuhar{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:.8;transform:translateY(-8px)}}@keyframes mnFal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 </style>
 
 <header class="top">
@@ -1332,7 +1372,7 @@ function oyunKarti(){
    <section class="hcard"><div class="hhead">${ikon("kisi","acc")}<h3>Kartındaki bilgiler</h3></div><div class="pill-row" style="margin:0">${cats.map(c=>`<span class="pill">${esc(c)}</span>`).join("")}</div>
    <p class="lvl" style="margin:8px 0 0">Kartı yalnızca sen görürsün. Seviye ve rozetler eğlence amaçlıdır; resmî bir belge ya da yetki değildir. Puanlar katılımına göre kendiliğinden hesaplanır.</p>
    <div class="confirm"><button type="button" class="btn pri" data-pact="edit">Bilgilerimi düzenle</button></div></section>
-   <section class="hcard"><div class="hhead">${ikon("kisi","acc")}<h3>Bekçi Kedi</h3></div><p class="meta">Köşede neşe katan alaca sokak kedimiz. Dokunursan mırıldar; tanışma turunu istediğin zaman yeniden izleyebilirsin.</p>
+   <section class="hcard"><div class="hhead">${ikon("kisi","acc")}<h3>Minnoş</h3></div><p class="meta">Köşede neşe katan alaca sokak kedimiz. Dokunursan mırıldar; tanışma turunu istediğin zaman yeniden izleyebilirsin.</p>
    <div class="confirm"><button type="button" class="btn pri" data-kedi="tanit">Tanışma turu</button>${window.BS_KEDI&&BS_KEDI.gizliMi()?`<button type="button" class="btn" data-kedi="goster">Köşede göster</button>`:`<button type="button" class="btn" data-kedi="gizle">Köşeden gizle</button>`}</div></section>
    <section class="hcard"><div class="hhead">${ikon("kitap","acc")}<h3>Sana önerilen yol</h3></div><div class="chips" style="margin:0">${yol.map(c=>`<a class="chip ${sc(c)>=6?"ok":""}" href="#${c}">${c} · ${esc(BY[c].title)}${sc(c)?` · ${sc(c)}`:""}</a>`).join("")}</div></section>`;
 }
@@ -2082,9 +2122,112 @@ applyAyar(); route(); initStore();
 setInterval(()=>{if(current==="anasayfa"||current==="bugun"){const ae=document.activeElement;if(ae&&ae.matches&&ae.matches("input,textarea,select"))return;const y=window.scrollY;render(false);window.scrollTo(0,y)}},60000);
 </script>
 <script>
-/* Bekçi Kedi: köşede neşeli maskot + ilk açılışta uygulamayı tanıtan tur. Otomasyon (test) sürücülerinde kendiliğinden açılmaz. */
+/*MINNOS-MOTOR-BASLA*/
+const MinnosMotor=(()=>{
+const asc=t=>String(t==null?"":t).toLocaleLowerCase("tr").replace(/ı/g,"i").replace(/[çğöşüâîû]/g,c=>({"ç":"c","ğ":"g","ö":"o","ş":"s","ü":"u","â":"a","î":"i","û":"u"}[c])).replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim();
+/* Bilgi bankası: k = anahtar sözcükler (ASCII; boşluklu olanlar ifade), c = cevap. Uygulamada olmayan şey söylenmez; bilinmeyen için "yönetime sor". */
+const BILGI=[
+ {id:"selam",k:["merhaba","selam","gunaydin","iyi aksamlar","iyi geceler","nasilsin","naber"],c:"Mırr! Merhaba komşum. Ben Minnoş. Uygulamayı gezdirebilir, sorularını cevaplayabilir ve istersen kahve falına bakabilirim."},
+ {id:"kim",k:["kimsin","adin ne","adin nedir","minnos","kedi misin","kim bu"],c:"Ben Minnoş: bu sitenin sokaklarında büyüyen, alaca tüylü, dişi bir sokak kedisiyim. Bekçilik yaparım; sohbette gözüm üzerinizde, sorularınızı da cevaplarım."},
+ {id:"yardim",k:["yardim","neler yapabilirsin","ne yapabilirsin","ne bilirsin","ne yapiyorsun","komut"],c:"Uygulamayı anlatabilirim: Hikmet, Gündem, Sepet, Hizmetler, Fırsatlar, Kartım, Arena, turnuvalar, Mavi Öz, görevler, sohbet. Kahve falına da bakarım. Bir şey sor, bilmiyorsam dürüstçe söylerim."},
+ {id:"hikmet",k:["hikmet","ayet","hadis","gunun sozu","gunun ayeti","gunun hadisi"],c:"Ana sayfanın üstünde günün ayeti ya da hadisi var. Okla bir öncekine ya da sonrakine geçebilir, paylaşabilir, beğenebilirsin. Metinlerin doğruluğunu kendi kaynağından kontrol etmeyi unutma."},
+ {id:"duvar",k:["duvar kagidi","kilit ekrani","arka plan","wallpaper","ekran resmi"],c:"Hikmet kartındaki 'Duvar kâğıdı' düğmesi seçili sözü telefonunun duvar kâğıdı ve kilit ekranı yapar. Android'de istersen aralıklarla kendiliğinden değişir; iPhone'da bunu Kestirmeler üzerinden kurarsın."},
+ {id:"gundem",k:["gundem","duyuru","paylasim","gonderi","yorum yaz"],c:"Gündem'de komşuların duyuruları ve paylaşımları var. Yorum yazabilir, uygunsuz bir içerik görürsen 'Şikâyet et' diyebilirsin."},
+ {id:"etkinlik",k:["etkinlik","program","toplanti","davet"],c:"Etkinlik sayfasında site programı ve toplantılar yer alır. Neyin ne zaman olduğunu orada görürsün."},
+ {id:"hava",k:["hava","yagmur","sicaklik","ne giyeyim","mont"],c:"Bugün sayfasında hava durumu ve ne giyilebileceği önerisi var. Resmî tahmin için Meteoroloji'ye bakmayı unutma."},
+ {id:"sepet",k:["sepet","market","toplu siparis","alisveris"],c:"Sepet'te toplu market siparişi verirsin: ürünleri ekle, sipariş turu açıkken gönder. Yönetim toplayıp dağıtır. Fiyat ve tur ayrıntılarını yönetim belirler."},
+ {id:"hizmetler",k:["hizmetler","hangi hizmetler","hizmetlerimiz","hizmetleriniz","ne hizmet"],c:"Hizmet sayfasında ütü, ev temizliği, halı yıkama ve çiftlikten taze süt var. Toplu market siparişi ise Sepet'te verilir."},
+ {id:"utu",k:["utu","gomlek","pantolon utu"],c:"Hizmet > Ütü: parça sayılarını yazarsın, görevli kapından alır, ertesi gün (açıksa aynı akşam) getirir. Fiyatı yönetim belirler; uygulama ödeme almaz."},
+ {id:"temizlik",k:["ev temizligi","temizlik","temizlikci","randevu"],c:"Hizmet > Ev temizliği: tür, gün ve saat aralığını seçersin; yönetim randevuyu onaylar, onaylanınca orada görürsün. Anahtar ya da kapı şifresini buraya yazma."},
+ {id:"hali",k:["hali","hali yikama","halim"],c:"Hizmet > Halı yıkama: halı sayısını, tahmini metrekareyi ve toplama gününü seçersin. Görevli alır, yıkanınca geri getirir. Kesin tutar ölçümden sonra belli olur."},
+ {id:"sut",k:["sut","ciftlik","taze sut","litre"],c:"Hizmet > Taze süt: çiftlikten litreyi ve teslim gününü seçersin; istersen her hafta tekrarlanır. Çiftliğin adını, fiyatı ve günleri yönetim belirler."},
+ {id:"firsat",k:["firsat","indirim","kupon","kampanya","kod","firmanin sitesi"],c:"Fırsatlar'da çevredeki indirimler listelenir. Kupon kodunu kopyalayabilir, haritada açabilir; firmanın kendi sitesi varsa büyük 'Firmanın sitesine git' düğmesiyle oraya geçebilirsin."},
+ {id:"kartim",k:["kartim","profil","seviye","rozet","xp","sakin karti"],c:"Kartım'da seviyeni, rozetlerini ve arena kimliğini görürsün. Kartı yalnızca sen görürsün; kat ve daire numaran başkalarına gösterilmez."},
+ {id:"gizlilik",k:["gizlilik","kisisel","kvkk","telefon numaram","kat daire","kat ve daire","numaram","bilgilerim"],c:"Kat, daire ve telefon numaran başkalarına gösterilmez. Sıralamada ve sohbette 'Ayşe Y.' gibi kısa adın görünür. Sohbette paylaşılan telefon numaraları da gizlenir."},
+ {id:"premium",k:["premium","abonelik","ucret","odeme","ucretsiz","para"],c:"Düello, turnuva, sohbet ve benim yapay zekâ cevaplarım Premium'a dahildir. Hikmet, bilgi kartları, şikâyet ve engelleme ücretsiz. Site yönetimi herkes adına da ödeyebilir; tutarı mağaza ekranında görürsün."},
+ {id:"arena",k:["arena","bilgi karti","bilgi kartlari","yarisma","quiz"],c:"Arena'da bilgi kartlarını okur, 'kendini dene'yi çözersin, öğrendikçe sezon puanı kazanırsın. Premium ile komşularınla düello yapar, turnuvalara katılır, sohbet edersin."},
+ {id:"duello",k:["duello","eslesme","rakip","eslesti","rakip bul","kabul etmez","kabul et"],c:"Düelloda 'Rakip bul' dersin; en çok 60 saniye aranır. Rakip bulununca ikiniz de 10 saniye içinde 'Kabul et' demelisiniz; demeyen düşer, kabul eden puanı yakın bir rakibe yönlendirilir. Sonra 5 soru yarışırsınız."},
+ {id:"turnuva",k:["turnuva","satranc","tavla","kura","hazirim","eleme"],c:"Turnuvalar belirli saatte oynanır. Maçtan 5 dakika önce 'Hazırım' dersin; 3 dakika içinde gelmeyen turu kaybeder. Satranç ve tavla canlı ve süreli oynanır; beraberlik olmaz, satrançta renk değiştirip yeniden oynanır."},
+ {id:"mavioz",k:["mavi oz","oz kazan","oz nedir"],c:"Mavi Öz, eşleşmeli her düellodan sonra kazanılır: galibiyette 30, beraberlikte 20, yenilgide 15. Turnuva maçında +10, şampiyonlukta +100. Görevler de verir. İstersen Kimlik sekmesinden kartında gösterebilirsin."},
+ {id:"gorev",k:["gorev","gunluk gorev","haftalik gorev","gorevler"],c:"Arena'daki Görevler sekmesinde 3 günlük ve 5 haftalık görev var. Tamamlayınca 'Ödülü al' dersin, Mavi Öz kazanırsın. Günlük görevler gece yarısı, haftalıklar pazartesi yenilenir."},
+ {id:"odul",k:["simge","cerceve","sembol","unvan","odul","koleksiyon","kimlik"],c:"Kazandıkça simge, çerçeve, sembol ve unvan açılır. Kimlik sekmesinden seçersin; sıralamada ve kartında görünür. Turnuva şampiyonları İstanbul ve Anadolu koleksiyonundan bir simge kazanır."},
+ {id:"sezon",k:["sezon","siralama","puan","blok savasi","lider"],c:"Sezon 28 gün sürer. Kişisel sıralama ve blok savaşı vardır: her blokun en iyi 10 sakininin puanı toplanır. Günlük puan sınırı 400'dür."},
+ {id:"sohbet",k:["sohbet","oda","mesaj yaz","sohbete"],c:"Sohbet Arena'nın içinde: tüm site odası ve blok odaları var. Premium gerekir. Sohbette küfür, tehdit ve reklam yasaktır; Bekçi durdurur."},
+ {id:"bekci",k:["bekci","engellendi","mesajim gonderilmedi","mesajim gitmedi","gitmedi","gonderilmedi","kufur","denetim","susturuldum"],c:"Bekçi sohbet mesajlarını göndermeden önce denetler: küfür, tehdit, hakaret ve reklamı durdurur, telefon, IBAN ve kimlik numarasını gizler. Tekrarlayan ihlalde sohbete bir süre yazamazsın. Yanlış karar verdiğini düşünüyorsan yönetime haber ver; yönetim 'yanlış alarm' diyerek Bekçi'yi eğitir."},
+ {id:"sikayet",k:["sikayet","engelle","rahatsiz","taciz","bildir"],c:"Uygunsuz bir mesaj ya da paylaşım için 'Şikâyet et' de; üç farklı komşu şikâyet ederse içerik kendiliğinden gizlenir, yönetim karar verir. Birini 'engelle'yebilirsin: mesajlarını görmezsin ve düelloda eşleşmezsin."},
+ {id:"sesler",k:["ses","sesler","sesi kapat","ses efekti","muzik","sessiz"],c:"Arena başlığındaki hoparlör düğmesiyle ses efektlerini açıp kapatabilirsin; tercihin bu cihazda saklanır."},
+ {id:"hesap",k:["hesabimi sil","hesap sil","hesabi kapat","cikis"],c:"Hesabını Kartım sayfasının altındaki hesap bölümünden silebilirsin. Silince verilerin gider; bu geri alınamaz."},
+ {id:"acil",k:["yangin","acil","deprem","112","itfaiye","ambulans"],c:"Acil durumda önce 112'yi ara. Arena'daki 'Acil durum' bilgi kartları faydalıdır ama bilgilendirme amaçlıdır; güncel resmî kaynaktan doğrula."},
+ {id:"aidat",k:["aidat","yonetim plani","site kurali","kurallar","yonetici kim","otopark"],c:"Bu sitenin aidatını, kurallarını ve saatlerini bilmiyorum, uydurmak da istemem. Yönetime sormak en doğrusu; Gündem'e de yazabilirsin."},
+ {id:"fal",k:["fal","kahve","falim","falima bak","fincan"],c:"Kahve falına bakarım! Aşağıdaki 'Kahve falı' sekmesine geç, konuyu ve fincanda gördüğün sembolleri seç. Unutma, bu bir eğlence.",eylem:"fal"},
+ {id:"tesekkur",k:["tesekkur","sagol","eyvallah","tesekkurler"],c:"Mırr, rica ederim komşum! Başka bir şey sorarsan buradayım."}
+];
+const SORULAR=["Düello nasıl oynanır?","Duvar kâğıdı nasıl yapılır?","Mavi Öz nedir?","Sohbette neden mesajım gitmedi?","Hangi hizmetler var?","Turnuvada neler oynanıyor?"];
+function belirle(q){
+  const t=asc(q);if(!t)return null;const tok=t.split(" ");let en=null,enP=0;
+  for(const e of BILGI){let p=0;
+    for(const kw of e.k){
+      if(kw.includes(" ")){const w=kw.split(" ");let bul=false;for(let i=0;i+w.length<=tok.length&&!bul;i++)bul=w.every((x,j)=>tok[i+j]===x||(x.length>=3&&tok[i+j].startsWith(x)));if(bul)p+=2+kw.length/6;continue}
+      const hit=kw.length<=3?tok.includes(kw):tok.some(x=>x===kw||(kw.length>=4&&x.startsWith(kw)));
+      if(hit)p+=1+kw.length/8}
+    if(p>enP){enP=p;en=e}}
+  return enP>=1.2?{...en,guven:Math.round(enP*10)/10}:null;
+}
+function cevapla(q){
+  const e=belirle(q);
+  if(e)return {id:e.id,cevap:e.c,eylem:e.eylem||null,guven:e.guven};
+  return {id:null,cevap:"Mırr… Bu konuda hazır bir cevabım yok komşum. Şunları sorabilirsin: Düello nasıl oynanır? Duvar kâğıdı nasıl yapılır? Hangi hizmetler var? Mavi Öz nedir? İstersen kahve falına da bakarım.",eylem:null,guven:0};
+}
+/* ---- Kahve falı (yerel): semboller + konu + niyet; aynı gün aynı seçim aynı falı verir ---- */
+const KONULAR={ask:"aşk ve gönül",is:"iş ve kariyer",para:"para ve bereket",aile:"aile ve komşuluk",yol:"yolculuk ve yeni başlangıçlar",genel:"genel"};
+const SEMBOLLER={kus:"kuş",yol:"yol",kalp:"kalp",balik:"balık",agac:"ağaç",goz:"göz",anahtar:"anahtar",yuzuk:"yüzük",ay:"ay",yildiz:"yıldız",ev:"ev",at:"at",cicek:"çiçek",kopru:"köprü",dag:"dağ",mektup:"mektup"};
+const SEM={
+ kus:["Fincanın kenarında kanat çırpan bir kuş var: bir haber ya da güzel bir misafir yolda.","Kuş yükselişte; uzun süredir beklediğin bir haber kanatlanıp sana gelebilir."],
+ yol:["Telvede uzayıp giden bir yol var: yeni bir kapı aralanıyor, adımını atınca yolun açılacak.","Yol açık görünüyor; biraz sabırla, bildiğin bir rotada yeni bir başlangıç var."],
+ kalp:["Fincanın içinde belirgin bir kalp var: gönlünü ısıtan sıcak bir yakınlık seni bekliyor.","Kalp işareti net; samimi bir söz ya da küçük bir jest gününü güzelleştirecek."],
+ balik:["Bir balık yüzüyor: bereket ve beklenmedik bir fırsat suyun yüzüne çıkıyor.","Balık bolluk getirir derler; emeğinin karşılığı sessizce yaklaşıyor."],
+ agac:["Sağlam gövdeli bir ağaç görüyorum: köklerin güçlü, bunu fark ettirecek bir olay var.","Ağaç dalını uzatmış; sana destek olan birinin gölgesi yakınında."],
+ goz:["Fincanda dikkatli bir göz var: sezgilerin keskin, içine doğduğuna kulak ver.","Göz işareti sana 'etrafına dikkat et' diyor; küçük bir ayrıntı büyük bir fark yaratacak."],
+ anahtar:["Parlak bir anahtar var: bir kapı, bir çözüm ya da bir fikir elinde.","Anahtar duruyor; bir süredir sıkışan bir mesele çözülmeye yaklaşıyor."],
+ yuzuk:["Yuvarlak bir yüzük var: bir söz, bir bağ ya da güzel bir ortaklık gündeme gelebilir.","Yüzük sözleşme gibi: düzenli ve güven veren bir adım atılabilir."],
+ ay:["Fincanda bir hilal parlıyor: sakin bir gece gibi, içini dinlendirecek bir dönem geliyor.","Ay döngüsü gibi, iniş çıkışların ardından yumuşak bir denge görünüyor."],
+ yildiz:["Telvede bir yıldız parlıyor: dileğin, bildiğin kadar uzak değil.","Yıldız şans işaretidir; küçük bir iyi haber gününü aydınlatabilir."],
+ ev:["Küçük bir ev şekli var: yuvanda huzur, belki küçük bir düzenleme ya da misafir var.","Ev işareti: komşuluk, sıcak sohbet ve paylaşılan bir sofra görünüyor."],
+ at:["Dörtnala koşan bir at var: enerji ve hız geliyor, bekleyen işler hareketlenecek.","At mızrak gibi ileri; çabuk gelişen bir haber ya da bir ziyaret olabilir."],
+ cicek:["Açmak üzere bir çiçek var: emeğin tomurcuklanıyor, biraz daha sabır.","Çiçek nezaket getirir; sana güzel bir söz ya da küçük bir hediye yaklaşıyor."],
+ kopru:["Bir köprü görüyorum: iki taraf arasındaki mesafe kısalıyor, barışma ve anlaşma havası var.","Köprü geçiş demek; bir dönemden diğerine yumuşakça geçeceksin."],
+ dag:["Karşında bir dağ var ama zirvesi görünüyor: zorlayıcı ama aşılabilir bir iş seni bekliyor.","Dağ sabır ister; adım adım tırmanırsan manzara sana ödül olacak."],
+ mektup:["Bir mektup görünüyor: bir mesaj, çağrı ya da yazılı bir güzel haber yolda.","Mektup işareti: bir kişiden gelecek içten bir selam seni sevindirebilir."]
+};
+const KONU={
+ ask:["Gönül işlerinde acele etme; samimiyet ve açık konuşmak seni iyi yere taşır.","Kalbinden geçeni nazikçe söylemek için uygun bir zaman görünüyor.","Yakınındakilere vakit ayırmak, gönül dünyanı ısıtacak."],
+ is:["İşte sabırla sürdürdüğün çaba fark edilecek; düzenli ilerlemek sana yarar.","Yeni bir fikir ya da işbirliği için gözlerini açık tut.","Planlı hareket edersen bir engel kendiliğinden çözülecek."],
+ para:["Bereket küçük adımlarla gelir; gereksiz harcamadan kaçınmak içini rahatlatacak.","Elindekini değerlendirmek için sakin bir dönem; acele kararlar yerine araştırmak iyi olur.","Emeğin karşılığı bir yerden sürpriz gibi gelebilir, ama temkini elden bırakma."],
+ aile:["Aile ve komşularla küçük bir sohbet büyük bir rahatlık getirebilir.","Sofranı paylaşmak, ilişkilerini tatlandıracak.","Birine gösterdiğin anlayış geri dönecek."],
+ yol:["Yeni bir başlangıç için cesur ama planlı bir adım zamanı.","Kısa bir yolculuk ya da yeni bir yer sana iyi gelebilir.","Yola çıkmadan önce hazırlığını yap; yol sana yardımcı olacak."],
+ genel:["Genel olarak ortalık yumuşak; sakin kalıp küçük güzelliklere bakmak gününü güzelleştirecek.","Sezgilerine güven, ama acele etme; her şeyin vakti var.","Beklemediğin bir yerden iyi bir haber seni bulabilir."]
+};
+const ACILIS=["Fincanı çevirdim, telvelere dikkatle baktım.","Mırr… fincan soğudu, telveler konuştu.","Kahveni içtin, fincanı kapattın; şimdi bakalım ne çıkmış.","Telvenin dansına baktım, şunları gördüm:"];
+const KAPANIS=["Unutma komşum, bu bir eğlence; geleceği kimse bilemez, asıl fal senin elinde.","Mırr! Bunlar yalnızca eğlence, fincandan bir hikâye; güzel kararlar yine senin.","Eğlence için baktım, ciddiye alma; sevdiklerine güzel davran, gerisi gelir."];
+function tohum(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fal({konu,semboller,niyet,gun}){
+  const kk=KONULAR[konu]?konu:"genel",sem=[...new Set((semboller||[]).filter(x=>SEM[x]))].slice(0,3).sort();
+  if(!sem.length)return null;
+  const r=rng(tohum([gun||"",kk,sem.slice().sort().join(","),String(niyet||"").slice(0,40)].join("|"))),sec=a=>a[Math.floor(r()*a.length)];
+  const n=String(niyet||"").replace(/\s+/g," ").trim().slice(0,80);
+  return [sec(ACILIS),...sem.map(x=>sec(SEM[x])),(n?`Aklındaki "${n}" meselesine gelince: `:`${KONULAR[kk][0].toLocaleUpperCase("tr")+KONULAR[kk].slice(1)} tarafında: `)+sec(KONU[kk]),sec(KAPANIS)].join(" ");
+}
+return {asc,BILGI,SORULAR,belirle,cevapla,fal,KONULAR,SEMBOLLER};
+})();
+/*MINNOS-MOTOR-BITIS*/
+
+window.MinnosMotor=MinnosMotor;
+</script>
+<script>
+/* Minnoş (bekçi kedi): köşede neşeli maskot + ilk açılışta uygulamayı tanıtan tur. Otomasyon (test) sürücülerinde kendiliğinden açılmaz. */
 (()=>{
-const SVG=(u)=>`<svg viewBox="0 0 120 130" role="img" aria-label="Bekçi Kedi: alaca, dişi bir sokak kedisi">
+const SVG=(u)=>`<svg viewBox="0 0 120 130" role="img" aria-label="Minnoş: alaca, dişi bir sokak kedisi">
  <defs><clipPath id="kB${u}"><ellipse cx="60" cy="102" rx="31" ry="27"/></clipPath><clipPath id="kH${u}"><circle cx="60" cy="60" r="31"/></clipPath></defs>
  <g class="k-kuyruk"><path d="M88 108C112 106 118 82 106 72" fill="none" stroke="#E8872F" stroke-width="11" stroke-linecap="round"/><path d="M88 108C112 106 118 82 106 72" fill="none" stroke="#2B2A2D" stroke-width="11" stroke-dasharray="4 9" opacity=".8"/><circle cx="106" cy="72" r="5.6" fill="#2B2A2D"/></g>
  <g class="k-govde"><ellipse cx="60" cy="102" rx="31" ry="27" fill="#FFF8EE"/><g clip-path="url(#kB${u})"><ellipse cx="38" cy="96" rx="17" ry="21" fill="#E8872F"/><ellipse cx="84" cy="110" rx="15" ry="17" fill="#2B2A2D"/></g>
@@ -2101,7 +2244,7 @@ const LS={get(){try{return JSON.parse(localStorage.getItem("bss-kedi")||"{}")}ca
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const arena=()=>!!window.BS_ARENA;
 const ADIMLAR=()=>[
- {m:"Miyav! Ben Bekçi Kedi.",a:"Bu sokakta doğdum, burada kaldım. Alaca tüylü, dişi bir sokak kedisiyim; kulağımdaki küçük çentik de bana bakıldığının işareti. Artık komşuluğun bekçisiyim. Seni kısaca gezdireyim mi?"},
+ {m:"Miyav! Ben Minnoş.",a:"Bu sokakta doğdum, burada kaldım. Alaca tüylü, dişi bir sokak kedisiyim; kulağımdaki küçük çentik de bana bakıldığının işareti. Artık sitenin bekçi kedisiyim. Seni kısaca gezdireyim mi?"},
  {m:"Her gün bir hikmet.",a:"Ana sayfada günün ayeti ya da hadisi seni bekliyor. İstersen onu telefonunun duvar kâğıdı yapabilirsin.",g:["#hikmet","Hikmet'e bak"]},
  {m:"Komşular burada buluşuyor.",a:"Gündem'de duyurular ve paylaşımlar, Etkinlik'te site programı var. Bir şey olursa ilk burada duyarsın.",g:["#gundem","Gündem'e git"]},
  {m:"Market, ütü, halı, süt…",a:"Sepet'te toplu market siparişi verirsin. Hizmet'te ütü, ev temizliği, halı yıkama ve çiftlikten taze süt var.",g:["#hizmet","Hizmetlere git"]},
@@ -2109,15 +2252,92 @@ const ADIMLAR=()=>[
  ...(arena()?[{m:"Biraz oyun oynayalım mı?",a:"Arena'da bilgi kartlarını öğrenir, komşularınla yarışırsın. Turnuvalarda satranç ve tavla da oynanıyor. Kazandıkça simge, çerçeve ve Mavi Öz toplarsın; görevler de var.",g:["#arena","Arena'ya git"]},
   {m:"Sohbette gözüm üzerinde.",a:"Küfür, tehdit ve reklam gibi mesajları ben durdururum; telefon, IBAN ve kimlik numarasını gizlerim. Yanlış karar verirsem yönetime haber ver, ben de öğrenirim."}]:[]),
  {m:"Kartım sende saklı.",a:"Kartım'da seviyeni ve rozetlerini görürsün. Kat ve daire numaran başkalarına gösterilmez.",g:["#profil","Kartım'a git"]},
+ {m:"Bana sor, falına bakayım.",a:"Aklına takılan bir şeyi sorabilirsin; bilmediğimi dürüstçe söylerim. İstersen kahve falına da bakarım: fincanda gördüğün sembolleri seç, yorumlayayım. Fal tamamen eğlencedir.",e:["panel","Minnoş'a soru sor"]},
  {m:"Hepsi bu kadar!",a:"Köşede olacağım. Bana dokunursan mırıldarım, bir şey sorarsan ipucu veririm. Rahatsız olursan beni gizleyebilirsin; istediğinde geri çağırırsın."}
 ];
 let kedi=null,balon=null,tur=null,balonZ=0,sonSayfa="",sonSoz=0;
-const SOZ=()=>["Mırr! Bugün de gözüm sizde.","Günün hikmetini okudun mu?","Fırsatlar'a bir göz at, belki bir indirim kaçmıştır.","Bir kase taze süt olsa fena olmazdı…",arena()?"Arena'da kolay gelsin!":"Komşularına bir merhaba de.","Sokak kedisiyiz ama kibarız: sohbette güzel konuşalım.","Pençelerimi gösterme, sen de ekran kaplama!"];
+const SOZ=()=>["Mırr! Bugün de gözüm sizde.","Bir kahve falı bakayım mı komşum?","Merak ettiğin bir şey mi var? Sor bana!","Günün hikmetini okudun mu?","Fırsatlar'a bir göz at, belki bir indirim kaçmıştır.","Bir kase taze süt olsa fena olmazdı…",arena()?"Arena'da kolay gelsin!":"Komşularına bir merhaba de.","Sokak kedisiyiz ama kibarız: sohbette güzel konuşalım.","Pençelerimi gösterme, sen de ekran kaplama!"];
 const SAYFA_SOZ={arena:"Arena'ya hoş geldin! Önce bir bilgi kartı oku.",hizmet:"Ütü, halı ya da taze süt?",firsat:"İndirimleri kolla; kod varsa kopyala.",hikmet:"Güzel bir söz, güzel bir gün.",profil:"Kartın çok yakışıklı… yakışıklı derken güzel!",gundem:"Komşular ne yazmış bakalım?"};
+
+/* ---- Minnoş paneli ---- */
+const FINCAN=`<svg viewBox="0 0 120 100" aria-hidden="true"><g class="buhar" fill="none" stroke="#9aa5a1" stroke-width="3" stroke-linecap="round"><path d="M44 22c-6-6 6-8 0-14"/><path d="M62 22c-6-6 6-8 0-14"/><path d="M80 22c-6-6 6-8 0-14"/></g><g class="fin" style="transform-origin:60px 62px"><path d="M22 36h70v18c0 18-12 30-35 30S22 72 22 54z" fill="#fff8ee" stroke="#8a6a4a" stroke-width="3"/><path d="M92 42h8c8 0 8 18-2 18h-6" fill="none" stroke="#8a6a4a" stroke-width="3" stroke-linecap="round"/><ellipse cx="57" cy="36" rx="35" ry="7" fill="#4b2e1e" stroke="#8a6a4a" stroke-width="3"/><path d="M30 54c10 6 22 8 34 6" fill="none" stroke="#e8872f" stroke-width="3" stroke-linecap="round" opacity=".6"/></g><ellipse cx="60" cy="92" rx="42" ry="6" fill="#d7c8b4" opacity=".7"/></svg>`;
+const SEM_EMOJI={kus:"🕊️",yol:"🛤️",kalp:"❤️",balik:"🐟",agac:"🌳",goz:"👁️",anahtar:"🔑",yuzuk:"💍",ay:"🌙",yildiz:"⭐",ev:"🏠",at:"🐎",cicek:"🌸",kopru:"🌉",dag:"⛰️",mektup:"✉️"};
+const P={ac:false,sekme:"sohbet",msj:[],bekle:false,ai:null,konu:"genel",sem:[],niyet:"",fal:null,falBekle:false,not:""};
+let panel=null,panelOnceki=null;
+const apiVar=()=>typeof window.BS_API==="function";
+async function durumYukle(){ if(!apiVar()){P.ai={yapayZeka:false,kapali:"sayfa"};return} try{const b=await window.BS_API("GET","/api/minnos/bilgi");P.ai={yapayZeka:!!b.yapayZeka,premium:!!b.premium,kalan:b.kalan}}catch(e){P.ai={yapayZeka:false,kapali:"hata"}} }
+const durumYazi=()=>{const a=P.ai;if(!a)return "";if(a.yapayZeka&&a.premium)return `Yapay zekâ açık · bugün ${a.kalan??"?"} soru hakkın kaldı`;if(a.yapayZeka&&!a.premium)return "Hazır cevap modu · yapay zekâ cevapları Premium'a dahil";if(a.kapali==="sayfa")return "Hazır cevap modu · yapay zekâ bu sayfada yok, uygulamada çalışır";return "Hazır cevap modu · yapay zekâ henüz kapalı"};
+function panelCiz(){ if(!panel)return; const sg=document.getElementById("mnGovde"),scroll=sg?sg.scrollTop:0;
+  const ust=`<div class="mn-ust"><div class="mn-kedi">${SVG("p")}</div><div class="mn-ad"><b>Minnoş</b><small>bekçi kedi · alaca, dişi bir sokak kedisi</small></div><button type="button" class="mn-kapat" data-mn="kapat" aria-label="Kapat">✕</button></div>
+   <div class="mn-sekme" role="tablist"><button type="button" role="tab" aria-selected="${P.sekme==="sohbet"}" data-mn="sekme:sohbet">Soru sor</button><button type="button" role="tab" aria-selected="${P.sekme==="fal"}" data-mn="sekme:fal">Kahve falı</button></div>
+   <p class="mn-durum" id="mnDurum">${esc(durumYazi())}</p>`;
+  let govde="";
+  if(P.sekme==="sohbet"){
+    const M=window.MinnosMotor||MinnosMotor;
+    govde=`<div class="mn-govde" id="mnGovde">${P.msj.length?"":`<div class="mn-msj"><span>Mırr! Ben Minnoş. Uygulamayla ilgili ne merak ediyorsan sor, bilmediğimi dürüstçe söylerim.</span></div><div class="mn-oneri">${M.SORULAR.map(q=>`<button type="button" data-mn="oneri:${esc(q)}">${esc(q)}</button>`).join("")}</div>`}
+      ${P.msj.map(m=>`<div class="mn-msj ${m.ben?"ben":"ai"}"><span>${esc(m.t)}</span>${m.k?`<small>${esc(m.k)}</small>`:""}${m.eylem==="fal"?`<br><button type="button" class="mn-ana" data-mn="sekme:fal" style="margin-top:8px">Kahve falına geç</button>`:""}</div>`).join("")}
+      ${P.bekle?`<div class="mn-msj" aria-live="polite"><span class="mn-nokta" aria-label="Minnoş yazıyor"><i></i><i></i><i></i></span></div>`:""}</div>
+     <form class="mn-yaz" data-mn-form="sor"><input id="mnSoru" maxlength="300" autocomplete="off" placeholder="Bir şey sor… (telefon, adres yazma)" aria-label="Minnoş'a sorun" value="${esc(P.taslak||"")}"><button type="submit" ${P.bekle?"disabled":""}>Sor</button></form>`;
+  }else{
+    const M=window.MinnosMotor||MinnosMotor;
+    govde=`<div class="mn-govde" id="mnGovde">${P.falBekle?`<div class="mn-fincan kapat" aria-live="polite">${FINCAN}<b>Fincan kapatılıyor, telveler soğuyor…</b></div>`:P.fal?`<div class="mn-fal" role="status">${esc(P.fal.t)}</div><p class="mn-not">${esc(P.fal.k)} · Kahve falı eğlencedir; gelecek bilinemez.</p><button type="button" class="mn-ana" data-mn="yeniFal">Yeni fal</button>`:`
+      <div class="mn-etiket">Konu</div><div class="mn-cip" role="group" aria-label="Konu">${Object.entries(M.KONULAR).map(([k,v])=>`<button type="button" aria-pressed="${P.konu===k}" data-mn="konu:${k}">${esc(v)}</button>`).join("")}</div>
+      <div class="mn-etiket">Fincanda ne gördün? (1–3 sembol)</div><div class="mn-sem" role="group" aria-label="Semboller">${Object.entries(M.SEMBOLLER).map(([k,v])=>`<button type="button" aria-pressed="${P.sem.includes(k)}" data-mn="sem:${k}"><span aria-hidden="true">${SEM_EMOJI[k]||"✦"}</span>${esc(v)}</button>`).join("")}</div>
+      <div class="mn-etiket">Aklındaki niyet (isteğe bağlı)</div><input class="mn-niyet" id="mnNiyet" maxlength="80" placeholder="Ör. yeni bir iş" value="${esc(P.niyet)}" aria-label="Niyet">
+      <button type="button" class="mn-ana" data-mn="falBak" ${P.sem.length?"":"disabled"} style="margin-top:10px">Fincanı kapat</button>
+      <p class="mn-not">Fincanın fotoğrafını yorumlayamıyorum; gördüğün sembolleri sen seçersin. Fal bir eğlencedir, geleceği kimse bilemez.${P.ai&&P.ai.yapayZeka&&P.ai.premium?" Yapay zekâ açıkken seçimlerin ve niyetin yorumlanmak üzere yapay zekâ servisine gönderilir; kişisel bilgi yazma.":""}</p>`}</div>`;
+  }
+  panel.querySelector(".mn-kutu").innerHTML=ust+govde;
+  const g=document.getElementById("mnGovde");if(g){ if(P.sekme==="sohbet"&&P.msj.length)g.scrollTop=g.scrollHeight; else g.scrollTop=scroll }
+  const gi=document.getElementById("mnSoru");if(gi&&!P.bekle&&P.odak){gi.focus();const n=gi.value.length;try{gi.setSelectionRange(n,n)}catch(e){}}
+}
+function panelAc(sekme){
+  if(panel)return; P.sekme=sekme||"sohbet"; panelOnceki=document.activeElement;
+  panel=document.createElement("div");panel.className="mn";panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-label","Minnoş: soru sor ve kahve falı");
+  panel.innerHTML='<div class="mn-kutu"></div>';document.body.appendChild(panel);if(kedi)kedi.classList.add("gizli");panelCiz();durumYukle().then(panelCiz);
+  panel.addEventListener("click",e=>{ if(e.target===panel){panelKapat();return}
+    const t=e.target.closest("[data-mn]");if(!t)return;const [k,...r]=t.dataset.mn.split(":"),x=r.join(":");
+    if(k==="kapat")panelKapat();else if(k==="sekme"){P.sekme=x;panelCiz()}
+    else if(k==="oneri")soruSor(x);
+    else if(k==="konu"){P.konu=x;panelCiz()}
+    else if(k==="sem"){P.niyet=(document.getElementById("mnNiyet")||{value:P.niyet}).value;P.sem=P.sem.includes(x)?P.sem.filter(y=>y!==x):[...P.sem,x].slice(-3);panelCiz()}
+    else if(k==="falBak"){P.niyet=(document.getElementById("mnNiyet")||{value:P.niyet}).value;falBak()}
+    else if(k==="yeniFal"){P.fal=null;P.sem=[];P.niyet="";panelCiz()} });
+  document.addEventListener("keydown",escH);
+  panel.addEventListener("input",e=>{if(e.target.id==="mnSoru")P.taslak=e.target.value;if(e.target.id==="mnNiyet")P.niyet=e.target.value});
+  panel.addEventListener("focusin",e=>{P.odak=e.target.id==="mnSoru"});
+  panel.addEventListener("submit",e=>{const f=e.target.closest("[data-mn-form]");if(!f)return;e.preventDefault();const i=document.getElementById("mnSoru");if(i&&i.value.trim()){const q=i.value.trim();P.taslak="";soruSor(q)}});
+  panel.addEventListener("keydown",e=>{if(e.key==="Escape")panelKapat();if(e.key==="Tab"){const f=[...panel.querySelectorAll("button:not([disabled]),input")];if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+  setTimeout(()=>{const i=document.getElementById("mnSoru");if(i&&P.sekme==="sohbet")i.focus()},60);
+}
+const escH=e=>{if(e.key==="Escape")panelKapat()};
+function panelKapat(){ if(!panel)return; document.removeEventListener("keydown",escH);panel.remove();panel=null;if(kedi&&!LS.get().gizli)kedi.classList.remove("gizli");if(panelOnceki&&panelOnceki.focus)try{panelOnceki.focus()}catch(e){} }
+const M_=()=>window.MinnosMotor||MinnosMotor;
+async function soruSor(q){
+  if(P.bekle)return; P.msj.push({ben:true,t:q});P.bekle=true;panelCiz();
+  let c=null,not="";
+  if(apiVar()){ try{ const r=await window.BS_API("POST","/api/minnos/sor",{soru:q});
+      if(r.kaynak==="yapay-zeka"){c={t:r.cevap,k:"Yapay zekâ",ai:true};if(P.ai)P.ai.kalan=r.kalan}
+      else if(r.kaynak==="engel")c={t:r.cevap,k:"Minnoş"};
+      else not=r.neden==="premium"?"Hazır cevap · yapay zekâ Premium'a dahil":r.neden==="limit"?"Hazır cevap · bugünkü yapay zekâ hakkın doldu":"Hazır cevap";
+    }catch(e){ not=e&&e.status===429?"Hazır cevap · Minnoş biraz dinleniyor":"Hazır cevap" } }
+  else not="Hazır cevap";
+  if(!c){const y=M_().cevapla(q);c={t:y.cevap,k:y.id?not:"Hazır cevap · bilgi bankamda yok",eylem:y.eylem}}
+  P.msj.push({ben:false,t:c.t,k:c.k,eylem:c.eylem,ai:c.ai});P.bekle=false;panelCiz();
+}
+async function falBak(){
+  if(!P.sem.length||P.falBekle)return; P.falBekle=true;panelCiz();
+  const baslat=Date.now(); let t=null,k="Hazır fal (yapay zekâ kullanılmadı)";
+  if(apiVar()){ try{ const r=await window.BS_API("POST","/api/minnos/fal",{konu:P.konu,semboller:P.sem,niyet:P.niyet});
+      if(r.kaynak==="yapay-zeka"){t=r.cevap;k="Yapay zekâ yorumu";if(P.ai)P.ai.kalan=r.kalan} }catch(e){} }
+  if(!t) t=M_().fal({konu:P.konu,semboller:P.sem,niyet:P.niyet,gun:new Date().toISOString().slice(0,10)});
+  const kalan=Math.max(0,2300-(Date.now()-baslat)); // fincan animasyonu tamamlansın
+  setTimeout(()=>{P.falBekle=false;P.fal={t,k};panelCiz()},matchMedia("(prefers-reduced-motion: reduce)").matches?0:kalan);
+}
 function mount(){
   if(kedi||LS.get().gizli)return;
   kedi=document.createElement("div");kedi.className="kedi gel";
-  kedi.innerHTML=`<div class="kedi-balon" id="kediBalon" role="status" aria-live="polite"></div><div class="kedi-kalp" aria-hidden="true"></div><button type="button" class="kedi-btn" id="kediBtn" aria-label="Bekçi Kedi: dokun, mırıldasın">${SVG("a")}</button>`;
+  kedi.innerHTML=`<div class="kedi-balon" id="kediBalon" role="status" aria-live="polite"></div><div class="kedi-kalp" aria-hidden="true"></div><button type="button" class="kedi-btn" id="kediBtn" aria-label="Minnoş: dokun, mırıldasın">${SVG("a")}</button>`;
   document.body.appendChild(kedi);balon=kedi.querySelector("#kediBalon");
   kedi.querySelector("#kediBtn").addEventListener("click",dokun);
   let t=0;window.addEventListener("scroll",()=>{kedi.classList.add("kay");clearTimeout(t);t=setTimeout(()=>kedi.classList.remove("kay"),1300)},{passive:true});
@@ -2133,9 +2353,11 @@ function miril(){kedi.classList.add("miril");kalp();setTimeout(()=>kedi.classLis
 function kalp(){const k=kedi.querySelector(".kedi-kalp");if(!k)return;for(let i=0;i<3;i++){const c=document.createElement("span");c.className="kedi-kalp uc";c.style.setProperty("--dx",(i-1)*24+"px");c.style.animationDelay=i*.18+"s";c.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z"/></svg>';kedi.appendChild(c);setTimeout(()=>c.remove(),1900)}}
 function dokun(){
   miril();const s=SOZ();
-  soyle(`${esc(s[Math.floor(Math.random()*s.length)])}<br><button type="button" data-k="tanis">Tanışalım mı?</button><button type="button" data-k="gizle">Beni gizle</button>`,6500,b=>{
+  soyle(`${esc(s[Math.floor(Math.random()*s.length)])}<br><button type="button" data-k="sor">Soru sor</button><button type="button" data-k="fal">Kahve falı</button><button type="button" data-k="tanis">Tanışalım mı?</button><button type="button" data-k="gizle">Beni gizle</button>`,6500,b=>{
+    b.querySelector('[data-k="sor"]').onclick=()=>{balon.classList.remove("ac");panelAc("sohbet")};
+    b.querySelector('[data-k="fal"]').onclick=()=>{balon.classList.remove("ac");panelAc("fal")};
     b.querySelector('[data-k="tanis"]').onclick=()=>{balon.classList.remove("ac");tanit()};
-    b.querySelector('[data-k="gizle"]').onclick=()=>{LS.set({gizli:true});kedi.classList.add("gizli");balon.classList.remove("ac");try{typeof toast==="function"&&toast("Bekçi Kedi gizlendi. Kartım sayfasından geri çağırabilirsin.")}catch(e){}};
+    b.querySelector('[data-k="gizle"]').onclick=()=>{LS.set({gizli:true});kedi.classList.add("gizli");balon.classList.remove("ac");try{typeof toast==="function"&&toast("Minnoş gizlendi. Kartım sayfasından geri çağırabilirsin.")}catch(e){}};
   });
 }
 function sayfaSozu(){
@@ -2146,17 +2368,17 @@ function sayfaSozu(){
 /* Tanıtım turu */
 function tanit(){
   if(tur)return;const A=ADIMLAR();let i=0;const onceki=document.activeElement;
-  tur=document.createElement("div");tur.className="kt";tur.setAttribute("role","dialog");tur.setAttribute("aria-modal","true");tur.setAttribute("aria-label","Bekçi Kedi uygulamayı tanıtıyor");
+  tur=document.createElement("div");tur.className="kt";tur.setAttribute("role","dialog");tur.setAttribute("aria-modal","true");tur.setAttribute("aria-label","Minnoş uygulamayı tanıtıyor");
   const ciz=()=>{const a=A[i],son=i===A.length-1;
-    tur.innerHTML=`<div class="kt-kutu"><div class="kt-ust"><div class="kt-kedi miril" id="ktKedi">${SVG("t")}</div><span class="kt-isim">Bekçi Kedi</span></div>
-      <p class="kt-metin" id="ktBaslik">${esc(a.m)}</p><p class="kt-alt">${esc(a.a)}</p>${a.g?`<a class="kt-git" href="${esc(a.g[0])}" data-kt="git">${esc(a.g[1])}</a>`:""}
+    tur.innerHTML=`<div class="kt-kutu"><div class="kt-ust"><div class="kt-kedi miril" id="ktKedi">${SVG("t")}</div><span class="kt-isim">Minnoş</span></div>
+      <p class="kt-metin" id="ktBaslik">${esc(a.m)}</p><p class="kt-alt">${esc(a.a)}</p>${a.g?`<a class="kt-git" href="${esc(a.g[0])}" data-kt="git">${esc(a.g[1])}</a>`:""}${a.e?`<button type="button" class="kt-git" data-kt="panel">${esc(a.e[1])}</button>`:""}
       <div class="kt-nokta" aria-hidden="true">${A.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("")}</div>
       <div class="kt-eylem">${i===0?`<button type="button" class="kt-atla" data-kt="atla">Şimdilik geç</button>`:`<button type="button" data-kt="geri">Geri</button>`}<button type="button" class="ana" data-kt="${son?"bitir":"ileri"}" id="ktIleri">${i===0?"Tanışalım":son?"Başlayalım":"Sonraki"}</button>${son?`<button type="button" data-kt="gizle">Köşeden gizle</button>`:""}</div></div>`;
     setTimeout(()=>{const k=tur&&tur.querySelector("#ktKedi");if(k)k.classList.remove("miril")},1400);
     const b=tur.querySelector("#ktIleri");if(b)b.focus();};
   const kapat=(kalici=true)=>{if(!tur)return;tur.remove();tur=null;if(kalici)LS.set({gordu:true});if(kedi){if(!LS.get().gizli)kedi.classList.remove("gizli")}else mount();if(onceki&&onceki.focus)try{onceki.focus()}catch(e){}};
   tur.addEventListener("click",e=>{const t=e.target.closest("[data-kt]");if(!t)return;const k=t.dataset.kt;
-    if(k==="ileri"){i++;ciz()}else if(k==="geri"){i--;ciz()}else if(k==="atla"||k==="bitir")kapat();else if(k==="git")kapat();else if(k==="gizle"){LS.set({gizli:true});kapat();kedi&&kedi.classList.add("gizli")}});
+    if(k==="ileri"){i++;ciz()}else if(k==="geri"){i--;ciz()}else if(k==="atla"||k==="bitir")kapat();else if(k==="git")kapat();else if(k==="panel"){kapat();setTimeout(()=>panelAc("sohbet"),250)}else if(k==="gizle"){LS.set({gizli:true});kapat();kedi&&kedi.classList.add("gizli")}});
   tur.addEventListener("keydown",e=>{if(e.key==="Escape")kapat();if(e.key==="Tab"){const f=[...tur.querySelectorAll("button,a[href]")];if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
   document.body.appendChild(tur);if(kedi)kedi.classList.add("gizli");ciz();
 }
@@ -2169,7 +2391,7 @@ function basla(){
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-kedi]");if(!b)return;const k=b.dataset.kedi;
   if(k==="tanit")tanit();else if(k==="goster")window.BS_KEDI.goster();else if(k==="gizle")window.BS_KEDI.gizle();
   if(k!=="tanit"){try{const y=window.scrollY;render(false);window.scrollTo(0,y)}catch(err){}}});
-window.BS_KEDI={gizliMi:()=>!!LS.get().gizli,tanit,mount,goster:()=>{LS.set({gizli:false});if(kedi)kedi.classList.remove("gizli");else mount()},gizle:()=>{LS.set({gizli:true});if(kedi)kedi.classList.add("gizli")},dokun:()=>kedi&&dokun(),durum:()=>({gorunur:!!kedi&&!kedi.classList.contains("gizli"),tur:!!tur})};
+window.BS_KEDI={panel:panelAc,gizliMi:()=>!!LS.get().gizli,tanit,mount,goster:()=>{LS.set({gizli:false});if(kedi)kedi.classList.remove("gizli");else mount()},gizle:()=>{LS.set({gizli:true});if(kedi)kedi.classList.add("gizli")},dokun:()=>kedi&&dokun(),durum:()=>({gorunur:!!kedi&&!kedi.classList.contains("gizli"),tur:!!tur})};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",basla);else basla();
 })();
 </script>

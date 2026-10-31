@@ -15,6 +15,7 @@ const { createArena } = require("./arena");
 const { createKazanim } = require("./kazanim");
 const { createGorevler } = require("./gorevler");
 const { createBekci } = require("./bekci");
+const { createMinnos } = require("./minnos");
 const { createSohbet } = require("./sohbet");
 const { arenaRotalari } = require("./arena-rotalar");
 
@@ -638,8 +639,9 @@ function createApp(opts) {
   const GR = createGorevler({ db, now, ortak: ORT, kazanim: KZ });
   const AR = createArena({ db, now, hub: HUB, ortak: ORT, kimlik: BL.kimlik, kazanim: KZ, ayar: cfg.arena });
   const BK = createBekci({ db, now, ...(cfg.bekciModel === false ? { model: null } : {}) });
+  const MN = createMinnos({ now, bekci: BK, ayar: cfg.minnos || {} });
   const SH = createSohbet({ db, now, hub: HUB, ortak: ORT, kimlik: BL.kimlik, bl: BL, bekci: BK });
-  arenaRotalari({ rota, izin, AR, SH, premiumMu: ctx => AB.durum(ctx.user.id, ctx.site, etkinDurum(ctx.site)).aktif, GR, BK });
+  arenaRotalari({ rota, izin, AR, SH, premiumMu: ctx => AB.durum(ctx.user.id, ctx.site, etkinDurum(ctx.site)).aktif, GR, BK, MN });
   if (cfg.arenaTick !== false) { const z = setInterval(() => { try { AR.tick(); BK.temizle(); } catch (e) { cfg.log("[arena]", e.message); } }, 10000); z.unref(); }
 
   rota("POST", "/api/db", "uye", ctx => {
@@ -824,7 +826,7 @@ function createApp(opts) {
     }
   }
 
-  return { handler, db, sms, cfg, siteYukle, davetOlustur, davetGoster, arena: AR, bekci: BK, kazanim: KZ, gorevler: GR, sohbet: SH, hub: HUB, ortak: ORT, belgeler: BL };
+  return { handler, db, sms, cfg, siteYukle, davetOlustur, davetGoster, arena: AR, bekci: BK, minnos: MN, kazanim: KZ, gorevler: GR, sohbet: SH, hub: HUB, ortak: ORT, belgeler: BL };
 }
 
 module.exports = { createApp, csv };

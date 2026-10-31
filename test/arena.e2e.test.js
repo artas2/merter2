@@ -284,12 +284,12 @@ test("Bekçi: küfürlü mesaj gönderilmez ve uyarı çıkar; yönetim Bekçi s
   await y.screenshot({ path: path.join(KOK, "docs/screenshots/yonetim-bekci.png") });
 });
 
-test("Bekçi Kedi: gerçek uygulamada tanıtım turu Arena ve Bekçi adımlarını da anlatır", { timeout: 60000 }, async () => {
+test("Minnoş: gerçek uygulamada tanıtım turu Arena ve Bekçi adımlarını da anlatır", { timeout: 60000 }, async () => {
   const p = S2.page; await git(p, "#anasayfa");
   await p.evaluate(() => BS_KEDI.tanit()); await p.waitForSelector(".kt");
   const basliklar = [await p.textContent("#ktBaslik")];
   for (let i = 0; i < 15 && (await p.$eval("#ktIleri", e => e.dataset.kt)) !== "bitir"; i++) { await p.click("#ktIleri"); await p.waitForTimeout(60); basliklar.push(await p.textContent("#ktBaslik")); }
-  assert.equal(basliklar.length, 9, basliklar.join(" | ")); assert.ok(basliklar.some(b => /oyun/.test(b)), "Arena adımı"); assert.ok(basliklar.some(b => /Sohbette gözüm/.test(b)), "Bekçi adımı");
+  assert.equal(basliklar.length, 10, basliklar.join(" | ")); assert.ok(basliklar.some(b => /Bana sor/.test(b)), "soru ve fal adımı"); assert.ok(basliklar.some(b => /oyun/.test(b)), "Arena adımı"); assert.ok(basliklar.some(b => /Sohbette gözüm/.test(b)), "Bekçi adımı");
   assert.match(await p.textContent(".kt-alt"), /gizleyebilirsin/); await p.click("#ktIleri"); await p.waitForSelector(".kt", { state: "detached" });
   assert.ok(await p.$(".kedi:not(.gizli)"), "tur bitince kedi köşede");
   assert.deepEqual(S2.hatalar, [], "sayfa hatası yok");

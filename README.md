@@ -10,9 +10,13 @@ Site sakinleri için tek uygulama (iOS / Android), tarayıcı sürümü ve sunuc
 | `public/` | Genel Bilinçli Sakin arayüzü ve yönetim paneli (davet kodları, üyeler, platform yönetimi), yasal sayfalar |
 | `docs/MAGAZA.md` | App Store ve Google Play adım adım yayın kılavuzu |
 
-## Bekçi Kedi (maskot ve tanıtım)
+## Minnoş (bekçi kedi: maskot, tanıtım, soru-cevap, kahve falı)
 
-Köşede nefes alan, göz kırpan, kuyruk sallayan alaca bir dişi sokak kedisi (kendi çizimimiz). Dokunursan mırıldar; ilk açılışta uygulamayı adım adım tanıtır (Arena açıksa Arena ve sohbet denetimini de anlatır). Kartım sayfasından gizlenir, geri çağrılır, tur yeniden izlenir. Hareket azaltma tercihine uyar; test sürücülerinde kendiliğinden açılmaz. Kod: `merter/index.html` (Claude sayfasında da çalışır).
+Köşede nefes alan, göz kırpan, kuyruk sallayan alaca bir dişi sokak kedisi (kendi çizimimiz). Dokunursan mırıldar; ilk açılışta uygulamayı adım adım tanıtır (Arena açıksa Arena ve sohbet denetimini de anlatır). Kartım sayfasından gizlenir, geri çağrılır, tur yeniden izlenir.
+
+- **Soru-cevap:** Hazır bilgi bankası (35 konu: uygulamanın her bölümü, gizlilik, Premium, düello, turnuva, Mavi Öz, görevler, sohbet, Bekçi…) her yerde çalışır, Claude sayfasında da. Bilmediğini uydurmaz ("bilgi bankamda yok", "aidatı bilmiyorum, yönetime sor"). **Yapay zekâ:** sunucuya `ANTHROPIC_API_KEY` verilirse Premium sakinlerin soruları Anthropic Messages API'siyle cevaplanır (varsayılan model `claude-haiku-5-5`, `MINNOS_MODEL` ile değişir; günde 25 soru/kişi). Soru önce Bekçi'den geçer, telefon/IBAN/TC/e-posta maskelenir, soru ve cevap saklanmaz, anahtar istemciye gitmez. Anahtar yoksa ya da servis yanıt vermezse ekranda "Hazır cevap" yazar; hazır cevap yapay zekâ gibi gösterilmez. Kod: `src/minnos.js`, motor: `merter/index.html` (işaretli blok), testler: `test/minnos*.test.js`.
+- **Kahve falı:** Konu seçilir, fincanda görülen 1–3 sembol (16 sembol) seçilir, isteğe bağlı niyet yazılır; fincan kapanma animasyonundan sonra fal gelir. Yapay zekâ açıksa fal ona yazdırılır, değilse yerel fal bankasından (aynı seçim aynı gün aynı falı verir). Fal bir **eğlencedir**; her falda bunu söyler, korkutucu ya da kesin tahmin vermez. Fincan fotoğrafı yorumlanmaz. Dinî hassasiyeti olanlar için kolayca gizlenir.
+- Hareket azaltma tercihine uyar; test sürücülerinde kendiliğinden açılmaz.
 
 ## Fırsatlar
 

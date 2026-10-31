@@ -4,6 +4,29 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-10-31 · Kedinin adı Minnoş; soruları yapay zekâ ile cevaplasın; kahve falı baksın; "Ona bu becerileri öğretin"
+
+**Kullanıcının sözleri:** "Kedinin ismi minnoş olsun ve soruları aı ile cevaplasın ve kahve falı bakabilsin." · "Ona bu becerileri öğretin."
+
+```
+HEDEF       : Kedi Minnoş adını alsın; yapay zekâ ile soru cevaplasın; kahve falına baksın; bu beceriler ölçülerek "öğretilsin".
+KAPSAM      : 1) Ad değişikliği (Bekçi Kedi → Minnoş) her yerde.
+              2) Panel: Soru sor / Kahve falı. Soru-cevap: sunucuda Anthropic API bağlantısı (anahtar gelince), yoksa hazır bilgi bankası.
+              3) Kahve falı: konu + 1-3 sembol + niyet; kapanan fincan animasyonu; AI ya da yerel fal.
+              4) "Öğretmek": 35 konuluk bilgi bankası, fal bankası, ölçüm testleri (doğruluk, konu dışı, bağımsız küme, korkutucu söz yok).
+KAPSAM DIŞI : Fincan fotoğrafını yorumlamak; sesli miyav.
+KISITLAR    : Dürüstlük: yapay zekâ anahtarı yokken yapay zekâ gibi davranılmaz, kaynak etiketi gösterilir; anahtar sohbete yazılmaz, istemciye gitmez;
+              gizlilik: soru maskelenir, saklanmaz; fal eğlencedir; önce sor (push, yayın).
+BAŞARI      : Sahte Anthropic sunucusuyla istek biçimi, Premium kapısı, günlük sınır, Bekçi süzgeci testi; hazır bilgi bankası ≥ %90; tarayıcıda panel, fal, yedeğe geçiş.
+VARSAYIMLAR : "aı" = yapay zekâ. "Öğretmek" = kural/bilgi bankası + ölçüm (modelin kendisi yeniden eğitilemez). Model: claude-haiku-5-5 (düşük gecikme ve maliyet).
+BELİRSİZ    : Anahtarın verilmesi ve maliyet bütçesi (yok: yapay zekâ kapalı kalır); kahve falının dinî hassasiyetler açısından uygunluğu (gizlenebilir).
+```
+
+**Puan: 88 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 3, kısalık 3, dil 4.
+- Ölçüm: bilgi bankası ilk ölçümde %83,3 (7 yanlış) çıktı; eşleştirme ve anahtar sözcükler düzeltilince aynı kümede %100. Bu küme ayarlamada kullanıldığı için bağımsız değil; ayarlamadan sonra yazılan 15 yeni soruluk ikinci kümede 15/15. Gerçek kullanıcı soruları ölçülmedi.
+
+---
+
 ## 2026-10-31 · Bekçi Kedi: siteyi neşelendir, uygulamayı bize tanıtsın; dişi sokak kedisi
 
 **Kullanıcının sözleri:** "Siteyi bir bekçi kedi animasyonuyla neşelendir. Ve bekçi kedi uygulamayı bize tanısın ilk başta. Bekçi kedi dişi bir sokak kedisi olabilir."

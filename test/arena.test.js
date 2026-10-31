@@ -147,7 +147,10 @@ test("Turnuva: kayıt, kura (bay), hazırım penceresi, oynanan maç, gelmeyen r
   assert.equal((await O.sakinA1.post("/api/arena/turnuvalar", { ad: "x", baslangic: bas, turAraligiDk: 10, maxKisi: 8 })).status, 403, "yalnızca yönetici oluşturur");
   assert.equal((await O.yonA.post("/api/arena/turnuvalar", { ad: "Cuma", baslangic: Date.now() + 60000, turAraligiDk: 10, maxKisi: 8 })).status, 400);
   assert.equal((await O.yonA.post("/api/arena/turnuvalar", { ad: "Cuma", baslangic: bas, turAraligiDk: 5, maxKisi: 8 })).status, 400);
-  const id = (await O.yonA.post("/api/arena/turnuvalar", { ad: "Cuma Akşamı Kupası", baslangic: bas, turAraligiDk: 10, maxKisi: 8 })).body.id;
+  assert.equal((await O.yonA.post("/api/arena/turnuvalar", { ad: "Cuma", baslangic: bas, turAraligiDk: 10, maxKisi: 8, odul: "s-tac" })).status, 400, "ödül yalnızca koleksiyondan");
+  const id = (await O.yonA.post("/api/arena/turnuvalar", { ad: "Cuma Akşamı Kupası", baslangic: bas, turAraligiDk: 10, maxKisi: 8, odul: "t-galata" })).body.id;
+  const tl = (await O.sakinA1.get("/api/arena/turnuvalar")).body;
+  assert.deepEqual(tl.turnuvalar.find(t => t.id === id).odul, { kod: "t-galata", ad: "Galata Kulesi" }); assert.equal(tl.koleksiyon.length, 15);
   for (const k of [O.sakinA1, O.sakinA2, O.denetciA]) assert.equal((await k.post(`/api/arena/turnuva/${id}/katil`, {})).status, 200);
   assert.equal((await O.sakinA1.post(`/api/arena/turnuva/${id}/katil`, {})).body.katilimci, 3, "ikinci kayıt sayıyı artırmaz");
   assert.notEqual((await O.sakinB1.post(`/api/arena/turnuva/${id}/katil`, {})).status, 200, "başka site katılamaz");
@@ -183,6 +186,12 @@ test("Turnuva: kayıt, kura (bay), hazırım penceresi, oynanan maç, gelmeyen r
   assert.equal(d.turnuva.sampiyon.ben, true);
   const sp = C.db.prepare("SELECT puan FROM sezon_puan WHERE user_id = ? ORDER BY sezon_id DESC LIMIT 1").get(A.me.user.id).puan;
   assert.ok(sp >= 150, "şampiyon ödülü (tavansız)");
+  // Şampiyon turnuvanın koleksiyon simgesini (Galata Kulesi) ve Mavi Öz kazanır
+  const k = (await A.get("/api/arena/kimlik")).body;
+  for (const kod of ["t-galata", "s-tac", "c-zumrut", "u-sampiyon"]) assert.equal(k.katalog.find(x => x.kod === kod).var, true, kod);
+  assert.equal(k.katalog.filter(x => x.koleksiyon === "turnuva" && x.var).length, 1, "koleksiyondan yalnızca turnuvanın ödülü");
+  assert.ok(k.istatistik.maviOz >= 100, "şampiyonluk Mavi Öz'ü");
+  assert.equal(d.turnuva.odul.kod, "t-galata");
   assert.equal((await A.post(`/api/arena/turnuva/${id}/mac/${final.id}/hazir`, {})).status, 409, "biten maça hazır denemez");
   C.saat.kayma = 0;
 });

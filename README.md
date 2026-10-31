@@ -13,13 +13,18 @@ Site sakinleri için tek uygulama (iOS / Android), tarayıcı sürümü ve sunuc
 ## Arena (bilgi yarışması, sezon, turnuva, sohbet)
 
 - **Bilgi kartları:** Okunur, "kendini dene" ile öğrenilir (ücretsiz).
-- **Canlı düello:** Rastgele eşleşen iki sakin, 5 soru, sunucu puanlar.
+- **Canlı düello:** Tam ekran eşleştirme (60 sn arama sınırı, animasyonlu halka). Rakip bulununca iki taraf 10 sn içinde "Kabul et" der; yanıt vermeyen düşer, kabul eden sezon puanı en yakın sıradaki rakibe yönelir. VS karşılaşma, 5 soru, sunucu puanlar.
+- **Arena kimliği:** Kazandıkça simge, çerçeve, sembol (en çok 3) ve unvan açılır; sıralamada, eşleşme ekranında, komşu kartında ve Kartım'da görünür. Ödülü yalnızca sunucu verir.
+- **Turnuva koleksiyonu:** 15 İstanbul ve Anadolu simgesi (Galata Kulesi, Kız Kulesi, Ayasofya, Boğaz Köprüsü, çay, lale, nazar boncuğu, vapur…). Her turnuvanın ödül simgesini şampiyon kazanır.
+- **Mavi Öz:** Her eşleşmeli düellodan sonra (galibiyet 30, beraberlik 20, yenilgi 15; turnuva maçı +10, şampiyonluk +100). Sahibi isterse kartlarında görünür.
+- **Görevler:** 3 günlük, 5 haftalık görev; ilerleme sunucuda hesaplanır, ödül (Mavi Öz) bir kez alınır.
+- **Ses efektleri:** Cihazda sentezlenir (dosya yok); aç/kapa düğmesi. Seviye ölçümü: `node scripts/ses-olc.js` (hedef ≤ -3 dBTP, ≤ -18 LUFS).
 - **Sezon:** 28 gün; kişisel sıralama ve blok savaşı.
 - **Turnuva:** Belirli saatlerde oynanır; iki taraf da "hazırım" demelidir.
 - **Sohbet:** Site ve blok odaları, canlı akış (SSE).
 - **Şikâyet ve engelleme:** Gündem'de ve sohbette.
 
-Düello, turnuva ve sohbet Premium'dur. Kod: `src/arena.js`, `src/sohbet.js`, `merter/arena.js`. Ölçülen kapasite ve x100 yol haritası: **[docs/PERFORMANS.md](docs/PERFORMANS.md)** (`npm run yuk -- --kisi 1000 --sure 90`). Komutların yapay zekâ diline çevrilmesi: [docs/retorik-ustasi.md](docs/retorik-ustasi.md), [docs/KOMUT-GUNLUGU.md](docs/KOMUT-GUNLUGU.md).
+Düello, turnuva ve sohbet Premium'dur. Kod: `src/arena.js`, `src/kazanim.js`, `src/gorevler.js`, `src/sohbet.js`, `merter/arena.js`, `merter/simgeler.js`, `merter/ses.js`. Ölçülen kapasite ve x100 yol haritası: **[docs/PERFORMANS.md](docs/PERFORMANS.md)** (`npm run yuk -- --kisi 1000 --sure 90`). Komutların yapay zekâ diline çevrilmesi: [docs/retorik-ustasi.md](docs/retorik-ustasi.md), [docs/KOMUT-GUNLUGU.md](docs/KOMUT-GUNLUGU.md).
 
 ## Hızlı başlangıç
 

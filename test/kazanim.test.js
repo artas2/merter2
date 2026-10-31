@@ -90,7 +90,7 @@ test("Kimlik kataloğu: başlangıç ödülleri açık, sahip olunmayan seçilem
   const k = (await O.sakinA2.get("/api/arena/kimlik")).body;
   assert.equal(k.toplam, KATALOG.length);
   for (const t of ["simge", "cerceve", "sembol", "unvan"]) assert.ok(k.katalog.some(x => x.tur === t), t);
-  assert.deepEqual(k.secim, { simge: "s-damla", cerceve: "c-sade", semboller: [], unvan: "u-komsu" });
+  assert.deepEqual(k.secim, { simge: "s-damla", cerceve: "c-sade", semboller: [], unvan: "u-komsu", ozGoster: false });
   assert.ok(k.katalog.find(x => x.kod === "s-damla").var); assert.equal(k.katalog.find(x => x.kod === "s-tac").var, false);
   assert.ok(k.katalog.every(x => x.kosul && x.ad && x.nadirlikAd));
   let r = await O.sakinA2.put("/api/arena/kimlik", { simge: "s-tac" }); assert.equal(r.status, 403);
@@ -113,6 +113,9 @@ test("Maç kazanınca ödül: sonuç ekranında yeni ödüller, seçilince sıra
   for (const kod of ["s-hilal", "y-kusursuz", "s-simsek", "u-yildirim"]) assert.ok(g.yeniKazanimlar.includes(kod), kod);
   assert.equal((await b.get("/api/arena/mac/" + id)).body.yeniKazanimlar.includes("s-hilal"), false, "kaybeden galibiyet ödülü almaz");
   assert.equal((await a.get("/api/arena/mac/" + id)).body.yeniKazanimlar.length, g.yeniKazanimlar.length, "sonuç tekrar açılınca aynı liste");
+  // Mavi Öz: kazanan 30, kaybeden 15; sonuç ekranında ve kimlikte
+  assert.deepEqual(g.maviOz.kazanilan, 30); const bo = (await b.get("/api/arena/mac/" + id)).body.maviOz; assert.equal(bo.kazanilan, 15);
+  assert.equal(g.maviOz.toplam, (await a.get("/api/arena/kimlik")).body.istatistik.maviOz);
   const k = (await a.get("/api/arena/kimlik")).body; assert.ok(k.sahip > once); assert.equal(k.istatistik.galibiyet, 1); assert.equal(k.istatistik.kusursuz, 1);
   const r = await a.put("/api/arena/kimlik", { simge: "s-simsek", unvan: "u-yildirim", semboller: ["y-kusursuz", "y-ilk"] });
   assert.equal(r.status, 200); assert.equal(r.body.simge, "s-simsek");
@@ -120,6 +123,14 @@ test("Maç kazanınca ödül: sonuç ekranında yeni ödüller, seçilince sıra
   assert.equal(sr.kimlik.simge, "s-simsek"); assert.equal(sr.kimlik.unvanAd, "Yıldırım"); assert.equal(sr.kimlik.semboller.length, 2);
   const gb = (await b.get("/api/arena/mac/" + id)).body; assert.equal(gb.rakip.kimlik.simge, "s-simsek");
   assert.equal("user_id" in sr.kimlik, false);
+  // Mavi Öz başkalarına yalnızca "profilimde göster" açıksa görünür
+  assert.equal("maviOz" in sr.kimlik, false);
+  assert.equal((await a.put("/api/arena/kimlik", { ozGoster: "evet" })).status, 400);
+  assert.equal((await a.put("/api/arena/kimlik", { ozGoster: true })).body.ozGoster, true);
+  const sr2 = (await b.get("/api/arena/siralama")).body.top.find(x => x.ad === "Ayşe Y.");
+  assert.ok(sr2.kimlik.maviOz >= 30); assert.equal(sr2.kimlik.simge, "s-simsek", "diğer seçimler korunur");
+  await a.put("/api/arena/kimlik", { ozGoster: false });
+  assert.equal("maviOz" in (await b.get("/api/arena/siralama")).body.top.find(x => x.ad === "Ayşe Y.").kimlik, false);
 });
 
 test("Antrenman ödül vermez; kart öğrenmek ödül verir", async () => {
@@ -128,6 +139,7 @@ test("Antrenman ödül vermez; kart öğrenmek ödül verir", async () => {
   ileri(m.t0 - Date.now() + 1000); for (let n = 0; n < 1; n++) await k.post(`/api/arena/mac/${r.macId}/cevap`, { soruNo: 0, secim: dogruSecim(r.macId, 0) });
   C.saat.kayma = 0; ileri(m.t0 - Date.now() + 5 * (m.soru_ms + m.ara_ms) + 1000);
   assert.deepEqual((await k.get("/api/arena/mac/" + r.macId)).body.yeniKazanimlar, []);
+  assert.equal((await k.get("/api/arena/mac/" + r.macId)).body.maviOz, null, "antrenman Mavi Öz vermez");
   assert.equal((await k.get("/api/arena/kimlik")).body.sahip, once);
   C.saat.kayma = 0;
   let son;
@@ -148,4 +160,25 @@ test("Sezon sonu: ilk 3 sezon çerçevesi, kazanan blok kule simgesi, bir kez ve
   C.app.arena.sezonOdulle(SID); await O.sakinA1.get("/api/arena/siralama");
   assert.equal(C.db.prepare("SELECT COUNT(*) n FROM kazanimlar").get().n, n, "ikinci kez verilmez");
   assert.ok(C.db.prepare("SELECT COUNT(*) n FROM kazanimlar WHERE kod = 's-kule'").get().n >= 1, "blok savaşı kazananlara kule");
+});
+
+test("Günlük ve haftalık görevler: ilerleme sunucuda, ödül bir kez, gün değişince yenilenir", async () => {
+  const k = O.sakinA1;
+  let r = (await k.get("/api/arena/gorevler")).body;
+  assert.equal(r.gorevler.filter(g => g.donem === "gun").length, 3); assert.equal(r.gorevler.filter(g => g.donem === "hafta").length, 5);
+  assert.ok(r.yenilenme.gun > r.simdi && r.yenilenme.hafta >= r.yenilenme.gun);
+  const gd = r.gorevler.find(g => g.kod === "g-duello"), gg = r.gorevler.find(g => g.kod === "g-galibiyet");
+  assert.ok(gd.ilerleme >= 1, "bugünkü düellolar sayılır"); assert.equal(gg.tamam, true, "Ayşe bugün kazandı");
+  const once = r.maviOz;
+  const al = await k.post("/api/arena/gorev/g-galibiyet/al", {}); assert.equal(al.status, 200); assert.equal(al.body.oz, 25); assert.equal(al.body.maviOz, once + 25);
+  assert.equal((await k.post("/api/arena/gorev/g-galibiyet/al", {})).status, 409, "ikinci kez alınamaz");
+  assert.equal((await k.post("/api/arena/gorev/yok/al", {})).status, 404);
+  const yapilmamis = (await O.yonA.get("/api/arena/gorevler")).body.gorevler.find(g => g.kod === "h-kusursuz");
+  assert.equal(yapilmamis.tamam, false); assert.equal((await O.yonA.post("/api/arena/gorev/h-kusursuz/al", {})).status, 409, "tamamlanmadan alınamaz");
+  assert.equal((await k.get("/api/arena/gorevler")).body.gorevler.find(g => g.kod === "g-galibiyet").alindi, true);
+  assert.ok((await k.get("/api/arena/ozet")).body.gorevAlinabilir >= 0);
+  // Ertesi gün günlük görevler sıfırlanır
+  ileri(864e5 + 1000);
+  r = (await k.get("/api/arena/gorevler")).body;
+  const y = r.gorevler.find(g => g.kod === "g-galibiyet"); assert.equal(y.ilerleme, 0); assert.equal(y.alindi, false);
 });

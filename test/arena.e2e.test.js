@@ -95,7 +95,10 @@ test("Ana sayfada Arena kartı; bilgi kartı: kendini dene ve öğren", { timeou
 
 test("Canlı düello: iki sakin eşleşir, soruları cevaplar, sonuç ve sezon puanı", { timeout: 120000 }, async () => {
   const a = S1.page, b = S2.page;
-  await git(a, "#arena"); await a.click('[data-ar="sekme:duello"]'); await a.click('[data-ar="esles"]');
+  await git(a, "#arena"); await a.click('[data-ar="sekme:duello"]');
+  // Ses efektleri: hangi anda hangi sesin çalındığını kaydet
+  for (const p of [a, b]) await p.evaluate(() => { window.__sesler = []; const o = BS_SES.cal; BS_SES.cal = ad => { window.__sesler.push(ad); o(ad); }; });
+  await a.click('[data-ar="esles"]');
   await a.waitForFunction(() => /Rakip aranıyor/.test(document.body.textContent));
   await a.waitForSelector(".ar-halka.arama #arEsSn"); assert.equal(await a.isVisible(".ar-sekme"), false, "eşleştirme tam ekran");
   assert.ok(Number(await a.textContent("#arEsSn")) <= 8, "süre sınırı geri sayılır");
@@ -124,12 +127,17 @@ test("Canlı düello: iki sakin eşleşir, soruları cevaplar, sonuç ve sezon p
     await a.waitForSelector(".ar-sec button.secili");
   }
   await Promise.all([a.waitForSelector(".ar-son", { timeout: 15000 }), b.waitForSelector(".ar-son", { timeout: 15000 })]);
+  await a.waitForTimeout(1700);
+  const sesA = await a.evaluate(() => window.__sesler);
+  for (const ad of ["bulundu", "kabul", "tik", "basla", "oz"]) assert.ok(sesA.includes(ad), "ses: " + ad + " / " + sesA.join(","));
+  assert.ok(sesA.some(x => x === "dogru" || x === "yanlis"), "cevap sesi"); assert.ok(sesA.some(x => ["galibiyet", "yenilgi", "berabere"].includes(x)), "sonuç sesi");
   const ta = await a.textContent(".ar-son h3"), tb = await b.textContent(".ar-son h3");
   assert.ok(["Kazandın!", "Bu sefer olmadı", "Berabere"].includes(ta)); assert.ok(["Kazandın!", "Bu sefer olmadı", "Berabere"].includes(tb));
   assert.notEqual(ta === "Kazandın!" && tb === "Kazandın!", true, "ikisi birden kazanamaz");
   assert.equal(await a.$$eval(".ar-ozet li", l => l.length), 5);
   // İlk düello: iki taraf da "İlk Adım" sembolünü kazanır; kazanan "Hilal" simgesini de
   for (const [p, t] of [[a, ta], [b, tb]]) {
+    await p.waitForSelector(".ar-ozkazanc"); assert.match(await p.textContent(".ar-ozkazanc"), t === "Kazandın!" ? /\+30/ : t === "Berabere" ? /\+20/ : /\+15/, "Mavi Öz");
     await p.waitForSelector(".ar-odul"); assert.match(await p.textContent(".ar-odul"), /İlk Adım/);
     if (t === "Kazandın!") assert.match(await p.textContent(".ar-odul"), /Hilal/);
   }
@@ -151,14 +159,23 @@ test("Canlı düello: iki sakin eşleşir, soruları cevaplar, sonuç ve sezon p
 
 test("Kimlik: simge, çerçeve, sembol ve unvan seçimi; profil kartında görünür", { timeout: 60000 }, async () => {
   const a = S1.page;
+  // Ses efektleri düğmesi: kapat/aç, tercih bu cihazda saklanır
+  assert.equal(await a.getAttribute('[data-ar="ses"]', "aria-pressed"), "true");
+  await a.click('[data-ar="ses"]'); await a.waitForFunction(() => document.querySelector('[data-ar="ses"]').getAttribute("aria-pressed") === "false");
+  assert.equal(await a.evaluate(() => localStorage.getItem("bs-ses-acik")), "0");
+  await a.click('[data-ar="ses"]'); await a.waitForFunction(() => document.querySelector('[data-ar="ses"]').getAttribute("aria-pressed") === "true");
   await a.click('[data-ar="sekme:kimlik"]'); await a.waitForSelector(".ar-kgrid.simge");
-  assert.equal(await a.$$eval(".ar-kgrid .ar-kog", l => l.length), 10);
+  assert.equal(await a.$$eval(".ar-kgrid.simge:not(.kol) .ar-kog", l => l.length), 10);
+  assert.equal(await a.$$eval(".ar-kgrid.kol .ar-kog.kilitli", l => l.length), 15, "turnuva koleksiyonu kilitli");
   assert.ok((await a.$$(".ar-kog.kilitli")).length >= 7, "kazanılmayanlar kilitli");
   assert.match(await a.textContent(".ar-kog.kilitli >> nth=0"), /galibiyet|şampiyon|kart|seri|sezon|blok|doğru/i, "kilitli ödülde koşul yazılı");
   for (const t of ["cerceve", "unvan", "sembol"]) { await a.click(`[data-ar="ktur:${t}"]`); await a.waitForSelector(`.ar-kgrid.${t}`); }
   await a.click('[data-ar="sec:y-ilk"]'); await a.waitForFunction(() => document.querySelectorAll(".ar-kimlikon .bsk-y").length === 1);
   assert.equal(await a.getAttribute('[data-ar="sec:y-ilk"]', "aria-pressed"), "true");
   await a.click('[data-ar="ktur:simge"]'); await a.waitForSelector(".ar-kgrid.simge");
+  // Mavi Öz: kartımda göster
+  assert.match(await a.textContent(".ar-ozsatir"), /\d/); await a.check("[data-ar-oz]");
+  await a.waitForFunction(() => /kartında görünecek/.test(document.body.textContent));
   assert.deepEqual(await dokunma(a, ".ar-kgrid button, .ar-kt button"), []);
   assert.equal(await a.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await a.waitForTimeout(2500); // bildirim kaybolsun
@@ -170,9 +187,18 @@ test("Kimlik: simge, çerçeve, sembol ve unvan seçimi; profil kartında görü
   // Profil kartı (Kartım)
   await git(a, "#profil"); await a.waitForSelector(".ok-av-arena .bsk-av");
   await a.waitForSelector(".ok-arena .bsk-y"); assert.match(await a.textContent(".ok-arena"), /Arena/);
+  assert.ok(await a.$(".ok-arena .bsk-ozcip"), "Mavi Öz profil kartında (isteğe bağlı)");
   await a.screenshot({ path: path.join(KOK, "docs/screenshots/profil-arena-kimlik.png") });
   await a.click('.ok-arena [data-ar="kimlikAc"]'); await a.waitForSelector(".ar-kgrid");
   assert.equal(await a.getAttribute('[data-ar="sekme:kimlik"]', "aria-selected"), "true");
+  // Görevler: kart öğrenme görevi tamam → ödülü al
+  assert.match(await a.textContent('[data-ar="sekme:gorevler"]'), /Görevler\s*\d/, "alınabilir ödül rozeti");
+  await a.click('[data-ar="sekme:gorevler"]'); await a.waitForSelector(".ar-gorevler");
+  assert.equal(await a.$$eval(".ar-gorev", l => l.length), 8);
+  await a.click('[data-ar="gorevAl:g-kart"]'); await a.waitForFunction(() => /\+10 Mavi Öz/.test(document.body.textContent));
+  await a.waitForSelector(".ar-gorev.alindi");
+  assert.deepEqual(await dokunma(a, ".ar-gorevler button"), []);
+  await a.waitForTimeout(2500); await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-gorevler.png") });
 });
 
 test("Eşleşme süreleri: onay verilmezse düşer, kabul eden yeniden aranır; arama süresi dolar", { timeout: 60000 }, async () => {
@@ -242,13 +268,15 @@ test("Yönetim: Şikâyetler sekmesi, susturma; susturulan yazamaz", { timeout: 
 test("Turnuva: yönetici formdan oluşturur, sakin kayıt olur", { timeout: 60000 }, async () => {
   const p = Y.page;
   await git(p, "#arena"); await p.click('[data-ar="sekme:turnuva"]'); await p.click('[data-ar="turForm"]');
-  await p.fill("#arTurAd", "Cuma Akşamı Kupası"); await p.click('[data-ar="turOlustur"]');
+  await p.fill("#arTurAd", "Cuma Akşamı Kupası"); assert.equal(await p.$$eval("#arTurOdul option", o => o.length), 16, "ödül seçimi: otomatik + 15 koleksiyon simgesi");
+  await p.selectOption("#arTurOdul", "t-kizkulesi"); await p.click('[data-ar="turOlustur"]');
   try { await p.waitForFunction(() => /Cuma Akşamı Kupası/.test(document.querySelector(".ar").textContent), null, { timeout: 8000 }); }
   catch (e) { throw new Error("Turnuva görünmedi: " + (await p.textContent(".ar")).replace(/\s+/g, " ").slice(0, 400)); }
   const b = S2.page; await git(b, "#arena"); await b.click('[data-ar="sekme:turnuva"]');
   await b.waitForSelector(".ar-turkart"); await b.click(".ar-turkart"); await b.click('[data-ar^="turKatil:"]');
   await b.waitForFunction(() => /Kayıtlısınız/.test(document.querySelector(".ar").textContent));
   assert.match(await b.textContent(".ar-turbas"), /1\/16 kişi/);
+  assert.match(await b.textContent(".ar-turodul"), /Kız Kulesi/); assert.ok(await b.$(".ar-turodul .bsk-kol svg"), "ödül simgesi çizili");
   await b.screenshot({ path: path.join(KOK, "docs/screenshots/arena-turnuva.png") });
   for (const k of [Y, S1, S2]) assert.deepEqual(k.hatalar, [], "sayfa hatası yok");
   for (const k of [Y, S1, S2]) await k.context.close();

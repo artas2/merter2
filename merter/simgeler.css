@@ -48,3 +48,15 @@
 .ok-arena-unvan { padding: 3px 12px; border-radius: 999px; background: rgba(255, 255, 255, .14); color: #fff; font: 700 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; }
 .ok-arena .bsk-y { background: rgba(255, 255, 255, .9); }
 .ok-arena-dzn { min-height: 44px; padding: 0 14px; border: 1.5px solid rgba(255, 255, 255, .45); border-radius: 999px; background: transparent; color: #fff; font: 700 12px var(--f-body); cursor: pointer; }
+
+/* Turnuva koleksiyonu: gece mavisi zemin, çok renkli çizim (renkler SVG'de) */
+.bsk-kol .bsk-ic { background: radial-gradient(110% 100% at 35% 25%, #24406E, #0B1426 75%); }
+.bsk-kol .bsk-svg { width: 84%; height: 84%; fill: none; stroke: none; }
+/* Mavi Öz */
+.bsk-oz { width: 18px; height: 18px; flex: none; }
+.bsk-ozcip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 6px; border-radius: 999px; background: color-mix(in srgb, #2F7FD8 14%, var(--sheet)); border: 1.5px solid color-mix(in srgb, #2F7FD8 45%, transparent); color: var(--ink); }
+.bsk-ozcip b { font: 800 14px var(--f-display); color: #1B5FAE; } .bsk-ozcip small { font: 700 11px var(--f-body); color: var(--muted); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bsk-ozcip b { color: #7CC0FF; } }
+:root[data-theme="dark"] .bsk-ozcip b { color: #7CC0FF; }
+.bsk-ozcip.buyuk { padding: 6px 16px 6px 10px; } .bsk-ozcip.buyuk .bsk-oz { width: 28px; height: 28px; } .bsk-ozcip.buyuk b { font-size: 24px; }
+.ok-arena .bsk-ozcip { background: rgba(255, 255, 255, .92); }

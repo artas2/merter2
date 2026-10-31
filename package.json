@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning src/server.js",
     "seed:demo": "node --disable-warning=ExperimentalWarning scripts/seed-demo.js",
-    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/api.test.js test/abonelik.test.js test/belgeler.test.js test/arena.test.js test/paket.test.js test/kurulum.test.js test/erisilebilirlik.test.js test/e2e.test.js test/kurulum.e2e.test.js test/arayuz.e2e.test.js test/mobil.e2e.test.js test/merter.e2e.test.js test/arena.e2e.test.js test/otoduvar.e2e.test.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/api.test.js test/abonelik.test.js test/belgeler.test.js test/arena.test.js test/kazanim.test.js test/ses.test.js test/paket.test.js test/kurulum.test.js test/erisilebilirlik.test.js test/e2e.test.js test/kurulum.e2e.test.js test/arayuz.e2e.test.js test/mobil.e2e.test.js test/merter.e2e.test.js test/arena.e2e.test.js test/otoduvar.e2e.test.js",
     "test:api": "node --disable-warning=ExperimentalWarning --test test/api.test.js",
     "test:e2e": "node --disable-warning=ExperimentalWarning --test test/e2e.test.js",
     "kur:site": "node --disable-warning=ExperimentalWarning scripts/kur-site.js",

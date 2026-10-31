@@ -4,14 +4,17 @@
 const { Hata } = require("./validate");
 const PREMIUM_MESAJ = "Bu özellik Premium'a dahildir. Profil › Hesap ve abonelik'ten inceleyebilirsiniz; site yönetiminiz tüm sakinler için de açabilir.";
 
-function arenaRotalari({ rota, izin, AR, SH, premiumMu }) {
+function arenaRotalari({ rota, izin, AR, SH, premiumMu, GR }) {
   const premium = ctx => { if (!premiumMu(ctx)) throw new Hata(403, PREMIUM_MESAJ, "premium"); };
   const yonetimMi = ctx => ["site_yonetici", "site_denetci"].includes(ctx.uyelik.rol);
   const sayi = (v, ad) => { const n = Number(v); if (!Number.isInteger(n)) throw new Hata(400, `Geçersiz ${ad}.`); return n; };
   const sk = ctx => ctx.site.id, uk = ctx => ctx.user.id;
 
   // --- Özet ve kartlar (herkese açık) ---
-  rota("GET", "/api/arena/ozet", "uye", ctx => ({ ...AR.ozet(sk(ctx), uk(ctx)), premium: premiumMu(ctx), yonetim: yonetimMi(ctx) }));
+  rota("GET", "/api/arena/ozet", "uye", ctx => ({ ...AR.ozet(sk(ctx), uk(ctx)), premium: premiumMu(ctx), yonetim: yonetimMi(ctx), gorevAlinabilir: GR.alinabilir(sk(ctx), uk(ctx)) }));
+  /* Günlük ve haftalık görevler: ilerleme sunucuda hesaplanır, ödül (Mavi Öz) bir kez alınır */
+  rota("GET", "/api/arena/gorevler", "uye", ctx => GR.liste(sk(ctx), uk(ctx)));
+  rota("POST", "/api/arena/gorev/:kod/al", "uye", ctx => GR.al(sk(ctx), uk(ctx), ctx.params.kod), { yazma: true });
   rota("GET", "/api/arena/kartlar", "uye", ctx => AR.kartlar(sk(ctx), uk(ctx)));
   rota("POST", "/api/arena/kart/:id/ogrendim", "uye", ctx => {
     if (!izin("kart:" + uk(ctx), 60, 60000)) throw new Hata(429, "Çok hızlı. Biraz yavaşlayın.");

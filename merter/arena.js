@@ -9,12 +9,13 @@
   const bildir = m => { try { if (typeof toast === "function") toast(m); } catch (e) { /* yok */ } };
   const acik = () => typeof current !== "undefined" && current === "arena";
   const KAT = { acil: "Acil durum", site: "Site yönetimi", komsuluk: "Komşuluk", tasarruf: "Tasarruf", alisveris: "Alışveriş", guvenlik: "Güvenlik" };
-  const SEKME = [["kartlar", "Kartlar"], ["duello", "Düello"], ["kimlik", "Kimlik"], ["sezon", "Sezon"], ["turnuva", "Turnuva"], ["sohbet", "Sohbet"]];
+  const SEKME = [["kartlar", "Kartlar"], ["duello", "Düello"], ["gorevler", "Görevler"], ["kimlik", "Kimlik"], ["sezon", "Sezon"], ["turnuva", "Turnuva"], ["sohbet", "Sohbet"]];
   const SG = () => window.BS_SIMGE;
+  const ses = ad => { try { if (window.BS_SES) window.BS_SES.cal(ad); } catch (e) { /* sessiz */ } };
   const KTUR = [["simge", "Simgeler"], ["cerceve", "Çerçeveler"], ["sembol", "Semboller"], ["unvan", "Unvanlar"]];
   const turu = kod => ({ s: "simge", c: "cerceve", y: "sembol", u: "unvan" })[String(kod).charAt(0)];
   const A = { sekme: "kartlar", ozet: null, kartlar: null, kat: "", kartAcik: null, deneme: {}, siralama: null, turnuvalar: null, tur: null, turForm: false,
-    mac: null, macId: null, esles: "yok", e: null, kimlik: null, benK: null, kTur: "simge", kisi: null, hata: "", sohbet: null, oda: "site", mesajlar: [], sonId: null, surum: 0, cevrimici: 0, yukleniyor: false };
+    mac: null, macId: null, esles: "yok", e: null, kimlik: null, benK: null, kTur: "simge", kisi: null, gorevler: null, hata: "", sohbet: null, oda: "site", mesajlar: [], sonId: null, surum: 0, cevrimici: 0, yukleniyor: false };
   let fark = 0; // sunucu saati - cihaz saati
 
   function ciz() {
@@ -33,15 +34,18 @@
 
   async function ozetYukle() { try { A.ozet = await api("GET", "/api/arena/ozet"); fark = A.ozet.simdi - Date.now(); if (A.ozet.ben.kimlik) A.benK = A.ozet.ben.kimlik; } catch (e) { A.hata = e.message; } ciz(); }
   async function kimlikYukle() {
-    try { A.kimlik = await api("GET", "/api/arena/kimlik"); A.benK = { ...A.kimlik.secim, unvanAd: SG().ad(A.kimlik.secim.unvan) }; } catch (e) { A.hata = e.message; }
+    try { A.kimlik = await api("GET", "/api/arena/kimlik"); benKYaz(A.kimlik.secim); } catch (e) { A.hata = e.message; }
     ciz(); profilTazele();
   }
+  /* Kendi görünümüm; Mavi Öz yalnızca "profilimde göster" açıkken kartlarda yer alır */
+  const benKYaz = sec => { A.benK = { ...sec, unvanAd: SG().ad(sec.unvan), maviOz: sec.ozGoster && A.kimlik ? A.kimlik.istatistik.maviOz : undefined }; };
   const profilTazele = () => { try { if (typeof current !== "undefined" && current === "profil" && typeof render === "function") render(false); } catch (e) { /* yok */ } };
   async function sekmeYukle() {
     try {
       if (A.sekme === "kartlar" && !A.kartlar) A.kartlar = await api("GET", "/api/arena/kartlar");
       if (A.sekme === "sezon") A.siralama = await api("GET", "/api/arena/siralama");
       if (A.sekme === "kimlik") { await kimlikYukle(); return; }
+      if (A.sekme === "gorevler") { A.gorevler = await api("GET", "/api/arena/gorevler"); fark = A.gorevler.simdi - Date.now(); }
       if (A.sekme === "turnuva") { A.turnuvalar = await api("GET", "/api/arena/turnuvalar"); fark = A.turnuvalar.simdi - Date.now(); }
       if (A.sekme === "sohbet" && A.ozet && A.ozet.premium) sohbetBaslat();
     } catch (e) { A.hata = e.message; }
@@ -55,10 +59,10 @@
     if (A.esles !== "yok") return `<section class="ar ar-eslesme">${A.hata ? `<p class="ar-not hata" role="alert">${h(A.hata)}</p>` : ""}${eslesView()}</section>`;
     const o = A.ozet;
     const ust = `<div class="ar-ust"><p class="eyebrow">${h(o.sezon.ad)} · ${kalan(o.sezon.bitis)} kaldı · <span class="ar-nokta"></span>${o.cevrimici} çevrim içi</p>
-      <h2 class="title">Arena</h2>
-      <div class="ar-ben">${SG() ? SG().avatar(A.benK || o.ben.kimlik, { boyut: 44 }) : ""}<span class="ar-unvan">${h(o.ben.unvan)}</span><b>${o.ben.puan}</b><small>puan${o.ben.sira ? ` · ${o.ben.sira}. sıra` : ""} · bugün ${o.ben.bugun}/${o.tavan}</small></div></div>
-      <nav class="ar-sekme" role="tablist">${SEKME.map(([k, ad]) => `<button type="button" role="tab" aria-selected="${A.sekme === k}" data-ar="sekme:${k}">${ad}</button>`).join("")}</nav>`;
-    const govde = A.sekme === "kartlar" ? kartlarView() : A.sekme === "duello" ? duelloView() : A.sekme === "kimlik" ? kimlikView() : A.sekme === "sezon" ? sezonView() : A.sekme === "turnuva" ? turnuvaView() : sohbetView();
+      <div class="ar-basliksatir"><h2 class="title">Arena</h2>${window.BS_SES ? `<button type="button" class="ar-sesdugme" data-ar="ses" aria-pressed="${BS_SES.acik()}" aria-label="Ses efektleri ${BS_SES.acik() ? "açık" : "kapalı"}">${BS_SES.acik() ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>` : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`}</button>` : ""}</div>
+      <div class="ar-ben">${SG() ? SG().avatar(A.benK || o.ben.kimlik, { boyut: 44 }) : ""}<span class="ar-unvan">${h(o.ben.unvan)}</span><b>${o.ben.puan}</b><small>puan${o.ben.sira ? ` · ${o.ben.sira}. sıra` : ""} · bugün ${o.ben.bugun}/${o.tavan}</small>${SG() ? SG().oz(o.maviOz, { etiket: false }) : ""}</div></div>
+      <nav class="ar-sekme" role="tablist">${SEKME.map(([k, ad]) => `<button type="button" role="tab" aria-selected="${A.sekme === k}" data-ar="sekme:${k}">${ad}${k === "gorevler" && o.gorevAlinabilir ? ` <span class="ar-rozet" aria-label="${o.gorevAlinabilir} ödül alınabilir">${o.gorevAlinabilir}</span>` : ""}</button>`).join("")}</nav>`;
+    const govde = A.sekme === "kartlar" ? kartlarView() : A.sekme === "duello" ? duelloView() : A.sekme === "gorevler" ? gorevlerView() : A.sekme === "kimlik" ? kimlikView() : A.sekme === "sezon" ? sezonView() : A.sekme === "turnuva" ? turnuvaView() : sohbetView();
     return `<section class="ar">${ust}${A.hata ? `<p class="ar-not hata" role="alert">${h(A.hata)}</p>` : ""}${govde}${A.kisi ? kisiKartView(A.kisi) : ""}</section>`;
   }
   const kalan = ms => { const d = Math.max(0, ms - (Date.now() + fark)), g = Math.floor(d / 864e5), s = Math.floor(d % 864e5 / 36e5), dk = Math.floor(d % 36e5 / 6e4); return g ? `${g} gün ${s} sa` : s ? `${s} sa ${dk} dk` : `${dk} dk`; };
@@ -93,7 +97,7 @@
       <circle id="arEsHalka" class="dolu" cx="60" cy="60" r="54" stroke-dasharray="${CEVRE}" stroke-dashoffset="${(CEVRE * (1 - oran)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg><div class="ic">${ic}</div></div>`;
   }
   const oyuncu = (p, sinif) => p ? `<div class="ar-oyuncu ${sinif}">${SG().avatar(p.kimlik, { boyut: 76 })}<b>${h(p.ad)}</b>
-    <small>${p.blok ? h(p.blok) + " Blok · " : ""}${h(SG().unvan(p.kimlik))}${p.puan != null ? ` · ${p.puan} puan` : ""}</small>${SG().semboller(p.kimlik && p.kimlik.semboller)}</div>` : "";
+    <small>${p.blok ? h(p.blok) + " Blok · " : ""}${h(SG().unvan(p.kimlik))}${p.puan != null ? ` · ${p.puan} puan` : ""}</small>${SG().semboller(p.kimlik && p.kimlik.semboller)}${p.kimlik && p.kimlik.maviOz != null ? SG().oz(p.kimlik.maviOz, { etiket: false }) : ""}</div>` : "";
   function eslesView() {
     const e = A.e || {}, t = simdiS();
     if (A.esles === "bekliyor") {
@@ -130,7 +134,7 @@
     const e = A.e, t = simdiS(), kalanMs = Math.max(0, e.bitis - t), toplam = A.esles === "teklif" ? e.kabulSureMs : e.bitis - e.bas;
     const c = document.getElementById("arEsHalka"), sn = document.getElementById("arEsSn");
     if (c) c.setAttribute("stroke-dashoffset", (CEVRE * (1 - Math.max(0, Math.min(1, kalanMs / toplam)))).toFixed(1));
-    if (sn) { const v = String(Math.ceil(kalanMs / 1000)); if (sn.textContent !== v) { sn.textContent = v; if (A.esles === "teklif" && kalanMs <= 3000) sn.parentNode.parentNode.classList.add("acil"); } }
+    if (sn) { const v = String(Math.ceil(kalanMs / 1000)); if (sn.textContent !== v) { sn.textContent = v; if (A.esles === "teklif" && kalanMs <= 3000) { sn.parentNode.parentNode.classList.add("acil"); if (kalanMs > 0 && !A.e.benKabul) ses("tik"); } } }
     if (A.esles === "bekliyor" && t - e.bas >= 15000 && !document.querySelector('[data-ar="antrenman"]')) ciz();
   }
   setInterval(eslesTik, 200);
@@ -140,9 +144,10 @@
   function eslesIsle(r) {
     if (r.simdi) fark = r.simdi - Date.now();
     if (r.durum === "mac") { eslesDongu++; A.esles = "yok"; A.e = null; macAc(r.macId); return true; }
-    const oncekiTeklif = A.esles === "teklif" && A.e ? A.e.teklifId : null;
+    const oncekiTeklif = A.esles === "teklif" && A.e ? A.e.teklifId : null, oncekiDurum = A.esles;
     A.e = r; A.esles = r.durum === "yok" ? "yok" : r.durum;
-    if (r.durum === "teklif" && r.teklifId !== oncekiTeklif) { titret(); bildir(`Rakip bulundu! ${Math.round(r.kabulSureMs / 1000)} saniye içinde kabul et.`); }
+    if ((r.durum === "sure" || r.durum === "kacirdi") && oncekiDurum !== r.durum) ses("sure");
+    if (r.durum === "teklif" && r.teklifId !== oncekiTeklif) { titret(); ses("bulundu"); bildir(`Rakip bulundu! ${Math.round(r.kabulSureMs / 1000)} saniye içinde kabul et.`); }
     ciz();
     if (r.durum === "teklif" && !r.benKabul) setTimeout(() => { const b = document.querySelector(".ar-kabul"); if (b && acik()) b.focus(); }, 50);
     return r.durum !== "bekliyor" && r.durum !== "teklif";
@@ -175,13 +180,35 @@
     const secili = k => A.kTur === "sembol" ? sec.semboller.includes(k.kod) : sec[A.kTur] === k.kod;
     return `<div class="ar-kimlikon">${SG().avatar(benk, { boyut: 112 })}
         <div><b class="ar-kad">${h(benAd())}</b><span class="ar-unvan">${h(benk.unvanAd)}</span>${SG().semboller(sec.semboller) || `<small class="lvl">Sembol seçilmedi (en çok 3)</small>`}</div>
-        <p class="ar-kist"><span><b>${K.sahip}</b>/${K.toplam} ödül</span><span><b>${ist.galibiyet}</b> galibiyet</span><span><b>${ist.enSeri}</b> en uzun seri</span><span><b>${ist.kusursuz}</b> kusursuz</span></p></div>
+        <p class="ar-kist"><span><b>${K.sahip}</b>/${K.toplam} ödül</span><span><b>${ist.galibiyet}</b> galibiyet</span><span><b>${ist.enSeri}</b> en uzun seri</span><span><b>${ist.kusursuz}</b> kusursuz</span></p>
+        <div class="ar-ozsatir">${SG().oz(ist.maviOz, { sinif: "buyuk" })}<label class="ar-anahtar"><input type="checkbox" data-ar-oz ${sec.ozGoster ? "checked" : ""}><span>Mavi Öz'ü kartımda göster</span></label></div></div>
+      <p class="lvl">Mavi Öz her eşleşmeli düellodan sonra kazanılır: galibiyet ${K.ozKurali.galibiyet}, beraberlik ${K.ozKurali.berabere}, yenilgi ${K.ozKurali.yenilgi} (turnuva maçında +${K.ozKurali.turnuvaEk}, şampiyonlukta +${K.ozKurali.sampiyon}). Görevler de Mavi Öz verir. Aynı rakiple günde 3 maçtan sonrası öz vermez.</p>
       <p class="lvl">Ödülleri düello, kart, turnuva ve sezon sonuçlarına göre sunucu verir. Seçtiklerin sıralamada, eşleşme ekranında ve profil kartında görünür.</p>
       <nav class="ar-sekme ar-kt" role="tablist" aria-label="Ödül türü">${KTUR.map(([k, ad]) => `<button type="button" role="tab" aria-selected="${A.kTur === k}" data-ar="ktur:${k}">${ad}</button>`).join("")}</nav>
       <p class="ar-ilerleme"><b>${sahip}</b>/${liste.length} açıldı${A.kTur === "sembol" ? ` · ${sec.semboller.length}/3 seçili` : ""}</p>
-      <ul class="ar-kgrid ${A.kTur}">${liste.map((k, i) => `<li style="--i:${i}"><button type="button" class="ar-kog bsk-n-${k.nadirlik}${k.var ? "" : " kilitli"}${secili(k) ? " secili" : ""}" data-ar="${k.var ? `sec:${k.kod}` : `kilit:${k.kod}`}" aria-pressed="${secili(k)}" aria-label="${h(k.ad)}, ${h(k.nadirlikAd)}${k.var ? (secili(k) ? ", seçili" : "") : ", kilitli: " + h(k.kosul)}">
+      ${A.kTur === "simge" ? gridHtml(liste.filter(k => !k.koleksiyon), sec, secili) + `<h3 class="ar-baslik">Turnuva koleksiyonu · İstanbul ve Anadolu</h3>
+        <p class="lvl">Her turnuvanın bir ödül simgesi vardır; şampiyon onu kazanır (zaten varsa koleksiyondaki sıradaki eksik simgeyi). ${liste.filter(k => k.koleksiyon && k.var).length}/${liste.filter(k => k.koleksiyon).length} toplandı.</p>
+        ${gridHtml(liste.filter(k => k.koleksiyon), sec, secili, "kol")}` : gridHtml(liste, sec, secili)}`;
+  }
+  function gridHtml(liste, sec, secili, ek = "") {
+    return `<ul class="ar-kgrid ${A.kTur} ${ek}">${liste.map((k, i) => `<li style="--i:${i}"><button type="button" class="ar-kog bsk-n-${k.nadirlik}${k.var ? "" : " kilitli"}${secili(k) ? " secili" : ""}" data-ar="${k.var ? `sec:${k.kod}` : `kilit:${k.kod}`}" aria-pressed="${secili(k)}" aria-label="${h(k.ad)}, ${h(k.nadirlikAd)}${k.var ? (secili(k) ? ", seçili" : "") : ", kilitli: " + h(k.kosul)}">
         <span class="ar-kgor">${odulGorsel(k.kod, sec)}${k.var ? "" : `<span class="ar-kilitik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3h1v11H6V10Zm2 0h6V7a3 3 0 0 0-6 0Z"/></svg></span>`}</span>
         <b>${h(k.ad)}</b><small class="ar-nadir">${h(k.nadirlikAd)}</small>${k.var ? (secili(k) ? `<small class="ar-secili">Kullanılıyor</small>` : "") : `<small class="ar-kosul">${h(k.kosul)}</small>`}</button></li>`).join("")}</ul>`;
+  }
+  /* Günlük ve haftalık görevler */
+  function gorevlerView() {
+    const G = A.gorevler; if (!G) return `<div class="ar-bekle"><span></span><span></span><span></span></div>`;
+    const blok = (donem, baslik) => {
+      const l = G.gorevler.filter(g => g.donem === donem);
+      return `<section class="ar-gorevler"><div class="ar-ghead"><h3 class="ar-baslik">${baslik}</h3><small>${kalan(G.yenilenme[donem])} sonra yenilenir</small></div>
+        <ul>${l.map((g, i) => `<li class="ar-gorev${g.alindi ? " alindi" : g.tamam ? " tamam" : ""}" style="--i:${i}">
+          <div class="ar-gmetin"><b>${h(g.ad)}</b><small>${h(g.aciklama)}</small>
+            <span class="ar-cubuk" role="progressbar" aria-valuemin="0" aria-valuemax="${g.hedef}" aria-valuenow="${g.ilerleme}" aria-label="${h(g.ad)} ilerlemesi"><i style="width:${Math.round(g.ilerleme / g.hedef * 100)}%"></i></span>
+            <small>${g.ilerleme}/${g.hedef}</small></div>
+          <div class="ar-godul">${SG().oz(g.oz, { etiket: false })}${g.alindi ? `<span class="ar-alindi">✓ Alındı</span>` : g.tamam ? `<button type="button" class="ar-ana" data-ar="gorevAl:${h(g.kod)}">Ödülü al</button>` : ""}</div></li>`).join("")}</ul></section>`;
+    };
+    return `<div class="ar-ozhero">${SG().oz(G.maviOz, { sinif: "buyuk" })}<p>Görevleri tamamla, Mavi Öz topla. İlerleme oynadığın maçlardan ve öğrendiğin kartlardan kendiliğinden hesaplanır.</p></div>
+      ${blok("gun", "Günlük görevler")}${blok("hafta", "Haftalık görevler")}<p class="lvl">Gün Türkiye saatiyle gece yarısı, hafta pazartesi 00:00'da yenilenir.</p>`;
   }
   async function kimlikSec(kod) {
     if (!A.kimlik) await kimlikYukle();
@@ -190,7 +217,7 @@
     if (t === "sembol") { const l = sec.semboller.includes(kod) ? sec.semboller.filter(x => x !== kod) : [...sec.semboller, kod].slice(-3); govde = { semboller: l }; }
     else govde = { [t]: kod };
     const yeni = await api("PUT", "/api/arena/kimlik", govde);
-    A.kimlik.secim = yeni; A.benK = { ...yeni, unvanAd: SG().ad(yeni.unvan) };
+    A.kimlik.secim = yeni; benKYaz(yeni); ses("kabul");
     bildir(t === "sembol" ? "Semboller güncellendi." : `${SG().ad(kod)} kullanılıyor.`);
     ciz(); profilTazele();
   }
@@ -200,7 +227,7 @@
       <button type="button" class="mini ar-kisikapat" data-ar="kisiKapat" aria-label="Kapat">✕</button>
       ${SG().avatar(r.kimlik, { boyut: 112 })}<h3>${h(r.ad)}</h3><span class="ar-unvan">${h(SG().unvan(r.kimlik))}</span>
       <p class="lvl">${r.blok ? h(r.blok) + " Blok · " : ""}${r.sira}. sıra · ${r.puan} puan · ${r.galibiyet}/${r.mac} galibiyet</p>
-      ${SG().semboller(r.kimlik && r.kimlik.semboller, { sinif: "buyuk" }) || ""}</div>`;
+      ${SG().semboller(r.kimlik && r.kimlik.semboller, { sinif: "buyuk" }) || ""}${r.kimlik && r.kimlik.maviOz != null ? SG().oz(r.kimlik.maviOz) : ""}</div>`;
   }
 
   /* Düello */
@@ -239,7 +266,8 @@
       const st = { ben: ["Kazandın!", "kazandi"], rakip: ["Bu sefer olmadı", "kaybetti"], berabere: [g.rakip ? "Berabere" : "Antrenman bitti", "berabere"] }[g.sonuc] || ["Bitti", ""];
       const yeni = (g.yeniKazanimlar || []).filter(k => SG() && SG().META[k]);
       const odul = yeni.length ? `<div class="ar-odul" role="status"><h4>${yeni.length > 1 ? "Yeni ödüller açıldı!" : "Yeni ödül açıldı!"}</h4><ul>${yeni.map((k, i) => `<li style="--i:${i}">${odulGorsel(k, A.benK)}<b>${h(SG().ad(k))}</b><small class="ar-nadir bsk-n-${SG().nadir(k)}">${h(SG().NADIR[SG().nadir(k)])}</small><button type="button" class="ar-hap" data-ar="sec:${k}">${turu(k) === "sembol" ? "Sembollere ekle" : "Kullan"}</button></li>`).join("")}</ul></div>` : "";
-      ic = `<div class="ar-son ${st[1]}"><span class="ar-damla buyuk"><b>${g.ben.puan}</b></span><h3>${st[0]}</h3>${odul}
+      const ozk = g.maviOz ? `<p class="ar-ozkazanc">${g.maviOz.kazanilan ? `+${g.maviOz.kazanilan}` : "+0"} ${SG() ? SG().OZ_SVG : ""} <span>Mavi Öz${g.maviOz.kazanilan ? "" : " (aynı rakiple bugünkü sınır doldu)"}</span><small>Toplam ${g.maviOz.toplam}</small></p>` : "";
+      ic = `<div class="ar-son ${st[1]}"><span class="ar-damla buyuk"><b>${g.ben.puan}</b></span><h3>${st[0]}</h3>${ozk}${odul}
         <ol class="ar-ozet">${g.gecmis.map(s => `<li class="${s.ben && s.ben.puan ? "ok" : "x"}"><span>${s.no + 1}</span>${h(s.metin)}<small>Doğru: ${h(s.secenekler[s.dogru])}</small></li>`).join("")}</ol>
         <div class="ar-eylem">${g.turnuvaMacId ? `<button type="button" class="ar-ana" data-ar="macKapat:turnuva">Turnuvaya dön</button>` : `<button type="button" class="ar-ana" data-ar="yeniRakip">Yeni rakip</button>`}<button type="button" class="ar-hap" data-ar="macKapat">Arenaya dön</button></div></div>`;
     }
@@ -249,7 +277,7 @@
     if (!A.mac || !acik()) return;
     const simdi = Date.now() + fark, z = document.getElementById("arZaman"), s = document.getElementById("arSayac");
     if (z && A.mac.soru) z.style.width = Math.max(0, (A.mac.soru.bitis - simdi) / A.mac.soruMs * 100) + "%";
-    if (s) s.textContent = Math.max(1, Math.ceil((A.mac.t0 - simdi) / 1000));
+    if (s) { const v = String(Math.max(1, Math.ceil((A.mac.t0 - simdi) / 1000))); if (s.textContent !== v) { s.textContent = v; ses("tik"); } }
     if (A.mac.siradaki && simdi >= A.mac.siradaki + 150 && !A.macBekliyor) macCek();
   }
   setInterval(macTik, 200);
@@ -264,9 +292,21 @@
         if (d !== macDongu) return;
         fark = g.simdi - Date.now();
         const degisti = !A.mac || A.mac.ver !== g.ver || A.mac.durum !== g.durum;
+        macSesleri(A.mac, g);
         A.mac = g; if (degisti) ciz();
         if (g.bitti) { ozetYukle(); return; }
       } catch (e) { A.macBekliyor = false; A.hata = e.message; if (e.status === 404) { A.macId = null; ciz(); return; } await new Promise(r => setTimeout(r, 2000)); }
+    }
+  }
+  /* Maç durum geçişlerinde ses: ilk soru başlarken, her soru kapanınca doğru/yanlış, bitişte sonuç, ödül ve Mavi Öz */
+  function macSesleri(o, g) {
+    if (!o) return;
+    if (o.durum === "geriSayim" && g.durum === "soru") ses("basla");
+    if (g.gecmis && o.gecmis && g.gecmis.length > o.gecmis.length && !g.bitti) { const s = g.gecmis[g.gecmis.length - 1]; ses(s.ben && s.ben.puan ? "dogru" : "yanlis"); }
+    if (g.bitti && !o.bitti) {
+      ses(g.sonuc === "ben" ? "galibiyet" : g.sonuc === "rakip" ? "yenilgi" : "berabere");
+      if (g.maviOz && g.maviOz.kazanilan) setTimeout(() => ses("oz"), 900);
+      if (g.yeniKazanimlar && g.yeniKazanimlar.length) setTimeout(() => ses("odul"), 1500);
     }
   }
   async function macCek() { if (!A.macId) return; try { A.macBekliyor = true; const g = await api("GET", "/api/arena/mac/" + encodeURIComponent(A.macId)); fark = g.simdi - Date.now(); A.mac = g; ciz(); } catch (e) { /* döngü dener */ } A.macBekliyor = false; }
@@ -293,7 +333,8 @@
     let x = `<p class="lvl">Turnuvalar belirli saatlerde oynanır. Maç saatinden 5 dakika önce "Hazırım" deyin; iki taraf da hazırsa maç başlar. Maç saatinden 3 dakika sonra gelmeyen taraf turu kaybeder.</p>`;
     if (A.ozet.yonetim) x += A.turForm ? turFormHtml() : `<button type="button" class="ar-hap" data-ar="turForm">+ Turnuva oluştur</button>`;
     x += T.turnuvalar.length ? `<ul class="ar-liste">${T.turnuvalar.map(t => `<li><button type="button" class="ar-turkart ${t.durum}" data-ar="turAc:${t.id}"><span class="ar-etiket">${DURUM[t.durum]}</span><b>${h(t.ad)}</b>
-      <small>${tarihYazi(t.baslangic)} · ${t.katilimci}/${t.maxKisi} kişi${t.katildim ? " · Kayıtlısınız" : ""}${t.sampiyon ? " · Şampiyon: " + h(t.sampiyon) : ""}</small></button></li>`).join("")}</ul>` : `<div class="ar-bos"><span class="ar-damla"></span><p>Planlanmış turnuva yok.${A.ozet.yonetim ? " Yukarıdan bir tane oluşturun." : " Site yönetimi duyurduğunda burada görünür."}</p></div>`;
+      <small>${tarihYazi(t.baslangic)} · ${t.katilimci}/${t.maxKisi} kişi${t.katildim ? " · Kayıtlısınız" : ""}${t.sampiyon ? " · Şampiyon: " + h(t.sampiyon) : ""}</small>
+      ${t.odul && SG() ? `<span class="ar-turodul">${SG().avatar({ simge: t.odul.kod, cerceve: "c-zumrut" }, { boyut: 40 })}<span>Şampiyonluk ödülü<b>${h(t.odul.ad)}</b></span></span>` : ""}</button></li>`).join("")}</ul>` : `<div class="ar-bos"><span class="ar-damla"></span><p>Planlanmış turnuva yok.${A.ozet.yonetim ? " Yukarıdan bir tane oluşturun." : " Site yönetimi duyurduğunda burada görünür."}</p></div>`;
     return x;
   }
   function turFormHtml() {
@@ -303,13 +344,15 @@
       <label>Ad<input id="arTurAd" maxlength="60" placeholder="Ör. Cuma akşamı kupası"></label>
       <label>Başlangıç<input id="arTurBas" type="datetime-local" value="${yerel}"></label>
       <div class="ar-ikili"><label>Turlar arası (dk)<input id="arTurAra" inputmode="numeric" value="15"></label><label>En çok kişi<input id="arTurMax" inputmode="numeric" value="16"></label></div>
+      <label>Şampiyonluk ödülü<select id="arTurOdul"><option value="">Sıradaki koleksiyon simgesi (otomatik)</option>${((A.turnuvalar && A.turnuvalar.koleksiyon) || []).map(k => `<option value="${h(k.kod)}">${h(k.ad)}</option>`).join("")}</select></label>
       <div class="ar-eylem"><button type="button" class="ar-ana" data-ar="turOlustur">Oluştur</button><button type="button" class="ar-hap" data-ar="turFormKapat">Vazgeç</button></div></form>`;
   }
   function turDetayView() {
     const d = A.tur, t = d.turnuva, simdi = Date.now() + fark;
     const turSay = Math.max(0, ...d.maclar.map(m => m.tur)) + 1, ad = r => (r === turSay - 1 ? "Final" : r === turSay - 2 ? "Yarı final" : r === turSay - 3 ? "Çeyrek final" : `${r + 1}. tur`);
     let x = `<button type="button" class="ar-hap" data-ar="turKapat">← Turnuvalar</button><div class="ar-turbas"><span class="ar-etiket">${DURUM[t.durum]}</span><h3>${h(t.ad)}</h3><p>${tarihYazi(t.baslangic)} · turlar arası ${Math.round(t.turAraligiMs / 6e4)} dk · ${d.katilimci}/${t.maxKisi} kişi</p>
-      ${t.sampiyon ? `<p class="ar-sampiyon"><span class="ar-damla"></span>Şampiyon: <b>${h(t.sampiyon.ad)}</b>${t.sampiyon.blok ? ` (${h(t.sampiyon.blok)} Blok)` : ""}</p>` : ""}</div>`;
+      ${t.sampiyon ? `<p class="ar-sampiyon"><span class="ar-damla"></span>Şampiyon: <b>${h(t.sampiyon.ad)}</b>${t.sampiyon.blok ? ` (${h(t.sampiyon.blok)} Blok)` : ""}</p>` : ""}
+      ${t.odul && SG() ? `<div class="ar-turodul buyuk">${SG().avatar({ simge: t.odul.kod, cerceve: "c-zumrut" }, { boyut: 72 })}<span>Şampiyonluk ödülü<b>${h(t.odul.ad)}</b><small>Turnuva koleksiyonu simgesi + Taç, Zümrüt çerçeve, Şampiyon unvanı ve Mavi Öz</small></span></div>` : ""}</div>`;
     if (t.durum === "kayit") {
       x += `<div class="ar-eylem">${A.ozet.premium ? (d.katildim ? `<button type="button" class="ar-hap" data-ar="turAyril:${t.id}">Kaydımı sil</button><span class="ar-not">Kayıtlısınız. Kura başlangıçtan 5 dk önce çekilir.</span>` : `<button type="button" class="ar-ana" data-ar="turKatil:${t.id}">Kayıt ol</button>`) : `<button type="button" class="ar-ana" data-bshesap="premium">Katılmak için Premium</button>`}
         ${A.ozet.yonetim ? `<button type="button" class="ar-hap tehlike" data-ar="turIptal:${t.id}">Turnuvayı iptal et</button>` : ""}</div>`;
@@ -452,12 +495,17 @@
       if (k === "eslesKapat") { eslesDongu++; A.esles = "yok"; A.e = null; return ciz(); }
       if (k === "kabul") {
         if (!A.e || !A.e.teklifId) return;
-        const b = document.querySelector(".ar-kabul"); if (b) b.disabled = true;
+        const b = document.querySelector(".ar-kabul"); if (b) b.disabled = true; ses("kabul");
         const r = await api("POST", "/api/arena/esles/kabul", { teklifId: A.e.teklifId });
         if (A.esles === "teklif" || r.durum === "mac") eslesIsle(r); return;
       }
       if (k === "antrenman") { eslesDongu++; A.esles = "yok"; A.e = null; const r = await api("POST", "/api/arena/antrenman", {}); return macAc(r.macId); }
       if (k === "ktur") { A.kTur = x; return ciz(); }
+      if (k === "ses") { BS_SES.ayarla(!BS_SES.acik()); bildir(BS_SES.acik() ? "Ses efektleri açık." : "Ses efektleri kapalı."); return ciz(); }
+      if (k === "gorevAl") {
+        const r = await api("POST", `/api/arena/gorev/${encodeURIComponent(x)}/al`, {});
+        bildir(`+${r.oz} Mavi Öz kazandın!`); ses("oz"); A.gorevler = await api("GET", "/api/arena/gorevler"); if (A.ozet) { A.ozet.maviOz = r.maviOz; A.ozet.gorevAlinabilir = A.gorevler.alinabilir; } A.kimlik = null; return ciz();
+      }
       if (k === "sec") return kimlikSec(x);
       if (k === "kilit") { const o = A.kimlik && A.kimlik.katalog.find(z => z.kod === x); if (o) bildir(`${o.ad}: ${o.kosul}`); return; }
       if (k === "kimlikAc") { A.sekme = "kimlik"; A.macId = null; if (location.hash !== "#arena") location.hash = "#arena"; else { ciz(); sekmeYukle(); } return; }
@@ -474,7 +522,7 @@
       if (k === "turFormKapat") { A.turForm = false; return ciz(); }
       if (k === "turOlustur") {
         const v = id => (document.getElementById(id) || {}).value || "";
-        await api("POST", "/api/arena/turnuvalar", { ad: v("arTurAd"), baslangic: new Date(v("arTurBas")).getTime(), turAraligiDk: Number(v("arTurAra")), maxKisi: Number(v("arTurMax")) });
+        await api("POST", "/api/arena/turnuvalar", { ad: v("arTurAd"), baslangic: new Date(v("arTurBas")).getTime(), turAraligiDk: Number(v("arTurAra")), maxKisi: Number(v("arTurMax")), odul: v("arTurOdul") });
         A.turForm = false; if (document.activeElement) document.activeElement.blur(); bildir("Turnuva oluşturuldu."); return sekmeYukle();
       }
       if (k === "turAc") return turAc(Number(x));
@@ -489,6 +537,12 @@
     } catch (e) { hataYaz(e); }
   }
   document.addEventListener("click", e => { const b = e.target.closest("[data-ar]"); if (b) { e.preventDefault(); islem(b.dataset.ar); } });
+  /* "Mavi Öz'ü kartımda göster" anahtarı */
+  document.addEventListener("change", async e => {
+    if (!e.target.matches("[data-ar-oz]")) return;
+    try { const yeni = await api("PUT", "/api/arena/kimlik", { ozGoster: e.target.checked }); A.kimlik.secim = yeni; benKYaz(yeni); bildir(yeni.ozGoster ? "Mavi Öz kartında görünecek." : "Mavi Öz kartında gizlendi."); ciz(); profilTazele(); }
+    catch (err) { hataYaz(err); }
+  });
   document.addEventListener("keydown", e => {
     if (e.key === "Enter" && e.target.id === "arGiris") { e.preventDefault(); gonder(); }
     if (e.key === "Escape" && A.kisi && acik()) { A.kisi = null; ciz(); }
@@ -548,7 +602,7 @@
     },
     profilKimlik: () => {
       if (!SG() || !A.benK) return "";
-      return `<div class="ok-arena"><span class="ok-arena-unvan">Arena · ${h(SG().unvan(A.benK))}</span>${SG().semboller(A.benK.semboller)}
+      return `<div class="ok-arena"><span class="ok-arena-unvan">Arena · ${h(SG().unvan(A.benK))}</span>${SG().semboller(A.benK.semboller)}${A.benK.maviOz != null ? SG().oz(A.benK.maviOz, { etiket: false }) : ""}
         <button type="button" class="ok-arena-dzn" data-ar="kimlikAc">Kimliğini düzenle</button></div>`;
     },
     kart: () => `<a class="hcard link ar-giriskart" href="#arena"><div class="hhead"><span class="ar-damla kucuk" aria-hidden="true"></span><h3>Arena</h3></div>

@@ -4,6 +4,161 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-10-31 · Arenayı ve ses efektlerini unutma
+
+**Kullanıcının sözleri:** "Arenayı ve ses efektlerini unutma."
+
+```
+HEDEF       : Arena olaylarına ses efekti eklemek; arena işlerini eksiksiz bitirmek.
+KAPSAM      : 1) 12 ses: rakip bulundu, kabul, geri sayım tıkı, başla, doğru, yanlış, galibiyet, yenilgi, beraberlik, ödül, Mavi Öz, süre doldu.
+              2) Sesler cihazda sentezlenir (dosya ve lisans yok); aç/kapa düğmesi, tercih cihazda saklanır.
+              3) Her ses 48 kHz'de ölçülür; ölçüm betiği ve test.
+KISITLAR    : Kural 1 (ölçüp rakam ver); önce sor (push, yayın); ücretsiz.
+BAŞARI      : True peak ≤ -3 dBTP, anlık yükseklik ≤ -18 LUFS (test); tarayıcı testi seslerin doğru anda çalındığını doğrular.
+VARSAYIMLAR : -14 LUFS müzik/yayın akışı referansıdır; arayüz sesleri bilerek daha sessiz tutuldu.
+              "Arenayı unutma" = arenadaki yarım işler (eşleşme, kimlik, görevler) bitirilsin.
+BELİRSİZ    : Cihaz hoparlöründe algılanan ses düzeyi (yalnızca sayısal seviye ölçüldü).
+```
+
+**Puan: 86 (baş usta).**
+- Niyete sadakat 3: "Arenayı unutma" belirsiz, yorumlandı.
+- Ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 4, kısalık 4, dil 4.
+
+---
+
+## 2026-10-31 · Hizmetlerimize halı yıkama ve çiftlikten taze süt
+
+**Kullanıcının sözleri:** "Eklemesini istediğim diğer şey de, hizmetlerimiz kısmına halı yıkama ve taze süt çiftlikten."
+
+```
+HEDEF       : Hizmetler sayfasına "Halı yıkama" ve "Çiftlikten taze süt" eklemek.
+KAPSAM      : 1) Halı: halı sayısı, tahmini m², toplama günü, not; tahmini tutar (TL/m²); durum Talep alındı → Toplandı → Hazır → Teslim.
+              2) Süt: litre (1–10), teslim günü, "her hafta tekrarla", not; tutar (TL/litre); durum Sipariş alındı → Onaylandı → Teslim.
+              3) Yönetim: Halı ve Süt sekmeleri (süt günlere göre toplam litre), ayarlarda fiyat, çiftlik adı, teslim günleri, son sipariş saati.
+KAPSAM DIŞI : Ödeme almak; belirli bir çiftlik ya da firma seçmek.
+KISITLAR    : Fiyat ve tedarikçi uydurulmaz (yönetim girer, boşsa "yönetimce belirlenir"); kişisel veri gizli; önce sor.
+BAŞARI      : Claude sayfası testi 24/24; mevcut hizmet testleri bozulmaz; 320 px'de yatay kayma yok.
+VARSAYIMLAR : "Hizmetlerimiz" = Hizmetler sayfası. Varsayılan teslim günleri Salı ve Cuma (yönetim değiştirir).
+BELİRSİZ    : Tedarikçinin gıda satışı için gerekli kayıt ve izinleri (yönetim kontrol etmeli; uygulama doğrulamaz).
+```
+
+**Puan: 88 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 4, kısalık 3, dil 3.
+
+---
+
+## 2026-10-31 · Günlük ve haftalık görevler
+
+**Kullanıcının sözleri:** "Haftalık ve günlük olmak üzere görevler verebiliriz bu aşamada."
+
+```
+HEDEF       : Arenaya günlük ve haftalık görevler eklemek.
+KAPSAM      : 3 günlük (2 düello, 1 galibiyet, 1 kart) ve 5 haftalık (10 düello, 5 galibiyet, 5 kart, kusursuz maç, turnuva maçı) görev;
+              Görevler sekmesi, ilerleme çubuğu, yenilenme geri sayımı, "Ödülü al" ve sekmede alınabilir ödül rozeti.
+KISITLAR    : İlerlemeyi sunucu hesaplar; ödül bir kez alınır; önce sor.
+BAŞARI      : API testi: ödül iki kez alınamaz, tamamlanmadan alınamaz, ertesi gün sıfırlanır; tarayıcı testi ödül alır.
+VARSAYIMLAR : Ödül Mavi Öz; gün Türkiye saatiyle 00:00'da, hafta pazartesi yenilenir.
+BELİRSİZ    : Görev listesi ve ödül miktarları (değiştirilebilir).
+```
+
+**Puan: 87 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 3, kısıtlar 4, yapı 4, kısalık 4, dil 3.
+
+---
+
+## 2026-10-31 · Her eşleşmeden sonra Mavi Öz; istenirse profilde görünsün
+
+**Kullanıcının sözleri:** "Her eşleşmeden sonra mavi öz ekleyelim." · "Mavi öz kazanımları profilde istenirse gösterilebilir."
+
+```
+HEDEF       : Eşleşmeli her düellodan sonra Mavi Öz vermek; sahibi isterse kartlarında göstermek.
+KAPSAM      : Galibiyet 30, beraberlik 20, yenilgi 15; turnuva maçı +10, şampiyonluk +100; sonuç ekranında "+N Mavi Öz";
+              Kimlik'te toplam ve "Mavi Öz'ü kartımda göster" anahtarı (Kartım, komşu kartı, eşleşme ekranı).
+KAPSAM DIŞI : Mavi Öz harcama (mağaza) — istenmedi.
+KISITLAR    : Antrenman öz vermez; aynı rakiple günde 3 maçtan sonrası vermez (hile önleme); varsayılan gizli; önce sor.
+BAŞARI      : API testi: 30/15 miktarları, gizliyken başkası göremez, açınca görür.
+VARSAYIMLAR : "Mavi Öz" adı kullanıcıdan; simgesi kendi çizimimiz (yontulmuş mavi damla). Miktarlar seçildi.
+BELİRSİZ    : Mavi Öz'ün neye harcanacağı.
+```
+
+**Puan: 86 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 3, kısıtlar 4, yapı 3, kısalık 4, dil 3.
+
+---
+
+## 2026-10-31 · Turnuva kazananı bu ikonlardan elde etsin
+
+**Kullanıcının sözleri:** "Turnuva sistemi kazananı bu ikonlardan elde etsin." (İstanbul ve Anadolu temalı 15 ikonluk görsel)
+
+```
+HEDEF       : Turnuva şampiyonlarına görseldeki 15 temadan simge vermek.
+KAPSAM      : Galata Kulesi, Kız Kulesi, Ayasofya, Boğaz Köprüsü, Al Bayrak ve Lale, Karadeniz Çayı, Taş Köprü, Antep Fıstığı, Baklava,
+              Zeugma Mozaiği, Demli Çay, Nazar Boncuğu, Vapur, İstanbul Silueti, Lale. Yönetici turnuvayı açarken ödülü seçer
+              (boşsa sıradaki). Şampiyon onu, zaten varsa sıradaki eksik simgeyi kazanır. Kimlik'te "Turnuva koleksiyonu".
+KISITLAR    : Ödülü yalnızca sunucu verir; önce sor.
+BAŞARI      : API testi: şampiyon seçilen simgeyi kazanır, koleksiyon dışı ödül reddedilir; tarayıcı testi ödül kartını görür.
+VARSAYIMLAR : Görsel bana dosya olarak gelmedi; aynı 15 tema kendi SVG çizimimle yapıldı (gece mavisi zemin, altın kurdele).
+BELİRSİZ    : Asıl görselin kullanım hakkı ve dosyası (gelirse çizimlerin yerine konabilir).
+```
+
+**Puan: 84 (baş usta).**
+- Niyete sadakat 3: görselin kendisi yerine çizim kullanıldı.
+- Ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 4, kısalık 3, dil 3.
+
+---
+
+## 2026-10-31 · 10 saniyelik bekleme ekranı; tepki yoksa en yakın diğer eşleşme
+
+**Kullanıcının sözleri:** "Önce 10 saniye bir bekleme ekranı koy; eğer kullanıcı 10 saniye içinde tepki vermez ise en yakından diğer eşleşmeye yönel."
+
+```
+HEDEF       : Rakip bulununca 10 sn onay ekranı; yanıt vermeyeni düşürüp kabul edeni sıradaki rakibe yöneltmek.
+KAPSAM      : Kabul et / Reddet; iki taraf da kabul edince maç. Yanıt vermeyen "Eşleşmeyi kaçırdın" görür;
+              kabul eden kuyruğa döner ve sezon puanı en yakın bekleyenle hemen yeni teklif alır.
+KISITLAR    : Kararı sunucu verir; önce sor.
+BAŞARI      : API testi: zaman aşımında yönelme, en yakın puan seçimi, süresi dolan teklif kabul edilemez; tarayıcı testi iki senaryo.
+VARSAYIMLAR : "En yakın" = sezon puanı en yakın (eşitlikte en uzun bekleyen). Reddetmek de yanıt vermemek sayılır.
+BELİRSİZ    : "En yakın" konum anlamında mı (blok)? Puan seçildi.
+```
+
+**Puan: 87 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 4, kısalık 3, dil 3.
+
+---
+
+## 2026-10-31 · Eşleşmeleri kazananlar ikon ve sembol elde etsin, profil kartında göstersin
+
+**Kullanıcının sözleri:** "Eşleşmeleri kazananlar, bu tarz ikonlar, değişik semboller elde etsin. Ve bunları profil kartlarında gösterebilsin." (LoL "Kimliğini Kişiselleştir" ekran görüntüsü)
+
+```
+HEDEF       : Kazanılan simge, çerçeve, sembol ve unvanlarla kişiselleştirilebilen arena kimliği.
+KAPSAM      : 10 simge, 6 çerçeve, 9 sembol, 9 unvan; koşullar (galibiyet, seri, kusursuz maç, kartlar, sezon, turnuva);
+              Kimlik sekmesi (Simgeler / Çerçeveler / Semboller / Unvanlar, kilitlide koşul yazılı); en çok 3 sembol;
+              sıralama, eşleşme, komşu kartı ve Kartım'da görünür.
+KAPSAM DIŞI : Ekran görüntüsündeki oyunun görselleri ve adları (yalnızca ilham).
+KISITLAR    : Ödülü sunucu verir; kat, daire ve telefon gösterilmez; önce sor.
+BAŞARI      : API testi: sahip olunmayan seçilemez; tarayıcı testi seçimi profil kartında görür.
+VARSAYIMLAR : "Profil kartı" = Kartım ve sıralamadan açılan komşu kartı.
+```
+
+**Puan: 88 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 3, kısıtlar 4, yapı 4, kısalık 3, dil 4.
+
+---
+
+## 2026-10-31 · Eşleştirme ekranı ekle ve süre sınırı koy, animasyonlu
+
+**Kullanıcının sözleri:** "Eşleştirme ekranı ekle ve süre sınırı koy animasyonlu."
+
+```
+HEDEF       : Düello için animasyonlu, süre sınırlı tam ekran eşleştirme.
+KAPSAM      : 60 sn arama sınırı ve geri sayan halka, radar damlaları; süre dolunca "Tekrar dene / Antrenman";
+              eşleşince VS karşılaşma (iki oyuncu yandan kayar). Hareket azaltma tercihine uyulur; dokunma hedefi ≥ 44 px.
+KISITLAR    : Önce sor (push, yayın); başka oyunun görseli yok.
+BAŞARI      : API testi süre sınırı; tarayıcı testi halka, VS ve "Süre doldu" ekranını görür.
+VARSAYIMLAR : Komut iki anlama gelebiliyordu (rakip eşleştirme / kart eşleştirme oyunu); soruma yanıt gelmedi, rakip eşleştirme seçildi.
+BELİRSİZ    : Süre (60 sn) değiştirilebilir (ARENA_ESLESME_MS).
+```
+
+**Puan: 85 (baş usta).** Niyete sadakat 3 (iki anlamdan biri seçildi), ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 4, kısalık 4, dil 3.
+
+---
+
 ## 2026-10-31 · Rastgele aralıklarla değişsin, ekranlar aynı olmak zorunda değil
 
 **Kullanıcının sözleri:** "Ekran aynısı olmak zorunda değil, sadece random aralıklar ile değişmesini istiyorum; bu ileride belirli bir sürede olabilir."

@@ -219,15 +219,19 @@ const MIGRATIONS = [
      engellenen INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, PRIMARY KEY (site_id, user_id, engellenen));
    CREATE TABLE susturmalar (site_id INTEGER NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
      bitis INTEGER NOT NULL, neden TEXT NOT NULL DEFAULT '', PRIMARY KEY (site_id, user_id));`,
-  /* 7: Arena kimliği (simge, çerçeve, sembol, unvan), kalıcı arena istatistikleri, sezon sonu ödül işareti. */
+  /* 7: Arena kimliği (simge, çerçeve, sembol, unvan), kalıcı arena istatistikleri ve Mavi Öz, sezon sonu ödül işareti,
+     turnuvanın şampiyonluk ödülü (koleksiyon simgesi). */
   `CREATE TABLE kazanimlar (site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
      kod TEXT NOT NULL, zaman INTEGER NOT NULL, kaynak TEXT NOT NULL DEFAULT '', PRIMARY KEY (site_id, user_id, kod));
    CREATE TABLE arena_gorunum (site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-     simge TEXT NOT NULL, cerceve TEXT NOT NULL, semboller TEXT NOT NULL DEFAULT '[]', unvan TEXT NOT NULL, guncelleme INTEGER NOT NULL, PRIMARY KEY (site_id, user_id));
+     simge TEXT NOT NULL, cerceve TEXT NOT NULL, semboller TEXT NOT NULL DEFAULT '[]', unvan TEXT NOT NULL, oz_goster INTEGER NOT NULL DEFAULT 0, guncelleme INTEGER NOT NULL, PRIMARY KEY (site_id, user_id));
    CREATE TABLE arena_istatistik (site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
      mac INTEGER NOT NULL DEFAULT 0, galibiyet INTEGER NOT NULL DEFAULT 0, seri INTEGER NOT NULL DEFAULT 0, en_seri INTEGER NOT NULL DEFAULT 0, kusursuz INTEGER NOT NULL DEFAULT 0,
-     PRIMARY KEY (site_id, user_id));
-   ALTER TABLE sezonlar ADD COLUMN odullendi INTEGER NOT NULL DEFAULT 0;`
+     mavi_oz INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (site_id, user_id));
+   CREATE TABLE oz_kayit (site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     kaynak TEXT NOT NULL, miktar INTEGER NOT NULL, zaman INTEGER NOT NULL, PRIMARY KEY (site_id, user_id, kaynak));
+   ALTER TABLE sezonlar ADD COLUMN odullendi INTEGER NOT NULL DEFAULT 0;
+   ALTER TABLE turnuvalar ADD COLUMN odul TEXT NOT NULL DEFAULT '';`
 ];
 
 function openDb(file) {

@@ -53,7 +53,12 @@ const duvar = {
   /* Android: WallpaperManager ile ana ekran veya kilit ekranı. iOS buna izin vermez (eklenti "desteklenmiyor" döner). */
   ayarla: platform === "android" ? ({ base64, hedef }) => Duvar.ayarla({ base64, hedef }) : null,
   /* Android: Galeri (Resimler/Bilinçli Sakin). iOS: Fotoğraflar. */
-  kaydet: ({ base64, ad }) => Duvar.kaydet({ base64, ad })
+  kaydet: ({ base64, ad }) => Duvar.kaydet({ base64, ad }),
+  /* Otomatik değişen duvar kâğıdı: görsel havuzu (ana-<i>.jpg, kilit-<i>.jpg) ve mod (acilis | gunluk | kapali) */
+  havuzYaz: ({ ad, base64 }) => Duvar.havuzYaz({ ad, base64 }),
+  havuzBitir: ({ n, surum }) => Duvar.havuzBitir({ n, surum }),
+  otomatikAyarla: ({ mod }) => Duvar.otomatikAyarla({ mod }),
+  otomatikDurum: () => Duvar.otomatikDurum()
 };
 
 window.BSNative = { tokenOku, tokenYaz, tokenSil, magaza, paylasDosya, duvar };

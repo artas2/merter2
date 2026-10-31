@@ -28,6 +28,7 @@ ${mobil ? `<script src="${kok}kopru.js"></script>\n` : ""}<script src="${kok}nat
 <script src="${kok}claude-uyum.js"></script>
 <script src="${kok}yonetim.js"></script>
 <script src="${kok}arena.js"></script>
+${mobil ? `<script src="${kok}otoduvar.js"></script>\n<link rel="stylesheet" href="${kok}otoduvar.css">\n` : ""}
 </head><body>
 ${g}
 </body></html>
@@ -37,7 +38,7 @@ ${g}
 /* Sayfanın ihtiyaç duyduğu ek dosyalar: yayınlanan yol -> kaynak dosya */
 function merterDosyalari(depoKoku) {
   const m = __dirname, d = {};
-  for (const f of ["claude-uyum.js", "claude-uyum.css", "yonetim.js", "yonetim.css", "arena.js", "arena.css", "fonts.css"]) d[f] = path.join(m, f);
+  for (const f of ["claude-uyum.js", "claude-uyum.css", "yonetim.js", "yonetim.css", "arena.js", "arena.css", "otoduvar.js", "otoduvar.css", "fonts.css"]) d[f] = path.join(m, f);
   for (const f of fs.readdirSync(path.join(m, "fonts"))) d["fonts/" + f] = path.join(m, "fonts", f);
   for (const f of fs.readdirSync(path.join(m, "md"))) d["md/" + f] = path.join(m, "md", f);
   d["native.js"] = path.join(depoKoku, "public", "native.js");

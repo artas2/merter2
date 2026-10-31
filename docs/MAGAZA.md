@@ -20,6 +20,7 @@ Bu belge, **Bilinçli Sakin** mobil uygulamasını (klasör: `mobile/`) mağazal
 | Gizlilik politikası, kullanım koşulları | ✔ şablon; ☐ hukukçu kontrolü ve köşeli parantezleri doldurma |
 | İnceleme hesabı (SMS'siz giriş) | ✔ `INCELEME_TELEFON`, `INCELEME_KODU` |
 | Yerel özellik: duvar kâğıdı (Android'de doğrudan ayarlama, iOS'ta Fotoğraflar'a kaydetme) | ✔ |
+| Otomatik Hikmet duvar kâğıdı | ✔ Android: canlı duvar kâğıdı (her açılışta) ve günlük değişim; iOS: Kestirmeler eylemi. ☐ Gerçek cihazda deneme (özellikle Samsung kilit ekranı) |
 | Uygulama ikonları | ✔ `mobile/kaynak/` |
 | Derleme hattı (GitHub Actions) | ✔ taslak `.github/workflows/mobil.yml`; ☐ sırlar, ilk çalıştırma |
 | Sunucu (barındırma, alan adı, SMS sağlayıcısı) | ☐ birlikte değerlendirilecek |
@@ -117,6 +118,7 @@ Bilinen riskler ve önlemler:
 - **Apple 4.2.6 / 4.3:** Tek uygulama, siteler içinde ayrılır; her site için kopya uygulama yoktur.
 - **Apple 3.1.1 ve 3.1.2:** Dijital abonelik yalnızca uygulama içi satın almayla satılır. Abonelik ekranında süre, fiyat, otomatik yenileme, iptal yolu, koşullar ve gizlilik bağlantıları, geri yükleme düğmesi vardır.
 - **Hesap silme:** Uygulama içinden ve web'den (`/hesap-sil.html`).
+- **Android izinleri:** `SET_WALLPAPER` (duvar kâğıdı) ve `RECEIVE_BOOT_COMPLETED` (günlük modda telefon yeniden başlayınca alarmı kurmak). Canlı duvar kâğıdı servisi yalnızca kullanıcı sistem ekranında onaylarsa etkinleşir.
 
 ## 9. Gizlilik formları
 

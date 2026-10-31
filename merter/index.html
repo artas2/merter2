@@ -1073,7 +1073,7 @@ function hkHero(){
 function viewHikmet(){
   if(!hkAcik())return `<h2 class="title">Hikmet</h2><div class="pending">Bu bölüm sitenizde kapalı.</div>`;
   const bg=HK[hkIdx(0)].id,l=HK.filter(h=>!hkTema||h.tema===hkTema);
-  return `<p class="eyebrow">Ayetler ve hadisler${AYAR.siteAdi?" · "+esc(AYAR.siteAdi):""}</p><h2 class="title">Hikmet</h2>
+  return `<p class="eyebrow">Ayetler ve hadisler${AYAR.siteAdi?" · "+esc(AYAR.siteAdi):""}</p><h2 class="title">Hikmet</h2>${window.BS_OTODUVAR?BS_OTODUVAR.kart():""}
    <div class="chips frc" role="group" aria-label="Konu"><button type="button" class="chip ${!hkTema?"acc":""}" data-hk-tema="">Tümü (${HK.length})</button>${Object.entries(HK_TEMALAR).map(([k,v])=>`<button type="button" class="chip ${hkTema===k?"acc":""}" data-hk-tema="${k}">${v}</button>`).join("")}</div>
    ${l.map(h=>hkKart(h,{etiket:h.id===bg?"Bugünün "+(h.tip==="ayet"?"ayeti":"hadisi"):null,alt:hkAksiyon(h)})).join("")}
    <p class="lvl" style="margin:14px 0 0">Anlamlar serbest anlatımdır; resmî meâl ve kaynak kontrolü için <a href="https://kuran.diyanet.gov.tr" target="_blank" rel="noopener noreferrer">Diyanet</a> kaynaklarına bakınız. Görseller metne uygun, sade doğa ve yerleşim çizimleridir.</p>`;
@@ -1113,7 +1113,7 @@ async function hkDuvarAc(id,mod){
    <div class="chips frc" role="group">${Object.entries(HK_DUVAR).map(([k,v])=>`<button type="button" class="chip ${k===mod?"acc":""}" data-hkdv="mod:${k}">${v.ad}</button>`).join("")}</div>
    <div class="hkdvr" id="hkdvr"><span class="lvl">Hazırlanıyor…</span></div>
    ${window.BSNative&&BSNative.duvar&&BSNative.duvar.ayarla?`<button type="button" class="btn pri" data-hkdv="ayarla" id="hkdva" disabled>${mod==="kilit"?"Kilit ekranı yap":"Ana ekran yap"}</button>`:""}<button type="button" class="btn" data-hkdv="kaydet" id="hkdvs" disabled>${window.BSNative?"Galeriye kaydet":"Kaydet / Paylaş"}</button>
-   <p class="lvl" style="margin:8px 0 0">Tarayıcılar telefon ayarını kendiliğinden değiştiremez. Resmi kaydedin; sonra Android'de Galeri → resim → ⋮ → <i>Duvar kâğıdı olarak ayarla</i>, iPhone'da Fotoğraflar → Paylaş → <i>Duvar kâğıdı yap</i> deyin.</p></div>`;
+   <p class="lvl" style="margin:8px 0 0">Tarayıcılar telefon ayarını kendiliğinden değiştiremez. Resmi kaydedin; sonra Android'de Galeri → resim → ⋮ → <i>Duvar kâğıdı olarak ayarla</i>, iPhone'da Fotoğraflar → Paylaş → <i>Duvar kâğıdı yap</i> deyin.</p>${window.BS_OTODUVAR?BS_OTODUVAR.pencereNotu():""}</div>`;
   el.hidden=false;hkDv={id,mod,blob:null};
   try{const cv=await hkDuvarCiz(h,mod);const bl=await new Promise(r=>cv.toBlob(r,"image/png"));
     if(!hkDv||hkDv.id!==id||hkDv.mod!==mod)return;hkDv.blob=bl;const r=document.getElementById("hkdvr");

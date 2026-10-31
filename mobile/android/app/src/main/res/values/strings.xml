@@ -4,4 +4,6 @@
     <string name="title_activity_main">Bilinçli Sakin</string>
     <string name="package_name">com.bilinclisakin.app</string>
     <string name="custom_url_scheme">com.bilinclisakin.app</string>
+    <string name="hikmet_duvar_adi">Hikmet: her açılışta yeni ayet ve hadis</string>
+    <string name="hikmet_duvar_aciklama">Telefonunuzu her açtığınızda ana ekranda ve kilit ekranında sıradaki ayet ya da hadis görünür.</string>
 </resources>

@@ -4,6 +4,32 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-10-31 · Duvar kâğıdı ve kilit ekranı Hikmet ile birlikte değişsin
+
+**Kullanıcının sözleri (özet):** Ana sayfadaki günün ayeti/hadisi bölümünde duvar kâğıdı yapılabiliyor. Sayfa her değiştiğinde duvar kâğıdı ve kilit ekranı da değişsin; kişi telefonu her açtığında farklı bir hadis ya da ayet görsün.
+
+```
+HEDEF       : Hikmet metinleri değiştikçe telefonun ana ekranı ve kilit ekranı kendiliğinden değişsin.
+KAPSAM      : 1) Android "Her açılışta yeni": canlı duvar kâğıdı, ekran her açıldığında sıradaki metin (kilitteyken kilit düzeni).
+              2) Android "Her gün yeni": uygulamadaki günün ayeti/hadisi ile aynı sırada ana ve kilit ekranı.
+              3) iPhone: Kestirmeler eylemi "Günün Hikmet görseli" ve kurulum adımları.
+              4) Görseller telefonda bir kez üretilir; metin ya da site adı değişince yenilenir.
+KAPSAM DIŞI : iPhone'da her kilit açılışında değişim (iOS izin vermiyor).
+KISITLAR    : Yayın ve gönderme öncesi sor; doğrulanmayanı "doğrulanmadı" yaz; ücretsiz kalsın (duvar kâğıdı Merter'de ücretsiz).
+BAŞARI      : Android kodu gerçek Android 15 sınıflarına karşı derlenir; günlük sıra Java ve uygulamada aynı;
+              tarayıcı testi 46 görselin (23 × 2) 1080×1920 JPEG olarak üretildiğini doğrular.
+VARSAYIMLAR : "Sayfa her değiştiğinde" = günün metni değiştiğinde (günlük) ya da her açılışta; ikisi de seçenek.
+BELİRSİZ    : Samsung gibi bazı telefonların kilit ekranında üçüncü taraf canlı duvar kâğıdı gösterip göstermediği (doğrulanmadı).
+SIRA        : Yerel Android → derleme denetimi → iOS → arayüz → test → belgeler → commit (push için sor).
+```
+
+**Puan: 88 (baş usta).**
+- Niyete sadakat 4, ölçülebilirlik 4, kısıtlar 4, yapı 4, dil 4.
+- Belirsizlik 3: Samsung kilit ekranı davranışı cihazda denenmeden bilinemiyor.
+- Kısalık 3.
+
+---
+
 ## 2026-10-30 · Kalıcı kurallar (ses/görüntü, sosyal medya, karakter, dürüstlük, geri alınamaz işler)
 
 ```

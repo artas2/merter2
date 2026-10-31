@@ -1,0 +1,20 @@
+/* Otomatik duvar kâğıdı — oval ve damla tasarım (Arena ve Davetler ile aynı dil) */
+.od { margin: 0 0 16px; padding: 18px; border-radius: 26px; background: var(--sheet); border: 1px solid var(--line); box-shadow: 0 10px 26px color-mix(in srgb, var(--ink) 7%, transparent); }
+.od-bas h3 { margin: 0 0 4px; font: 800 19px var(--f-display); } .od-bas p { margin: 0 0 12px; color: var(--muted); }
+.od-liste { display: grid; gap: 8px; }
+.od-sec { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 18px 10px 12px; text-align: left; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; cursor: pointer; }
+.od-sec b { display: block; font-size: 15px; } .od-sec small { display: block; color: var(--muted); font-size: 13px; }
+.od-sec.on { border-color: var(--accent); background: var(--accent-soft); }
+.od-sec:disabled { opacity: .6; cursor: default; }
+.od-damla { width: 30px; height: 34px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; border: 2px solid var(--line); background: var(--sheet); }
+.od-sec.on .od-damla { border-color: var(--accent); background: radial-gradient(circle at 35% 30%, color-mix(in srgb, #fff 45%, var(--accent)), var(--accent)); }
+.od-etiket { grid-column: 2; justify-self: start; margin-top: -4px; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: 700 11px var(--f-mono); font-style: normal; white-space: nowrap; }
+.od-uret p { margin: 0 0 6px; }
+.od-cubuk { height: 12px; margin-bottom: 12px; border-radius: 999px; background: var(--accent-soft); overflow: hidden; }
+.od-cubuk i { display: block; height: 100%; border-radius: 999px; background: var(--accent); transition: width .3s; }
+.od-not { margin: 10px 0 0; padding: 10px 16px; border-radius: 20px; background: var(--weld-soft, var(--accent-soft)); font-size: 14px; }
+.od-not.ok { background: var(--ok-soft, var(--accent-soft)); } .od-not.hata { background: var(--warn-soft); color: var(--warn); }
+.od-ios { margin-top: 12px; padding: 14px 16px; border-radius: 22px; background: var(--paper); font-size: 14px; }
+.od-ios ol { margin: 6px 0; padding-left: 20px; } .od-ios li { margin: 4px 0; } .od-ios small { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .od-sec { transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), background-color .25s, border-color .25s; } .od-sec:active { transform: scale(.97); } }

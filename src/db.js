@@ -231,7 +231,16 @@ const MIGRATIONS = [
    CREATE TABLE oz_kayit (site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
      kaynak TEXT NOT NULL, miktar INTEGER NOT NULL, zaman INTEGER NOT NULL, PRIMARY KEY (site_id, user_id, kaynak));
    ALTER TABLE sezonlar ADD COLUMN odullendi INTEGER NOT NULL DEFAULT 0;
-   ALTER TABLE turnuvalar ADD COLUMN odul TEXT NOT NULL DEFAULT '';`
+   ALTER TABLE turnuvalar ADD COLUMN odul TEXT NOT NULL DEFAULT '';`,
+  /* 8: Turnuvada masa oyunları (satranç, tavla): turnuvanın oyunu ve canlı oyun kayıtları */
+  `ALTER TABLE turnuvalar ADD COLUMN oyun TEXT NOT NULL DEFAULT 'bilgi';
+   CREATE TABLE oyun_maclar (
+     id TEXT PRIMARY KEY, site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, oyun TEXT NOT NULL,
+     a_user INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, b_user INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     turnuva_mac_id INTEGER, durum TEXT NOT NULL, ver INTEGER NOT NULL DEFAULT 1, bitti INTEGER NOT NULL DEFAULT 0, sonuc TEXT, neden TEXT NOT NULL DEFAULT '',
+     tekrar INTEGER NOT NULL DEFAULT 0, sure_a INTEGER NOT NULL, sure_b INTEGER NOT NULL, son INTEGER NOT NULL, olusturma INTEGER NOT NULL
+   );
+   CREATE INDEX oyun_maclar_a ON oyun_maclar(a_user, bitti); CREATE INDEX oyun_maclar_b ON oyun_maclar(b_user, bitti);`
 ];
 
 function openDb(file) {

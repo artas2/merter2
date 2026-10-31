@@ -36,6 +36,11 @@ function arenaRotalari({ rota, izin, AR, SH, premiumMu, GR }) {
 
   // --- Turnuva (katılım Premium; yönetim oluşturur) ---
   rota("GET", "/api/arena/turnuvalar", "uye", ctx => AR.turnuvaListe(sk(ctx), uk(ctx)));
+  /* Masa oyunları (satranç, tavla): turnuva maçı canlı oynanır; hamleyi sunucu doğrular */
+  rota("GET", "/api/arena/oyun/:id", "uye", ctx => { premium(ctx); const b = ctx.url.searchParams.has("ver") ? ctx.url.searchParams.get("ver") : undefined; return AR.OY.bekle(sk(ctx), uk(ctx), ctx.params.id, b, ctx.req); });
+  rota("GET", "/api/arena/oyun-yeni/:id", "uye", ctx => { premium(ctx); return AR.OY.yeni(sk(ctx), uk(ctx), ctx.params.id); });
+  rota("POST", "/api/arena/oyun/:id/hamle", "uye", ctx => { premium(ctx); if (!izin("oyun:" + uk(ctx), 240, 60000)) throw new Hata(429, "Çok sık denendi."); return AR.OY.hamle(sk(ctx), uk(ctx), ctx.params.id, ctx.body || {}); }, { yazma: true });
+  rota("POST", "/api/arena/oyun/:id/teslim", "uye", ctx => { premium(ctx); return AR.OY.teslim(sk(ctx), uk(ctx), ctx.params.id); }, { yazma: true });
   rota("POST", "/api/arena/turnuvalar", "yonetici", ctx => AR.turnuvaOlustur(sk(ctx), uk(ctx), ctx.body), { yazma: true });
   rota("GET", "/api/arena/turnuva/:id", "uye", ctx => {
     const id = sayi(ctx.params.id, "turnuva");

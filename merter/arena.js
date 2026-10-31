@@ -55,6 +55,7 @@
   /* ---------- Görünüm ---------- */
   function view() {
     if (!A.ozet) { setTimeout(ozetYukle, 0); setTimeout(sekmeYukle, 0); return `<section class="ar"><div class="ar-bekle" aria-busy="true"><span></span><span></span><span></span></div></section>`; }
+    if (window.BS_OYUN && BS_OYUN.acikMi()) return `<section class="ar">${BS_OYUN.view()}</section>`;
     if (A.macId) return `<section class="ar">${macView()}</section>`;
     if (A.esles !== "yok") return `<section class="ar ar-eslesme">${A.hata ? `<p class="ar-not hata" role="alert">${h(A.hata)}</p>` : ""}${eslesView()}</section>`;
     const o = A.ozet;
@@ -332,7 +333,7 @@
     const T = A.turnuvalar; if (!T) return `<div class="ar-bekle"><span></span><span></span><span></span></div>`;
     let x = `<p class="lvl">Turnuvalar belirli saatlerde oynanır. Maç saatinden 5 dakika önce "Hazırım" deyin; iki taraf da hazırsa maç başlar. Maç saatinden 3 dakika sonra gelmeyen taraf turu kaybeder.</p>`;
     if (A.ozet.yonetim) x += A.turForm ? turFormHtml() : `<button type="button" class="ar-hap" data-ar="turForm">+ Turnuva oluştur</button>`;
-    x += T.turnuvalar.length ? `<ul class="ar-liste">${T.turnuvalar.map(t => `<li><button type="button" class="ar-turkart ${t.durum}" data-ar="turAc:${t.id}"><span class="ar-etiket">${DURUM[t.durum]}</span><b>${h(t.ad)}</b>
+    x += T.turnuvalar.length ? `<ul class="ar-liste">${T.turnuvalar.map(t => `<li><button type="button" class="ar-turkart ${t.durum}" data-ar="turAc:${t.id}"><span class="ar-etiket">${DURUM[t.durum]}${t.oyun && t.oyun !== "bilgi" ? ` · ${h(t.oyunAd)}` : ""}</span><b>${h(t.ad)}</b>
       <small>${tarihYazi(t.baslangic)} · ${t.katilimci}/${t.maxKisi} kişi${t.katildim ? " · Kayıtlısınız" : ""}${t.sampiyon ? " · Şampiyon: " + h(t.sampiyon) : ""}</small>
       ${t.odul && SG() ? `<span class="ar-turodul">${SG().avatar({ simge: t.odul.kod, cerceve: "c-zumrut" }, { boyut: 40 })}<span>Şampiyonluk ödülü<b>${h(t.odul.ad)}</b></span></span>` : ""}</button></li>`).join("")}</ul>` : `<div class="ar-bos"><span class="ar-damla"></span><p>Planlanmış turnuva yok.${A.ozet.yonetim ? " Yukarıdan bir tane oluşturun." : " Site yönetimi duyurduğunda burada görünür."}</p></div>`;
     return x;
@@ -344,13 +345,14 @@
       <label>Ad<input id="arTurAd" maxlength="60" placeholder="Ör. Cuma akşamı kupası"></label>
       <label>Başlangıç<input id="arTurBas" type="datetime-local" value="${yerel}"></label>
       <div class="ar-ikili"><label>Turlar arası (dk)<input id="arTurAra" inputmode="numeric" value="15"></label><label>En çok kişi<input id="arTurMax" inputmode="numeric" value="16"></label></div>
+      <label>Oyun<select id="arTurOyun">${((A.turnuvalar && A.turnuvalar.oyunlar) || [["bilgi", "Bilgi yarışması"]]).map(([k, ad]) => `<option value="${h(k)}">${h(ad)}</option>`).join("")}</select></label>
       <label>Şampiyonluk ödülü<select id="arTurOdul"><option value="">Sıradaki koleksiyon simgesi (otomatik)</option>${((A.turnuvalar && A.turnuvalar.koleksiyon) || []).map(k => `<option value="${h(k.kod)}">${h(k.ad)}</option>`).join("")}</select></label>
       <div class="ar-eylem"><button type="button" class="ar-ana" data-ar="turOlustur">Oluştur</button><button type="button" class="ar-hap" data-ar="turFormKapat">Vazgeç</button></div></form>`;
   }
   function turDetayView() {
     const d = A.tur, t = d.turnuva, simdi = Date.now() + fark;
     const turSay = Math.max(0, ...d.maclar.map(m => m.tur)) + 1, ad = r => (r === turSay - 1 ? "Final" : r === turSay - 2 ? "Yarı final" : r === turSay - 3 ? "Çeyrek final" : `${r + 1}. tur`);
-    let x = `<button type="button" class="ar-hap" data-ar="turKapat">← Turnuvalar</button><div class="ar-turbas"><span class="ar-etiket">${DURUM[t.durum]}</span><h3>${h(t.ad)}</h3><p>${tarihYazi(t.baslangic)} · turlar arası ${Math.round(t.turAraligiMs / 6e4)} dk · ${d.katilimci}/${t.maxKisi} kişi</p>
+    let x = `<button type="button" class="ar-hap" data-ar="turKapat">← Turnuvalar</button><div class="ar-turbas"><span class="ar-etiket">${DURUM[t.durum]} · ${h(t.oyunAd || "Bilgi yarışması")}</span><h3>${h(t.ad)}</h3><p>${tarihYazi(t.baslangic)} · turlar arası ${Math.round(t.turAraligiMs / 6e4)} dk · ${d.katilimci}/${t.maxKisi} kişi</p>
       ${t.sampiyon ? `<p class="ar-sampiyon"><span class="ar-damla"></span>Şampiyon: <b>${h(t.sampiyon.ad)}</b>${t.sampiyon.blok ? ` (${h(t.sampiyon.blok)} Blok)` : ""}</p>` : ""}
       ${t.odul && SG() ? `<div class="ar-turodul buyuk">${SG().avatar({ simge: t.odul.kod, cerceve: "c-zumrut" }, { boyut: 72 })}<span>Şampiyonluk ödülü<b>${h(t.odul.ad)}</b><small>Turnuva koleksiyonu simgesi + Taç, Zümrüt çerçeve, Şampiyon unvanı ve Mavi Öz</small></span></div>` : ""}</div>`;
     if (t.durum === "kayit") {
@@ -377,13 +379,13 @@
   async function turAc(id) {
     const d = ++turDongu;
     try { A.tur = await api("GET", "/api/arena/turnuva/" + id); fark = A.tur.simdi - Date.now(); ciz(); } catch (e) { return hataYaz(e); }
-    while (d === turDongu && A.tur && acik() && A.sekme === "turnuva" && !A.macId) {
+    while (d === turDongu && A.tur && acik() && A.sekme === "turnuva" && !A.macId && !(window.BS_OYUN && BS_OYUN.acikMi())) {
       try {
         const yeni = await api("GET", `/api/arena/turnuva/${id}?bekle=1`);
         if (d !== turDongu) return;
         A.tur = yeni; fark = yeni.simdi - Date.now();
         const benim = yeni.maclar.find(m => m.benim && m.durum === "oynuyor" && m.macId);
-        if (benim) { macAc(benim.macId); return; }
+        if (benim) { if (benim.macId[0] === "o" && window.BS_OYUN) BS_OYUN.ac(benim.macId); else macAc(benim.macId); return; }
         ciz();
       } catch (e) { await new Promise(r => setTimeout(r, 3000)); }
     }
@@ -511,7 +513,7 @@
       if (k === "kimlikAc") { A.sekme = "kimlik"; A.macId = null; if (location.hash !== "#arena") location.hash = "#arena"; else { ciz(); sekmeYukle(); } return; }
       if (k === "kisi") { A.kisi = A.siralama && A.siralama.top[Number(x)]; ciz(); const c = document.querySelector(".ar-kisikapat"); if (c) c.focus(); return; }
       if (k === "kisiKapat") { A.kisi = null; return ciz(); }
-      if (k === "macAc") return macAc(x);
+      if (k === "macAc") { if (x[0] === "o" && window.BS_OYUN) return BS_OYUN.ac(x); return macAc(x); }
       if (k === "cevap") {
         const [no, i] = [Number(p[0]), Number(p[1])];
         if (A.mac && A.mac.soru && A.mac.soru.no === no) { A.mac.soru.cevapladim = { secim: i }; ciz(); }
@@ -522,7 +524,7 @@
       if (k === "turFormKapat") { A.turForm = false; return ciz(); }
       if (k === "turOlustur") {
         const v = id => (document.getElementById(id) || {}).value || "";
-        await api("POST", "/api/arena/turnuvalar", { ad: v("arTurAd"), baslangic: new Date(v("arTurBas")).getTime(), turAraligiDk: Number(v("arTurAra")), maxKisi: Number(v("arTurMax")), odul: v("arTurOdul") });
+        await api("POST", "/api/arena/turnuvalar", { ad: v("arTurAd"), baslangic: new Date(v("arTurBas")).getTime(), turAraligiDk: Number(v("arTurAra")), maxKisi: Number(v("arTurMax")), odul: v("arTurOdul"), oyun: v("arTurOyun") });
         A.turForm = false; if (document.activeElement) document.activeElement.blur(); bildir("Turnuva oluşturuldu."); return sekmeYukle();
       }
       if (k === "turAc") return turAc(Number(x));
@@ -592,6 +594,10 @@
     yorumDugme: (ref, kim) => ` <button type="button" class="ys" data-sk="ac:yorum:${h(ref)}:${h(kim)}" aria-label="Yorumu şikâyet et" title="Şikâyet et">⚑</button>`
   };
   let kimlikIstendi = false;
+  if (window.BS_OYUN) BS_OYUN.baglan({
+    api, ciz: () => ciz(), ses: ad => ses(ad), bildir, sg: () => SG(),
+    kapat: x => { if (x === "turnuva") { A.sekme = "turnuva"; if (A.tur) turAc(A.tur.turnuva.id); else sekmeYukle(); } ozetYukle(); ciz(); }
+  });
   window.BS_ARENA = {
     view, odakta,
     /* Profil kartı (Kartım): arena simgesi + çerçeve, unvan ve semboller */

@@ -4,6 +4,27 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-10-31 · Turnuva bölümüne Satranç, 101, Okey ve Tavla
+
+**Kullanıcının sözleri:** "Turnuva bölümüne Satranç, 101, okey, Tavla ekleyelim."
+
+```
+HEDEF       : Turnuvada Satranç, 101, Okey ve Tavla oynanabilsin.
+KAPSAM      : (Bu adım, kullanıcının seçimiyle) Satranç ve Tavla: canlı, süreli, sunucu yetkili; turnuva açılırken oyun seçimi;
+              tahta ekranları, saat, zar, terfi penceresi, teslim; Mavi Öz ve şampiyonluk ödülü mevcut sisteme bağlı.
+KAPSAM DIŞI : Okey ve 101 (4 kişilik): mevcut eleme ağacı 1'e 1 olduğundan 4'lü masa turu ayrı adımda yapılacak.
+KISITLAR    : Premium; kurallar uydurulmaz (standart kurallar, doğrulama testi); önce sor (push, yayın); kendi çizimlerim.
+BAŞARI      : Satranç hamle üretimi standart perft sayılarıyla eşleşir; rastgele tam oyunlar tutarlı biter; API ve tarayıcı testleri
+              iki sakinin oyunu sonuna kadar oynadığını doğrular.
+VARSAYIMLAR : Canlı süreli oynanış (kullanıcı seçti). Satranç beyaz/siyah rastgele. Tavla: standart kurallar, katlama zarı ve mars yok.
+              Turnuvada beraberlik olmaz (renk değiştirip yeniden oyun, sonra saat).
+BELİRSİZ    : Okey ve 101 için varyant (Türk okeyi kuralları, 101'de puanlama) ve 4'lü masa turnuva biçimi.
+```
+
+**Puan: 86 (baş usta).** Niyete sadakat 3 (dört oyundan ikisi bu adımda), ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 4, kısalık 3, dil 4.
+
+---
+
 ## 2026-10-31 · Arenayı ve ses efektlerini unutma
 
 **Kullanıcının sözleri:** "Arenayı ve ses efektlerini unutma."

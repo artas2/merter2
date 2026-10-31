@@ -135,7 +135,13 @@ async function duellocu(k) {
   while (calisiyor) {
     let r = await istek(k.tok, "POST", "/api/arena/esles", {}, "eşleşme isteği");
     let mac = r.j && r.j.durum === "mac" ? r.j.macId : null;
-    while (!mac && calisiyor) { r = await istek(k.tok, "GET", "/api/arena/esles", null, null); if (r.j && r.j.durum === "mac") mac = r.j.macId; else if (!r.j || r.j.durum === "yok") break; }
+    // Rakip bulununca 10 sn içinde "Kabul" (gerçek kullanıcı gibi); bilinen durum uzun yoklamaya iletilir
+    while (!mac && calisiyor && r.j) {
+      if (r.j.durum === "mac") { mac = r.j.macId; break; }
+      if (r.j.durum === "teklif" && !r.j.benKabul) { r = await istek(k.tok, "POST", "/api/arena/esles/kabul", { teklifId: r.j.teklifId }, "eşleşme kabulü"); continue; }
+      if (!["bekliyor", "teklif"].includes(r.j.durum)) break;
+      r = await istek(k.tok, "GET", "/api/arena/esles?bilinen=" + encodeURIComponent(r.j.anahtar || ""), null, null);
+    }
     if (!mac) continue;
     let ver = "", cevaplanan = new Set();
     while (calisiyor) {

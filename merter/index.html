@@ -1172,8 +1172,8 @@ function oyunKarti(){
   const cats=kategoriler(profil,false).slice(1,4),yol=onerilenYol(profil).slice(0,3),sonraki=o.roz.find(r=>!r[3]);
   return `<div class="ok-sahne"><article class="oyunkart" data-tier="${o.tier}" style="--c1:${c1};--c2:${c2}" aria-label="Sakin kartı: ${esc(isim)}, ${ad} sakin, seviye ${o.lv}">
    <div class="ok-ust"><span class="ok-site">${esc(AYAR.siteAdi||"Sitemiz")}</span><span class="ok-lv"><small>SEVİYE</small><b>${o.lv}</b></span></div>
-   <div class="ok-av"><span>${esc(bas)}</span><i class="ok-ring" aria-hidden="true"></i></div>
-   <h3 class="ok-ad">${esc(isim)}</h3><p class="ok-unvan">${ad} Sakin</p>
+   ${window.BS_ARENA&&BS_ARENA.profilAvatar?BS_ARENA.profilAvatar(bas):`<div class="ok-av"><span>${esc(bas)}</span><i class="ok-ring" aria-hidden="true"></i></div>`}
+   <h3 class="ok-ad">${esc(isim)}</h3><p class="ok-unvan">${ad} Sakin</p>${window.BS_ARENA&&BS_ARENA.profilKimlik?BS_ARENA.profilKimlik():""}
    <p class="ok-konum">${esc(profil.blok)} Blok · ${katAd(profil.kat)} · Daire ${esc(profil.daire)}</p>
    <div class="ok-xp" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${yuzde}" aria-label="Sonraki seviyeye ilerleme"><i style="width:${yuzde}%"></i></div>
    <p class="ok-xpt">${o.xp} XP · sonraki seviye ${o.son}</p>

@@ -17,11 +17,15 @@ function arenaRotalari({ rota, izin, AR, SH, premiumMu }) {
     if (!izin("kart:" + uk(ctx), 60, 60000)) throw new Hata(429, "Çok hızlı. Biraz yavaşlayın.");
     return AR.kartOgrendi(sk(ctx), uk(ctx), ctx.params.id);
   }, { yazma: true });
+  /* Arena kimliği: kazanılan simge, çerçeve, sembol, unvan. Ödülü sunucu verir; seçim yalnızca sahip olunanlardan. */
+  rota("GET", "/api/arena/kimlik", "uye", ctx => AR.kimlikGetir(sk(ctx), uk(ctx)));
+  rota("PUT", "/api/arena/kimlik", "uye", ctx => AR.kimlikSec(sk(ctx), uk(ctx), ctx.body || {}), { yazma: true });
   rota("GET", "/api/arena/siralama", "uye", ctx => ({ ...AR.siralama(sk(ctx), uk(ctx)), gecmisSezonlar: AR.gecmisSezonlar(sk(ctx)) }));
 
   // --- Düello (Premium) ---
   rota("POST", "/api/arena/esles", "uye", ctx => { premium(ctx); if (!izin("esles:" + uk(ctx), 30, 60000)) throw new Hata(429, "Çok sık denendi."); return AR.esles(sk(ctx), uk(ctx)); }, { yazma: true });
-  rota("GET", "/api/arena/esles", "uye", ctx => { premium(ctx); return AR.eslesBekle(sk(ctx), uk(ctx), ctx.req); });
+  rota("GET", "/api/arena/esles", "uye", ctx => { premium(ctx); return AR.eslesBekle(sk(ctx), uk(ctx), ctx.req, ctx.url.searchParams.get("bilinen") || undefined); });
+  rota("POST", "/api/arena/esles/kabul", "uye", ctx => { premium(ctx); return AR.eslesKabul(sk(ctx), uk(ctx), ctx.body && ctx.body.teklifId); }, { yazma: true });
   rota("DELETE", "/api/arena/esles", "uye", ctx => AR.eslesIptal(sk(ctx), uk(ctx)));
   rota("POST", "/api/arena/antrenman", "uye", ctx => { premium(ctx); if (!izin("antr:" + uk(ctx), 20, 3600000)) throw new Hata(429, "Saatte en çok 20 antrenman."); return AR.antrenman(sk(ctx), uk(ctx)); }, { yazma: true });
   rota("GET", "/api/arena/mac/:id", "uye", ctx => AR.macBekle(sk(ctx), uk(ctx), ctx.params.id, ctx.url.searchParams.has("ver") ? ctx.url.searchParams.get("ver") : undefined, ctx.req));

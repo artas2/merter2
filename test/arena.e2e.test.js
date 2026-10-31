@@ -18,7 +18,7 @@ const bekle = ms => new Promise(r => setTimeout(r, ms));
 before(async () => {
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), "bsakin-arena-"));
   const env = { ...process.env, DB_PATH: path.join(tmp, "a.sqlite"), PORT: String(PORT), HOST: "127.0.0.1", SMS_PROVIDER: "konsol", NODE_ENV: "development", SESSION_SECRET: "arena".repeat(10),
-    PLATFORM_ADMIN_TELEFONLARI: "05000000999", ARENA_SORU_MS: "3500", ARENA_ARA_MS: "1200", ARENA_GERI_SAYIM_MS: "1500" };
+    PLATFORM_ADMIN_TELEFONLARI: "05000000999", ARENA_SORU_MS: "3500", ARENA_ARA_MS: "1200", ARENA_GERI_SAYIM_MS: "2500", ARENA_ESLESME_MS: "8000", ARENA_KABUL_MS: "5000" };
   const k = spawnSync(process.execPath, ["--disable-warning=ExperimentalWarning", "scripts/kur-site.js", "--ad", "Merter Çınar Evleri", "--bloklar", "A,B,C,D,E", "--daire", "12", "--kat", "0-5"], { cwd: KOK, env, encoding: "utf8" });
   yonDavet = /Yönetici davet : ([A-Z0-9-]+)/.exec(k.stdout)[1];
   sunucu = spawn(process.execPath, ["--disable-warning=ExperimentalWarning", "src/server.js"], { cwd: KOK, env });
@@ -97,7 +97,23 @@ test("Canlı düello: iki sakin eşleşir, soruları cevaplar, sonuç ve sezon p
   const a = S1.page, b = S2.page;
   await git(a, "#arena"); await a.click('[data-ar="sekme:duello"]'); await a.click('[data-ar="esles"]');
   await a.waitForFunction(() => /Rakip aranıyor/.test(document.body.textContent));
+  await a.waitForSelector(".ar-halka.arama #arEsSn"); assert.equal(await a.isVisible(".ar-sekme"), false, "eşleştirme tam ekran");
+  assert.ok(Number(await a.textContent("#arEsSn")) <= 8, "süre sınırı geri sayılır");
+  await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-esles-arama.png") });
   await git(b, "#arena"); await b.click('[data-ar="sekme:duello"]'); await b.click('[data-ar="esles"]');
+  // Rakip bulundu: iki taraf da süre içinde "Kabul et" der
+  await Promise.all([a.waitForSelector(".ar-esekran.teklif .ar-kabul"), b.waitForSelector(".ar-esekran.teklif .ar-kabul")]);
+  assert.match(await a.textContent(".ar-vsmini .rakip"), /Ali K\./); assert.match(await b.textContent(".ar-vsmini .rakip"), /Ayşe Y\./);
+  assert.ok(await a.$(".ar-vsmini .rakip .bsk-av svg"), "rakibin simgesi ve çerçevesi");
+  assert.deepEqual(await dokunma(a, ".ar-esekran button"), []);
+  await a.waitForTimeout(700); await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-esles-onay.png") });
+  await a.click('[data-ar="kabul"]');
+  await a.waitForFunction(() => /Kabul ettin/.test(document.querySelector(".ar-durumlar").textContent));
+  await b.waitForFunction(() => /Rakip kabul etti/.test(document.querySelector(".ar-durumlar").textContent), null, { timeout: 5000 });
+  await b.click('[data-ar="kabul"]');
+  // VS karşılaşma, ardından sorular
+  await a.waitForSelector(".ar-vssahne", { timeout: 5000 }); assert.match(await a.textContent(".ar-vssahne"), /Ali K\..*VS|VS.*Ali K\./s);
+  await a.waitForTimeout(900); await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-vs.png") });
   await Promise.all([a.waitForSelector(".ar-skor"), b.waitForSelector(".ar-skor")]);
   assert.match(await a.textContent(".ar-skor .rakip"), /Ali K\./); assert.match(await b.textContent(".ar-skor .rakip"), /Ayşe Y\./);
   for (let n = 0; n < 5; n++) {
@@ -112,16 +128,72 @@ test("Canlı düello: iki sakin eşleşir, soruları cevaplar, sonuç ve sezon p
   assert.ok(["Kazandın!", "Bu sefer olmadı", "Berabere"].includes(ta)); assert.ok(["Kazandın!", "Bu sefer olmadı", "Berabere"].includes(tb));
   assert.notEqual(ta === "Kazandın!" && tb === "Kazandın!", true, "ikisi birden kazanamaz");
   assert.equal(await a.$$eval(".ar-ozet li", l => l.length), 5);
-  await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-sonuc.png") });
+  // İlk düello: iki taraf da "İlk Adım" sembolünü kazanır; kazanan "Hilal" simgesini de
+  for (const [p, t] of [[a, ta], [b, tb]]) {
+    await p.waitForSelector(".ar-odul"); assert.match(await p.textContent(".ar-odul"), /İlk Adım/);
+    if (t === "Kazandın!") assert.match(await p.textContent(".ar-odul"), /Hilal/);
+  }
+  await a.waitForTimeout(1200); await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-sonuc.png") });
+  const kazananSayfa = ta === "Kazandın!" ? a : tb === "Kazandın!" ? b : null;
+  if (kazananSayfa) { await kazananSayfa.click('.ar-odul [data-ar="sec:s-hilal"]'); await kazananSayfa.waitForFunction(() => /Hilal kullanılıyor/.test(document.body.textContent)); }
   await a.click('[data-ar="macKapat"]'); await a.click('[data-ar="sekme:sezon"]');
   await a.waitForSelector(".ar-bloklar");
   assert.match(await a.textContent(".ar-bloklar"), /C/); assert.ok((await a.$$(".ar-liste .ar-satir")).length >= 2);
+  assert.ok((await a.$$(".ar-liste .ar-satir .bsk-av")).length >= 2, "sıralamada arena simgeleri");
   await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-sezon.png") });
+  // Komşu kartı: sıralamadan dokununca simge, çerçeve, unvan ve semboller
+  await a.click('.ar-satirbtn:not(.ben)'); await a.waitForSelector(".ar-kisikart");
+  assert.match(await a.textContent(".ar-kisikart"), /Ali K\./); assert.ok(await a.$(".ar-kisikart .bsk-av svg"), "komşunun simgesi ve çerçevesi"); assert.match(await a.textContent(".ar-kisikart .ar-unvan"), /Komşu/);
+  assert.doesNotMatch(await a.textContent(".ar-kisikart"), /Kat|Daire/, "kat ve daire gösterilmez");
+  await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-komsu-karti.png") });
+  await a.keyboard.press("Escape"); await a.waitForSelector(".ar-kisikart", { state: "detached" });
+});
+
+test("Kimlik: simge, çerçeve, sembol ve unvan seçimi; profil kartında görünür", { timeout: 60000 }, async () => {
+  const a = S1.page;
+  await a.click('[data-ar="sekme:kimlik"]'); await a.waitForSelector(".ar-kgrid.simge");
+  assert.equal(await a.$$eval(".ar-kgrid .ar-kog", l => l.length), 10);
+  assert.ok((await a.$$(".ar-kog.kilitli")).length >= 7, "kazanılmayanlar kilitli");
+  assert.match(await a.textContent(".ar-kog.kilitli >> nth=0"), /galibiyet|şampiyon|kart|seri|sezon|blok|doğru/i, "kilitli ödülde koşul yazılı");
+  for (const t of ["cerceve", "unvan", "sembol"]) { await a.click(`[data-ar="ktur:${t}"]`); await a.waitForSelector(`.ar-kgrid.${t}`); }
+  await a.click('[data-ar="sec:y-ilk"]'); await a.waitForFunction(() => document.querySelectorAll(".ar-kimlikon .bsk-y").length === 1);
+  assert.equal(await a.getAttribute('[data-ar="sec:y-ilk"]', "aria-pressed"), "true");
+  await a.click('[data-ar="ktur:simge"]'); await a.waitForSelector(".ar-kgrid.simge");
+  assert.deepEqual(await dokunma(a, ".ar-kgrid button, .ar-kt button"), []);
+  assert.equal(await a.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await a.waitForTimeout(2500); // bildirim kaybolsun
+  await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-kimlik.png") });
+  await a.evaluate(() => document.querySelector(".ar-kt").scrollIntoView()); await a.waitForTimeout(900);
+  await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-kimlik-simgeler.png") });
+  // Kilitli ödül seçilemez (sunucu reddeder)
+  const r = await webApi(a, "PUT", "/api/arena/kimlik", { simge: "s-tac" }); assert.match(r.hata || r.error || JSON.stringify(r), /sahip/);
+  // Profil kartı (Kartım)
+  await git(a, "#profil"); await a.waitForSelector(".ok-av-arena .bsk-av");
+  await a.waitForSelector(".ok-arena .bsk-y"); assert.match(await a.textContent(".ok-arena"), /Arena/);
+  await a.screenshot({ path: path.join(KOK, "docs/screenshots/profil-arena-kimlik.png") });
+  await a.click('.ok-arena [data-ar="kimlikAc"]'); await a.waitForSelector(".ar-kgrid");
+  assert.equal(await a.getAttribute('[data-ar="sekme:kimlik"]', "aria-selected"), "true");
+});
+
+test("Eşleşme süreleri: onay verilmezse düşer, kabul eden yeniden aranır; arama süresi dolar", { timeout: 60000 }, async () => {
+  const a = S1.page, y = Y.page;
+  await a.click('[data-ar="sekme:duello"]'); await a.click('[data-ar="esles"]'); await a.waitForSelector(".ar-halka.arama");
+  await git(y, "#arena"); await y.click('[data-ar="sekme:duello"]'); await y.click('[data-ar="esles"]');
+  await Promise.all([a.waitForSelector(".ar-kabul"), y.waitForSelector(".ar-kabul")]);
+  await a.click('[data-ar="kabul"]'); // Yusuf yanıt vermez
+  await y.waitForSelector(".ar-esekran.bitti", { timeout: 9000 }); assert.match(await y.textContent(".ar-esekran.bitti h2"), /Eşleşmeyi kaçırdın/);
+  await y.screenshot({ path: path.join(KOK, "docs/screenshots/arena-esles-kacirdi.png") });
+  await a.waitForFunction(() => /süresinde yanıt vermedi/.test(document.body.textContent) && document.querySelector(".ar-halka.arama"), null, { timeout: 5000 });
+  await a.waitForSelector(".ar-esekran.bitti", { timeout: 15000 });
+  assert.match(await a.textContent(".ar-esekran.bitti h2"), /Süre doldu/); assert.ok(await a.$('.ar-esekran.bitti [data-ar="esles"]'), "tekrar dene düğmesi");
+  await a.screenshot({ path: path.join(KOK, "docs/screenshots/arena-esles-sure.png") });
+  await a.click('[data-ar="eslesKapat"]'); await a.waitForSelector(".ar-sekme");
+  await y.click('[data-ar="eslesKapat"]');
 });
 
 test("Sohbet: mesaj anında gelir, numara gizlenir; şikâyet penceresi", { timeout: 60000 }, async () => {
   const a = S1.page, b = S2.page;
-  await b.click('[data-ar="macKapat"]');
+  if (await b.$('[data-ar="macKapat"]')) await b.click('[data-ar="macKapat"]');
   const akisIstek = []; b.on("request", r => { if (/\/akis$/.test(r.url())) akisIstek.push(r.url()); });
   await a.click('[data-ar="sekme:sohbet"]'); await b.click('[data-ar="sekme:sohbet"]');
   await a.waitForSelector("#arGiris"); await b.waitForSelector("#arGiris");

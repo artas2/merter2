@@ -50,9 +50,14 @@ test("Eşleşme ve canlı düello: sunucu puanlar, sorular zamanında açılır,
   const a = O.sakinA1, b = O.sakinA2;
   assert.deepEqual((await a.post("/api/arena/esles", {})).body.durum, "bekliyor");
   const bekle = a.get("/api/arena/esles");
-  const rb = (await b.post("/api/arena/esles", {})).body;
-  assert.equal(rb.durum, "mac"); const ra = (await bekle).body;
-  assert.equal(ra.durum, "mac"); assert.equal(ra.macId, rb.macId, "bekleyen taraf aynı maça bağlanır");
+  const tb = (await b.post("/api/arena/esles", {})).body;
+  assert.equal(tb.durum, "teklif", "rakip bulununca önce onay (Kabul) beklenir"); assert.equal(tb.rakip.ad, "Ayşe Y."); assert.equal(tb.kabulSureMs, 10000);
+  const ta = (await bekle).body; assert.equal(ta.durum, "teklif"); assert.equal(ta.teklifId, tb.teklifId, "bekleyen taraf aynı teklifi görür");
+  assert.equal((await a.get("/api/arena/mac/0")).status, 404);
+  const ka = (await a.post("/api/arena/esles/kabul", { teklifId: ta.teklifId })).body; assert.equal(ka.durum, "teklif"); assert.equal(ka.benKabul, true); assert.equal(ka.rakipKabul, false);
+  const rb = (await b.post("/api/arena/esles/kabul", { teklifId: tb.teklifId })).body;
+  assert.equal(rb.durum, "mac"); const ra = (await a.get("/api/arena/esles")).body;
+  assert.equal(ra.durum, "mac"); assert.equal(ra.macId, rb.macId, "iki taraf da kabul edince aynı maça bağlanır");
   MAC = ra.macId;
   let g = (await a.get("/api/arena/mac/" + MAC)).body;
   assert.equal(g.durum, "geriSayim"); assert.equal(g.soru, null); assert.equal(g.rakip.ad, "Ali K."); assert.equal(g.rakip.blok, "A");
@@ -93,7 +98,7 @@ test("Hile önleme: aynı iki kişi günde 3 maçtan sonra puan kazanmaz; günl�
   for (let i = 0; i < 3; i++) {
     C.saat.kayma = 0; assert.equal(AR.esles(sid, a).durum, "bekliyor");
     ileri(11000); // son rakiple hemen yeniden eşleşme 10 sn engellenir
-    const id = AR.esles(sid, b).macId; assert.ok(id);
+    assert.equal(AR.esles(sid, b).durum, "teklif"); AR.eslesKabul(sid, a); const id = AR.eslesKabul(sid, b).macId; assert.ok(id);
     const m = macSatir(id); C.saat.kayma = m.t0 - Date.now() + 1000;
     AR.macCevap(sid, a, id, 0, dogruSecim(id, 0));
     C.saat.kayma = m.t0 - Date.now() + 5 * (m.soru_ms + m.ara_ms) + 1000;

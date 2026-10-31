@@ -12,13 +12,16 @@ const { KARTLAR, KART_ID } = require("./kartlar");
 const VARSAYILAN = {
   soruSayisi: 5, soruMs: 15000, araMs: 3500, geriSayimMs: 4000,
   sezonMs: 28 * 864e5, gunTavan: 400, ayniRakipGunluk: 3, kartGunluk: 10, kartPuan: 2,
-  hazirMs: 5 * 60000, beklemeMs: 3 * 60000, minTurAraligiMs: 10 * 60000, esleslemeZamanAsimiMs: 45000
+  hazirMs: 5 * 60000, beklemeMs: 3 * 60000, minTurAraligiMs: 10 * 60000, esleslemeZamanAsimiMs: 45000,
+  eslesmeSureMs: 60000, // rakip arama süre sınırı: dolunca kuyruktan çıkılır
+  kabulSureMs: 10000 // rakip bulununca iki tarafın da "Kabul" demesi için süre
 };
 const TURLAR = [[0, "Çırak"], [100, "Kalfa"], [400, "Usta"], [1000, "Efsane"]];
 const unvan = p => TURLAR.filter(([e]) => p >= e).pop()[1];
 const karistir = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 
-function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
+function createArena({ db, now, hub, ortak, kimlik, kazanim, ayar = {} }) {
+  const KZ = kazanim;
   const C = { ...VARSAYILAN, ...ayar };
   const q = {
     sezonAktif: db.prepare("SELECT * FROM sezonlar WHERE site_id = ? AND baslangic <= ? AND bitis > ? ORDER BY id DESC LIMIT 1"),
@@ -63,14 +66,31 @@ function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
     tmHazir: db.prepare("UPDATE turnuva_mac SET a_hazir = ? , b_hazir = ? WHERE id = ?"),
     tmBasla: db.prepare("UPDATE turnuva_mac SET durum = 'oynuyor', mac_id = ? WHERE id = ? AND durum = 'bekle'"),
     tmBitti: db.prepare("UPDATE turnuva_mac SET durum = 'bitti', kazanan = ?, neden = ? WHERE id = ? AND durum != 'bitti'"),
-    tmKatilimci: db.prepare("SELECT 1 FROM turnuva_katilim WHERE turnuva_id = ? AND user_id = ?")
+    tmKatilimci: db.prepare("SELECT 1 FROM turnuva_katilim WHERE turnuva_id = ? AND user_id = ?"),
+    sezonBekleyen: db.prepare("SELECT * FROM sezonlar WHERE site_id = ? AND bitis <= ? AND odullendi = 0"),
+    sezonOdullendi: db.prepare("UPDATE sezonlar SET odullendi = 1 WHERE id = ? AND odullendi = 0"),
+    spBlokUyeler: db.prepare("SELECT user_id, blok, puan FROM sezon_puan WHERE sezon_id = ? AND blok != '' AND puan > 0 ORDER BY puan DESC, user_id"),
+    kartSay: db.prepare("SELECT COUNT(*) n FROM kart_ogrenme WHERE site_id = ? AND user_id = ?")
   };
 
   /* ---------- Sezon ---------- */
+  /* Biten, henüz ödüllendirilmemiş sezonlar: ilk 3, blok savaşını kazanan blokun üyeleri ve blok lideri.
+     odullendi işareti bir kez çevrilir; tx içinde de çağrılabildiği için kendi tx'ini açmaz. */
+  function sezonOdulle(siteId) {
+    for (const s of q.sezonBekleyen.all(siteId, now())) {
+      if (!q.sezonOdullendi.run(s.id).changes) continue;
+      const ilk3 = q.spTop.all(s.id, 3).filter(r => r.puan > 0).map(r => r.user_id);
+      const bl = new Map();
+      for (const r of q.spBlokUyeler.all(s.id)) { const x = bl.get(r.blok) || { puan: 0, kisi: 0, uyeler: [] }; x.uyeler.push(r.user_id); if (x.kisi < 10) { x.puan += r.puan; x.kisi++; } bl.set(r.blok, x); }
+      const kazanan = [...bl.values()].sort((a, b) => b.puan - a.puan)[0];
+      KZ.sezonSonu(siteId, s.id, ilk3, kazanan ? kazanan.uyeler : [], kazanan ? kazanan.uyeler[0] : null);
+    }
+  }
   function sezonAl(siteId) {
     const t = now();
     let s = q.sezonAktif.get(siteId, t, t);
     if (s) return s;
+    sezonOdulle(siteId);
     tx(db, () => {
       s = q.sezonAktif.get(siteId, t, t);
       if (s) return;
@@ -91,7 +111,7 @@ function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
   }
   function siralama(siteId, userId) {
     const s = sezonAl(siteId), t = now();
-    const top = q.spTop.all(s.id, 20).map((r, i) => ({ sira: i + 1, ad: r.ad, blok: r.blok, puan: r.puan, mac: r.mac, galibiyet: r.galibiyet, unvan: unvan(r.puan), ben: r.user_id === userId }));
+    const top = q.spTop.all(s.id, 20).map((r, i) => ({ sira: i + 1, ad: r.ad, blok: r.blok, puan: r.puan, mac: r.mac, galibiyet: r.galibiyet, unvan: unvan(r.puan), ben: r.user_id === userId, kimlik: KZ.gorunum(siteId, r.user_id) }));
     const b = q.spGet.get(s.id, userId);
     const ben = b ? { sira: q.spSira.get(s.id, b.puan, b.puan, userId).n + 1, puan: b.puan, mac: b.mac, galibiyet: b.galibiyet, unvan: unvan(b.puan), bugun: b.gun === ortak.gunAnahtari(t) ? b.gun_puan : 0 }
       : { sira: null, puan: 0, mac: 0, galibiyet: 0, unvan: unvan(0), bugun: 0 };
@@ -117,9 +137,14 @@ function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
     if (!KART_ID.has(kartId)) throw new Hata(404, "Kart bulunamadı.");
     const s = sezonAl(siteId), t = now();
     return tx(db, () => {
-      if (q.kartBugun.get(siteId, userId, ortak.gunBaslangic(t)).n >= C.kartGunluk) { q.kartOgr.run(siteId, userId, kartId, t); return { puan: 0, not: `Bugün ${C.kartGunluk} karttan puan kazandınız; okumaya devam edebilirsiniz.` }; }
+      if (q.kartBugun.get(siteId, userId, ortak.gunBaslangic(t)).n >= C.kartGunluk) {
+        q.kartOgr.run(siteId, userId, kartId, t);
+        return { puan: 0, not: `Bugün ${C.kartGunluk} karttan puan kazandınız; okumaya devam edebilirsiniz.`, yeniKazanimlar: KZ.kartSayisi(siteId, userId, q.kartSay.get(siteId, userId).n, KARTLAR.length) };
+      }
       const r = q.kartOgr.run(siteId, userId, kartId, t);
-      return { puan: r.changes ? puanEkle(siteId, s.id, userId, C.kartPuan) : 0 };
+      const puan = r.changes ? puanEkle(siteId, s.id, userId, C.kartPuan) : 0;
+      const yeni = r.changes ? KZ.kartSayisi(siteId, userId, q.kartSay.get(siteId, userId).n, KARTLAR.length).concat(KZ.sezonPuani(siteId, userId, q.spGet.get(s.id, userId).puan)) : [];
+      return { puan, yeniKazanimlar: yeni };
     });
   }
 
@@ -167,6 +192,12 @@ function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
         return puanEkle(m.site_id, m.sezon_id, u, Math.round(p / 10) + bonus, { mac: 1, galibiyet: kazanan === u ? 1 : 0 });
       };
       sonuc = { kazanan, a, b, ap, bp, kazanilan: { [a]: ver(a, ap), ...(b ? { [b]: ver(b, bp) } : {}) }, sayildi: sayilir };
+      // Arena kimliği ödülleri: yalnızca iki kişilik maçlar (canlı ya da turnuva); antrenman sayılmaz
+      if (b) for (const u of [a, b]) {
+        const dc = cv.filter(c => c.user_id === u && c.dogru);
+        KZ.macSonu(m.site_id, u, m.id, { kazandi: kazanan === u, dogru: dc.length, ortSureMs: dc.length ? dc.reduce((t, c) => t + c.sure_ms, 0) / dc.length : Infinity, turnuva: m.tur === "turnuva" });
+        if (m.sezon_id) { const sp = q.spGet.get(m.sezon_id, u); if (sp) KZ.sezonPuani(m.site_id, u, sp.puan, "mac:" + m.id); }
+      }
       if (m.tur === "turnuva" && m.turnuva_mac_id) turnuvaMacBitti(m.turnuva_mac_id, kazanan, "oynandı");
     });
     hub.bildir("mac:" + m0.id);
@@ -200,8 +231,10 @@ function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
     const rk = rakipId ? ortak.profil(siteId, rakipId) : null;
     const kazandi = m.bitti ? (m.kazanan === userId ? "ben" : m.kazanan === null ? "berabere" : "rakip") : null;
     return { id: m.id, tur: m.tur, simdi: t, t0: m.t0, soruMs: m.soru_ms, araMs: m.ara_ms, soruSayisi: N, bitis, bitti: !!m.bitti, durum: t < m.t0 ? "geriSayim" : pencerede ? "soru" : t < bitis ? "ara" : "bitti",
-      siradaki: gelecek, ver, soru, gecmis, ben: { ad: ortak.profil(siteId, userId).ad, puan: m.bitti ? (m.a_user === userId ? m.a_puan : m.b_puan) : benimToplam },
-      rakip: rk ? { ad: rk.ad, blok: rk.blok, puan: m.bitti ? (m.a_user === userId ? m.b_puan : m.a_puan) : rakipToplam } : null, sonuc: kazandi, turnuvaMacId: m.turnuva_mac_id };
+      siradaki: gelecek, ver, soru, gecmis,
+      ben: { ad: ortak.profil(siteId, userId).ad, blok: ortak.profil(siteId, userId).blok, kimlik: KZ.gorunum(siteId, userId), puan: m.bitti ? (m.a_user === userId ? m.a_puan : m.b_puan) : benimToplam },
+      rakip: rk ? { ad: rk.ad, blok: rk.blok, kimlik: KZ.gorunum(siteId, rakipId), puan: m.bitti ? (m.a_user === userId ? m.b_puan : m.a_puan) : rakipToplam } : null, sonuc: kazandi, turnuvaMacId: m.turnuva_mac_id,
+      yeniKazanimlar: m.bitti ? KZ.kaynaktanYeni(siteId, userId, "mac:" + m.id) : [] };
   }
   function macCevap(siteId, userId, macId, soruNo, secim) {
     const m = q.macGet.get(macId);
@@ -231,37 +264,127 @@ function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
   /* ---------- Eşleşme ---------- */
   const kuyruk = new Map(), bulunan = new Map(), sonRakip = new Map();
   const bk = (s, u) => s + ":" + u;
+  /* Eşleşme akışı: kuyrukta bekle (C.eslesmeSureMs sınırı) → rakip bulununca "teklif" (C.kabulSureMs içinde iki taraf da Kabul der)
+     → maç. Süresinde kabul etmeyen düşer ("kacirdi"); kabul eden kuyruğa geri döner ve sezon puanı en yakın sıradaki rakibe yönelir.
+     Kuyruk girdisi: { ts: son yoklama, bas: aramanın başladığı an, puan: sezon puanı }. */
+  const teklifler = new Map(), kisiTeklif = new Map(), notlar = new Map();
+  let teklifSira = 0;
+  const doldu = v => now() - v.bas >= C.eslesmeSureMs;
+  const sezonPuanim = (siteId, userId) => { const r = q.spGet.get(sezonAl(siteId).id, userId); return r ? r.puan : 0; };
+  /* Bekleyişteki bilgi notu (ör. "rakipYanitlamadi") 15 sn görünür; "kacirdi" bir kez okunur */
+  const notOku = (siteId, userId) => { const n = notlar.get(bk(siteId, userId)); return n && now() - n.ts < 15000 ? n.metin : undefined; };
+  const notAl = (siteId, userId) => { const n = notOku(siteId, userId); notlar.delete(bk(siteId, userId)); return n; };
+  const anahtarli = r => ({ ...r, anahtar: anahtar(r) });
+  const bekliyor = (siteId, userId, k, v) => anahtarli({ durum: "bekliyor", bekleyen: k.size, bas: v.bas, bitis: v.bas + C.eslesmeSureMs, simdi: now(), cevrimici: ortak.cevrimici(siteId), not: notOku(siteId, userId) });
+  const sureDoldu = () => ({ durum: "sure", sureMs: C.eslesmeSureMs });
+  function siteKuyruk(siteId) { let k = kuyruk.get(siteId); if (!k) { k = new Map(); kuyruk.set(siteId, k); } return k; }
+  function teklifGorunum(tk, userId) {
+    const rakipId = tk.a === userId ? tk.b : tk.a, rk = ortak.profil(tk.siteId, rakipId);
+    return anahtarli({ durum: "teklif", teklifId: tk.id, bitis: tk.bitis, simdi: now(), kabulSureMs: C.kabulSureMs,
+      benKabul: tk.kabul.has(userId), rakipKabul: tk.kabul.has(rakipId),
+      rakip: { ad: rk.ad, blok: rk.blok, kimlik: KZ.gorunum(tk.siteId, rakipId), puan: sezonPuanim(tk.siteId, rakipId) },
+      ben: { ad: ortak.profil(tk.siteId, userId).ad, blok: ortak.profil(tk.siteId, userId).blok, kimlik: KZ.gorunum(tk.siteId, userId) } });
+  }
+  /* Süresi dolan teklifi bozar: kabul etmeyen düşer, kabul eden kuyruğa döner ve hemen sıradaki en yakın rakip aranır. */
+  function teklifKontrol(tk) {
+    if (tk.macId || now() < tk.bitis) return;
+    teklifBoz(tk, [tk.a, tk.b].filter(u => !tk.kabul.has(u)));
+  }
+  function teklifBoz(tk, kacanlar) {
+    if (!teklifler.has(tk.id)) return;
+    teklifler.delete(tk.id); kisiTeklif.delete(bk(tk.siteId, tk.a)); kisiTeklif.delete(bk(tk.siteId, tk.b));
+    const k = siteKuyruk(tk.siteId);
+    for (const u of [tk.a, tk.b]) {
+      if (kacanlar.includes(u)) { notlar.set(bk(tk.siteId, u), { metin: "kacirdi", ts: now() }); hub.bildir("esles:" + bk(tk.siteId, u)); continue; }
+      // Kabul eden: aramaya kaldığı yerden devam eder; en az 20 sn (ya da tüm süre, hangisi kısaysa) kalır
+      const v = tk.kuyruk[u] || { bas: now() };
+      k.set(u, { ts: now(), bas: Math.max(v.bas, now() - C.eslesmeSureMs + Math.min(20000, C.eslesmeSureMs)), puan: sezonPuanim(tk.siteId, u) });
+      notlar.set(bk(tk.siteId, u), { metin: "rakipYanitlamadi", ts: now() });
+      engelli.set(bk(tk.siteId, u), { kim: kacanlar, ts: now() });
+      const r = adayAra(tk.siteId, u);
+      if (r) teklifKur(tk.siteId, r, u);
+      hub.bildir("esles:" + bk(tk.siteId, u));
+    }
+  }
+  /* Yanıt vermeyen rakiple bir süre yeniden eşleşilmez */
+  const engelli = new Map();
+  /* Sezon puanı en yakın aday; eşitlikte en uzun bekleyen. */
+  function adayAra(siteId, userId) {
+    const k = siteKuyruk(siteId), ben = k.get(userId), puan = ben ? ben.puan : sezonPuanim(siteId, userId);
+    const eng = engelli.get(bk(siteId, userId)), engList = eng && now() - eng.ts < 120000 ? eng.kim : [];
+    let aday = null, fark = Infinity, bas = Infinity;
+    for (const [uid, v] of k) {
+      if (uid === userId || doldu(v) || kisiTeklif.has(bk(siteId, uid)) || engList.includes(uid) || ortak.engelVar(siteId, userId, uid)) continue;
+      if (sonRakip.get(bk(siteId, userId)) === uid && now() - v.bas < 10000) continue;
+      const f = Math.abs(v.puan - puan);
+      if (f < fark || (f === fark && v.bas < bas)) { aday = uid; fark = f; bas = v.bas; }
+    }
+    return aday;
+  }
+  function teklifKur(siteId, a, b) {
+    const k = siteKuyruk(siteId);
+    const tk = { id: "t" + (++teklifSira), siteId, a, b, bitis: now() + C.kabulSureMs, kabul: new Set(), kuyruk: { [a]: k.get(a), [b]: k.get(b) } };
+    k.delete(a); k.delete(b); notlar.delete(bk(siteId, a)); notlar.delete(bk(siteId, b));
+    teklifler.set(tk.id, tk); kisiTeklif.set(bk(siteId, a), tk.id); kisiTeklif.set(bk(siteId, b), tk.id);
+    hub.bildir("esles:" + bk(siteId, a)); hub.bildir("esles:" + bk(siteId, b));
+    return tk;
+  }
+  /* Kullanıcının o anki eşleşme durumu: maç, teklif, kuyruk ya da yok */
+  function durumAl(siteId, userId) {
+    const b = bulunan.get(bk(siteId, userId)); if (b) { bulunan.delete(bk(siteId, userId)); return { durum: "mac", macId: b.macId }; }
+    const tid = kisiTeklif.get(bk(siteId, userId)), tk = tid && teklifler.get(tid);
+    if (tk) { teklifKontrol(tk); if (teklifler.has(tk.id)) return teklifGorunum(tk, userId); return durumAl(siteId, userId); }
+    const k = kuyruk.get(siteId), v = k && k.get(userId);
+    if (v) { if (doldu(v)) { k.delete(userId); return sureDoldu(); } v.ts = now(); return bekliyor(siteId, userId, k, v); }
+    const n = notAl(siteId, userId); if (n === "kacirdi") return { durum: "kacirdi", kabulSureMs: C.kabulSureMs };
+    const a = aktifMac(siteId, userId); return a ? { durum: "mac", macId: a } : { durum: "yok" };
+  }
   function esles(siteId, userId) {
     ortak.temas(siteId, userId);
     const aktif = aktifMac(siteId, userId); if (aktif) return { durum: "mac", macId: aktif };
-    let k = kuyruk.get(siteId); if (!k) { k = new Map(); kuyruk.set(siteId, k); }
-    if (k.has(userId)) { k.get(userId).ts = now(); return { durum: "bekliyor", bekleyen: k.size }; }
-    let aday = null;
-    for (const [uid, v] of k) {
-      if (uid === userId || ortak.engelVar(siteId, userId, uid)) continue;
-      const tekrar = sonRakip.get(bk(siteId, userId)) === uid && now() - v.ts < 10000;
-      if (!tekrar) { aday = uid; break; }
-    }
-    if (!aday) { k.set(userId, { ts: now() }); return { durum: "bekliyor", bekleyen: k.size }; }
-    k.delete(aday);
-    const macId = macOlustur({ siteId, tur: "canli", a: aday, b: userId });
-    sonRakip.set(bk(siteId, userId), aday); sonRakip.set(bk(siteId, aday), userId);
-    bulunan.set(bk(siteId, aday), { macId, ts: now() });
-    hub.bildir("esles:" + bk(siteId, aday));
+    if (kisiTeklif.has(bk(siteId, userId)) || (kuyruk.get(siteId) || new Map()).has(userId)) return durumAl(siteId, userId);
+    notlar.delete(bk(siteId, userId));
+    const k = siteKuyruk(siteId);
+    k.set(userId, { ts: now(), bas: now(), puan: sezonPuanim(siteId, userId) });
+    const aday = adayAra(siteId, userId);
+    if (aday) { const tk = teklifKur(siteId, aday, userId); return teklifGorunum(tk, userId); }
+    return bekliyor(siteId, userId, k, k.get(userId));
+  }
+  /* Teklifi kabul: iki taraf da kabul edince maç kurulur */
+  function eslesKabul(siteId, userId, teklifId) {
+    ortak.temas(siteId, userId);
+    const tid = kisiTeklif.get(bk(siteId, userId)), tk = tid && teklifler.get(tid);
+    if (!tk || (teklifId && teklifId !== tk.id)) { const d = durumAl(siteId, userId); if (d.durum === "mac") return d; throw new Hata(409, "Eşleşme teklifi artık geçerli değil.", "teklif"); }
+    teklifKontrol(tk);
+    if (!teklifler.has(tk.id)) throw new Hata(409, "Onay süresi doldu.", "teklif");
+    tk.kabul.add(userId);
+    if (tk.kabul.size < 2) { hub.bildir("esles:" + bk(siteId, tk.a === userId ? tk.b : tk.a)); return teklifGorunum(tk, userId); }
+    teklifler.delete(tk.id); kisiTeklif.delete(bk(siteId, tk.a)); kisiTeklif.delete(bk(siteId, tk.b));
+    const macId = macOlustur({ siteId, tur: "canli", a: tk.a, b: tk.b });
+    tk.macId = macId;
+    sonRakip.set(bk(siteId, tk.a), tk.b); sonRakip.set(bk(siteId, tk.b), tk.a);
+    const diger = tk.a === userId ? tk.b : tk.a;
+    bulunan.set(bk(siteId, diger), { macId, ts: now() });
+    hub.bildir("esles:" + bk(siteId, diger));
     return { durum: "mac", macId };
   }
-  async function eslesBekle(siteId, userId, req) {
+  /* Durumun kısa anahtarı: istemci bildiğini ("bilinen") gönderir, değiştiyse hemen döner, değişmediyse uzun yoklama */
+  const anahtar = r => r.durum === "teklif" ? `t:${r.teklifId}:${r.benKabul ? 1 : 0}${r.rakipKabul ? 1 : 0}` : r.durum + (r.not ? ":" + r.not : "");
+  async function eslesBekle(siteId, userId, req, bilinen) {
     ortak.temas(siteId, userId);
-    const bul = () => { const b = bulunan.get(bk(siteId, userId)); if (b) { bulunan.delete(bk(siteId, userId)); return { durum: "mac", macId: b.macId }; } return null; };
-    let r = bul(); if (r) return r;
-    const k = kuyruk.get(siteId); if (!k || !k.has(userId)) { const a = aktifMac(siteId, userId); return a ? { durum: "mac", macId: a } : { durum: "yok" }; }
-    k.get(userId).ts = now();
-    await hub.bekle("esles:" + bk(siteId, userId), 20000, req);
-    r = bul(); if (r) return r;
-    const k2 = kuyruk.get(siteId); if (k2 && k2.has(userId)) { k2.get(userId).ts = now(); return { durum: "bekliyor", bekleyen: k2.size }; }
-    return { durum: "yok" };
+    const r = durumAl(siteId, userId);
+    if (r.durum !== "bekliyor" && r.durum !== "teklif") return r;
+    if ((r.durum === "teklif" || r.not || bilinen) && bilinen !== r.anahtar) return r;
+    // Teklifte karşı tarafın kabulüyle, bekleyişte rakip bulununca uyanır; en geç süre dolunca
+    await hub.bekle("esles:" + bk(siteId, userId), Math.max(50, Math.min(20000, r.bitis - now() + 50)), req);
+    return durumAl(siteId, userId);
   }
-  function eslesIptal(siteId, userId) { const k = kuyruk.get(siteId); if (k) k.delete(userId); bulunan.delete(bk(siteId, userId)); return { ok: true }; }
+  function eslesIptal(siteId, userId) {
+    const tid = kisiTeklif.get(bk(siteId, userId)), tk = tid && teklifler.get(tid);
+    if (tk) teklifBoz(tk, [userId]); // reddeden düşer, karşı taraf sıradaki rakibe yönelir
+    notlar.delete(bk(siteId, userId));
+    const k = kuyruk.get(siteId); if (k) k.delete(userId); bulunan.delete(bk(siteId, userId)); return { ok: true };
+  }
   function antrenman(siteId, userId) {
     const a = aktifMac(siteId, userId); if (a) return { macId: a };
     eslesIptal(siteId, userId);
@@ -325,12 +448,14 @@ function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
     if (sonraki) { (m.sira % 2 === 0 ? q.tmYerles : q.tmYerlesB).run(kazanan, sonraki.id); return; }
     // Final: ödüller (günlük tavandan bağımsız)
     q.turBitir.run(kazanan, tr.id);
+    KZ.sampiyon(tr.site_id, kazanan, tr.id);
     const finalist = m.a_user === kazanan ? m.b_user : m.a_user;
     const yarilar = q.tmListe.all(tr.id).filter(x => x.tur === m.tur - 1).flatMap(x => [x.a_user, x.b_user].filter(u => u && u !== x.kazanan));
     if (tr.sezon_id) {
       puanEkle(tr.site_id, tr.sezon_id, kazanan, 150, { tavan: false });
       if (finalist) puanEkle(tr.site_id, tr.sezon_id, finalist, 80, { tavan: false });
       for (const u of yarilar) puanEkle(tr.site_id, tr.sezon_id, u, 40, { tavan: false });
+      for (const u of [kazanan, finalist, ...yarilar].filter(Boolean)) { const sp = q.spGet.get(tr.sezon_id, u); if (sp) KZ.sezonPuani(tr.site_id, u, sp.puan); }
     }
   }
   function turnuvaMacBitti(turMacId, kazanan, neden) {
@@ -398,20 +523,25 @@ function createArena({ db, now, hub, ortak, kimlik, ayar = {} }) {
   function ozet(siteId, userId) {
     ortak.temas(siteId, userId);
     const s = siralama(siteId, userId), t = now(), g = ortak.gunAnahtari(t);
-    return { sezon: s.sezon, ben: s.ben, bloklar: s.bloklar, cevrimici: ortak.cevrimici(siteId), aktifMac: aktifMac(siteId, userId), tavan: C.gunTavan,
+    return { sezon: s.sezon, ben: { ...s.ben, kimlik: KZ.gorunum(siteId, userId) }, bloklar: s.bloklar, eslesmeSureMs: C.eslesmeSureMs, kabulSureMs: C.kabulSureMs, cevrimici: ortak.cevrimici(siteId), aktifMac: aktifMac(siteId, userId), tavan: C.gunTavan,
       gunKart: KARTLAR[parseInt(g.replace(/-/g, ""), 10) % KARTLAR.length].id, gecmis: q.macGecmis.all(siteId, userId, userId, 5).map(m => ({ tur: m.tur, sonuc: m.tur === "antrenman" ? "antrenman" : m.kazanan === userId ? "kazandi" : m.kazanan === null ? "berabere" : "kaybetti", puan: m.a_user === userId ? m.a_puan : m.b_puan, zaman: m.olusturma })), simdi: t };
   }
 
   /* Her 10 sn: eski kuyruk girdilerini temizler, turnuvaları ilerletir */
   function tick() {
     const t = now();
-    for (const [s, k] of kuyruk) { for (const [u, v] of k) if (t - v.ts > C.esleslemeZamanAsimiMs) k.delete(u); if (!k.size) kuyruk.delete(s); }
+    for (const [s, k] of kuyruk) { for (const [u, v] of k) if (t - v.ts > C.esleslemeZamanAsimiMs || t - v.bas >= C.eslesmeSureMs) k.delete(u); if (!k.size) kuyruk.delete(s); }
     for (const [k, v] of bulunan) if (t - v.ts > 60000) bulunan.delete(k);
+    for (const tk of [...teklifler.values()]) teklifKontrol(tk);
+    for (const [k, v] of notlar) if (t - v.ts > 120000) notlar.delete(k);
+    for (const [k, v] of engelli) if (t - v.ts > 120000) engelli.delete(k);
     for (const r of q.turAktifSiteler.all()) { try { turnuvaTick(r.site_id); } catch (e) { /* bir sitedeki hata diğerlerini durdurmasın */ } }
     ortak.temizle();
   }
 
-  return { C, sezonAl, siralama, gecmisSezonlar, kartlar, kartOgrendi, esles, eslesBekle, eslesIptal, antrenman, aktifMac, macGoster, macBekle, macCevap, macBitir,
+  const kimlikGetir = (siteId, userId) => KZ.kimlik(siteId, userId);
+  const kimlikSec = (siteId, userId, b) => KZ.secimYaz(siteId, userId, b);
+  return { C, kimlikGetir, kimlikSec, sezonOdulle, sezonAl, siralama, gecmisSezonlar, kartlar, kartOgrendi, esles, eslesBekle, eslesKabul, eslesIptal, antrenman, aktifMac, macGoster, macBekle, macCevap, macBitir,
     turnuvaOlustur, turnuvaKatil, turnuvaAyril, turnuvaIptal, turnuvaListe, turnuvaDetay, turnuvaBekle, turnuvaHazir, turnuvaTick, ozet, tick, unvan,
     kuyrukBoyutu: () => [...kuyruk.values()].reduce((s, k) => s + k.size, 0) };
 }

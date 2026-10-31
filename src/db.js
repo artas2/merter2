@@ -218,7 +218,16 @@ const MIGRATIONS = [
    CREATE TABLE engeller (site_id INTEGER NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
      engellenen INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, PRIMARY KEY (site_id, user_id, engellenen));
    CREATE TABLE susturmalar (site_id INTEGER NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-     bitis INTEGER NOT NULL, neden TEXT NOT NULL DEFAULT '', PRIMARY KEY (site_id, user_id));`
+     bitis INTEGER NOT NULL, neden TEXT NOT NULL DEFAULT '', PRIMARY KEY (site_id, user_id));`,
+  /* 7: Arena kimliği (simge, çerçeve, sembol, unvan), kalıcı arena istatistikleri, sezon sonu ödül işareti. */
+  `CREATE TABLE kazanimlar (site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     kod TEXT NOT NULL, zaman INTEGER NOT NULL, kaynak TEXT NOT NULL DEFAULT '', PRIMARY KEY (site_id, user_id, kod));
+   CREATE TABLE arena_gorunum (site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     simge TEXT NOT NULL, cerceve TEXT NOT NULL, semboller TEXT NOT NULL DEFAULT '[]', unvan TEXT NOT NULL, guncelleme INTEGER NOT NULL, PRIMARY KEY (site_id, user_id));
+   CREATE TABLE arena_istatistik (site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     mac INTEGER NOT NULL DEFAULT 0, galibiyet INTEGER NOT NULL DEFAULT 0, seri INTEGER NOT NULL DEFAULT 0, en_seri INTEGER NOT NULL DEFAULT 0, kusursuz INTEGER NOT NULL DEFAULT 0,
+     PRIMARY KEY (site_id, user_id));
+   ALTER TABLE sezonlar ADD COLUMN odullendi INTEGER NOT NULL DEFAULT 0;`
 ];
 
 function openDb(file) {

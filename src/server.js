@@ -26,7 +26,7 @@ function ayarlariOku(env = process.env) {
     config: {
       prod, sessionSecret: secret, trustProxy: env.TRUST_PROXY === "1", publicOrigin: env.PUBLIC_ORIGIN || "",
       platformAdminTelefonlari: String(env.PLATFORM_ADMIN_TELEFONLARI || "").split(",").map(s => s.trim()).filter(Boolean),
-      arena: Object.fromEntries([["soruMs", "ARENA_SORU_MS"], ["araMs", "ARENA_ARA_MS"], ["geriSayimMs", "ARENA_GERI_SAYIM_MS"]].filter(([, e]) => env[e]).map(([k, e]) => [k, Number(env[e])])),
+      arena: Object.fromEntries([["soruMs", "ARENA_SORU_MS"], ["araMs", "ARENA_ARA_MS"], ["geriSayimMs", "ARENA_GERI_SAYIM_MS"], ["eslesmeSureMs", "ARENA_ESLESME_MS"], ["kabulSureMs", "ARENA_KABUL_MS"]].filter(([, e]) => env[e]).map(([k, e]) => [k, Number(env[e])])),
       incelemeHesabi: env.INCELEME_TELEFON ? { telefon: env.INCELEME_TELEFON, kod: env.INCELEME_KODU || "" } : null,
       abonelik: {
         apple: { kokSertifika: env.APPLE_KOK_SERTIFIKA || "", bundleId: env.APPLE_BUNDLE_ID || "" },

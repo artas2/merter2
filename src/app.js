@@ -12,6 +12,7 @@ const { merterSayfasi, merterDosyalari } = require("../merter/sablon");
 const { Hub } = require("./hub");
 const { createOrtak } = require("./arena-ortak");
 const { createArena } = require("./arena");
+const { createKazanim } = require("./kazanim");
 const { createSohbet } = require("./sohbet");
 const { arenaRotalari } = require("./arena-rotalar");
 
@@ -631,7 +632,8 @@ function createApp(opts) {
   // --- Arena, sohbet, şikâyet ---
   const HUB = new Hub();
   const ORT = createOrtak({ db, now, kimlik: BL.kimlik });
-  const AR = createArena({ db, now, hub: HUB, ortak: ORT, kimlik: BL.kimlik, ayar: cfg.arena });
+  const KZ = createKazanim({ db, now });
+  const AR = createArena({ db, now, hub: HUB, ortak: ORT, kimlik: BL.kimlik, kazanim: KZ, ayar: cfg.arena });
   const SH = createSohbet({ db, now, hub: HUB, ortak: ORT, kimlik: BL.kimlik, bl: BL });
   arenaRotalari({ rota, izin, AR, SH, premiumMu: ctx => AB.durum(ctx.user.id, ctx.site, etkinDurum(ctx.site)).aktif });
   if (cfg.arenaTick !== false) { const z = setInterval(() => { try { AR.tick(); } catch (e) { cfg.log("[arena]", e.message); } }, 10000); z.unref(); }
@@ -818,7 +820,7 @@ function createApp(opts) {
     }
   }
 
-  return { handler, db, sms, cfg, siteYukle, davetOlustur, davetGoster, arena: AR, sohbet: SH, hub: HUB, ortak: ORT, belgeler: BL };
+  return { handler, db, sms, cfg, siteYukle, davetOlustur, davetGoster, arena: AR, kazanim: KZ, sohbet: SH, hub: HUB, ortak: ORT, belgeler: BL };
 }
 
 module.exports = { createApp, csv };

@@ -4,7 +4,7 @@
 const { Hata } = require("./validate");
 const PREMIUM_MESAJ = "Bu özellik Premium'a dahildir. Profil › Hesap ve abonelik'ten inceleyebilirsiniz; site yönetiminiz tüm sakinler için de açabilir.";
 
-function arenaRotalari({ rota, izin, AR, SH, premiumMu, GR }) {
+function arenaRotalari({ rota, izin, AR, SH, premiumMu, GR, BK }) {
   const premium = ctx => { if (!premiumMu(ctx)) throw new Hata(403, PREMIUM_MESAJ, "premium"); };
   const yonetimMi = ctx => ["site_yonetici", "site_denetci"].includes(ctx.uyelik.rol);
   const sayi = (v, ad) => { const n = Number(v); if (!Number.isInteger(n)) throw new Hata(400, `Geçersiz ${ad}.`); return n; };
@@ -78,6 +78,9 @@ function arenaRotalari({ rota, izin, AR, SH, premiumMu, GR }) {
   // --- Moderasyon (yönetim) ---
   rota("GET", "/api/yonetim/sikayetler", "yonetim", ctx => SH.sikayetler(sk(ctx), ctx.url.searchParams.get("durum")));
   rota("PATCH", "/api/yonetim/sikayetler/:id", "yonetim", ctx => SH.sikayetKarar(sk(ctx), ctx.params.id, ctx.body.karar, ctx.body.saat || 24), { yazma: true });
+  /* Bekçi: yönetim olayları görür ve "doğru/yanlış alarm" geri bildirimi verir (sonraki eğitimde kullanılır) */
+  rota("GET", "/api/yonetim/bekci", "yonetim", ctx => BK.olaylar(sk(ctx)));
+  rota("POST", "/api/yonetim/bekci/:id/geri-bildirim", "yonetim", ctx => { const r = BK.geriBildirim(sk(ctx), ctx.params.id, !!ctx.body.dogru); if (!r) throw new Hata(404, "Olay bulunamadı."); return r; }, { yazma: true });
   rota("DELETE", "/api/yonetim/sustur/:kim", "yonetim", ctx => SH.susturKaldir(sk(ctx), ctx.params.kim), { yazma: true });
 }
 module.exports = { arenaRotalari, PREMIUM_MESAJ };

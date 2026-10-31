@@ -4,6 +4,61 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-10-31 · Bekçi Kedi: siteyi neşelendir, uygulamayı bize tanıtsın; dişi sokak kedisi
+
+**Kullanıcının sözleri:** "Siteyi bir bekçi kedi animasyonuyla neşelendir. Ve bekçi kedi uygulamayı bize tanısın ilk başta. Bekçi kedi dişi bir sokak kedisi olabilir."
+
+```
+HEDEF       : Köşede animasyonlu bir maskot; ilk açılışta uygulamayı tanıtan tur.
+KAPSAM      : Alaca (üç renkli, dişi) sokak kedisi, kendi SVG çizimimiz; nefes, göz kırpma, kuyruk, kulak oynatma; dokununca mırıltı ve kalpler;
+              sayfaya göre kısa sözler; 9 adımlı tanıtım turu (Arena yoksa 7); Kartım'da gizle/göster/turu tekrarla.
+KISITLAR    : Hareket azaltmaya uy; dokunma hedefi ≥ 44 px; otomasyon testlerini bozma; önce sor (push, yayın).
+BAŞARI      : Tarayıcı testleri: kedi, animasyon adları, tur adımları, odak, Esc, gizle/göster, 320 ve 390 px.
+VARSAYIMLAR : "Bekçi Kedi" adı kullanıcıdan; Bekçi sohbet botunun yüzü olarak da anlatılır. Alaca tüy seçildi (alaca kedilerin neredeyse hepsi dişidir).
+              Kulaktaki çentik sokak kedilerinde bakım işaretidir (süs olarak çizildi).
+BELİRSİZ    : Adı (şimdilik "Bekçi Kedi"); sesli miyav istenip istenmediği (eklenmedi).
+```
+
+**Puan: 90 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 4, kısalık 3, dil 3.
+
+---
+
+## 2026-10-31 · Fırsatlarda firmanın sitesine bağlantı; büyük, köşesiz, akışkan düğme, tıklama animasyonu
+
+**Kullanıcının sözleri:** "Fırsatlarda fırsatını sunduğumuz firmanın kendi sitesine de bağlanan link için yer gömedim. Bu tuş birazcık büyük olsun. Köşeleri bulunmasın. Ve yönlendirici akışkan bir desene sahip olsun. Ve müşteri tuşa tıklayınca animasyon görmek istiyorum."
+
+```
+HEDEF       : Fırsat kartında firmanın web sitesine giden bir düğme.
+KAPSAM      : Fırsat formuna "Firmanın web sitesi" alanı (yalnızca https); düğme 60 px yüksek, tam yuvarlak, akan dalga ve kayan gradyan deseni;
+              tıklayınca dalgacık, sıçrama ve ok animasyonu; site yeni sekmede açılır.
+KISITLAR    : Güvenlik: yalnızca https, noopener; hareket azaltmada animasyon kapalı; sakin önerilerinde yönetim onaylamadan yayınlanmaz.
+BAŞARI      : Test: düğme boyutu ve yuvarlaklığı, animasyon adları, tıklamada sınıf ve dalgacık, http/javascript: reddi.
+VARSAYIMLAR : "Köşeleri bulunmasın" = tam yuvarlak (hap) biçim. "Yönlendirici" = yönlendiren düğme. Bağlantı sayfayı değiştirmez, yeni sekmede açılır.
+```
+
+**Puan: 87 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 3 ("gömedim" = yer ayırmadım diye okudum), kısıtlar 4, yapı 4, kısalık 4, dil 3.
+
+---
+
+## 2026-10-31 · İçerideki sohbeti denetleyecek bir bot; bu botu eğit
+
+**Kullanıcının sözleri:** "İçerideki sohbeti denetleyecek bir bot gerek. Bu botu eğit."
+
+```
+HEDEF       : Sohbet mesajlarını denetleyen ve eğitilebilen bot (Bekçi).
+KAPSAM      : Kurallar (küfür, hakaret, tehdit, reklam, bağırma, tekrar; yazım oyunlarına dayanıklı), kişisel bilgi maskeleme, eğitilen model,
+              otomatik susturma, yönetimde Bekçi sekmesi (olaylar, doğru/yanlış alarm), eğitim betiği ve ölçüm.
+KAPSAM DIŞI : Dış yapay zekâ servisi (mesajlar dışarı gitmez); Gündem gönderileri ve yorumlar (yalnızca sohbet).
+KISITLAR    : Dürüstlük: doğruluk yalnızca ölçülen veriyle söylenir; geri alınamaz iş yok (susturma yönetimce kaldırılır); gizlilik: kayıtlar 90 gün.
+BAŞARI      : Ayrı değerlendirme kümesinde izle dahil kesinlik ≥ %90, duyarlılık ≥ %90; engelleme kararında temiz mesaj engellenmez; "sık sık", "şikayet" gibi masum sözler geçer.
+VARSAYIMLAR : "Eğit" = örneklerle model eğitmek + yönetim geri bildirimiyle iyileştirmek. Eğitim verisi sentez ve el yazımı (gerçek sohbet verisi yok).
+BELİRSİZ    : Gerçek sohbetteki doğruluk (ölçülmedi); Gündem ve yorumların da denetlenip denetlenmeyeceği.
+```
+
+**Puan: 88 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 4 (verinin sentez olduğu açık yazıldı), kısıtlar 4, yapı 4, kısalık 3, dil 3.
+
+---
+
 ## 2026-10-31 · Turnuva bölümüne Satranç, 101, Okey ve Tavla
 
 **Kullanıcının sözleri:** "Turnuva bölümüne Satranç, 101, okey, Tavla ekleyelim."

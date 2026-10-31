@@ -19,7 +19,7 @@ function metinTemizle(m) {
   return t.replace(TEL, "[numara gizlendi]");
 }
 
-function createSohbet({ db, now, hub, ortak, kimlik, bl }) {
+function createSohbet({ db, now, hub, ortak, kimlik, bl, bekci }) {
   const q = {
     ekle: db.prepare("INSERT INTO sohbet (site_id, oda, user_id, kim, ad, blok, metin, zaman) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"),
     son: db.prepare("SELECT id, kim, ad, blok, metin, zaman FROM sohbet WHERE site_id = ? AND oda = ? AND gizli = 0 ORDER BY id DESC LIMIT ?"),
@@ -88,8 +88,19 @@ function createSohbet({ db, now, hub, ortak, kimlik, bl }) {
     const s = ortak.susturuldu(siteId, userId); if (s) throw new Hata(403, `Sohbete yazmanız ${new Date(s).toLocaleString("tr-TR", { timeZone: "Europe/Istanbul" })} tarihine kadar kapalı.`);
     const sk = siteId + ":" + userId, son = sonGonderim.get(sk) || 0;
     if (t - son < 1500) throw new Hata(429, "Biraz yavaş: 1,5 saniyede bir mesaj gönderilebilir.");
-    const temiz = metinTemizle(metin), p = ortak.profil(siteId, userId);
+    let temiz = metinTemizle(metin); const p = ortak.profil(siteId, userId);
+    // Bekçi (denetim botu): engelle → gönderilmez; izle → gönderilir, yönetime işaretlenir; kişisel bilgi maskelenir
+    let bk = null;
+    if (bekci) {
+      bk = bekci.kontrol(siteId, userId, oda, temiz);
+      if (bk.karar === "engelle") {
+        if (bk.susturSaat) sustur(siteId, userId, bk.susturSaat, "Bekçi: tekrarlayan ihlal");
+        throw new Hata(422, bk.mesaj, "bekci");
+      }
+      temiz = bk.metin;
+    }
     const r = q.ekle.run(siteId, oda, userId, kimlik(siteId, userId), p.ad, p.blok, temiz, t);
+    if (bk && bk.olayId) bekci.baglaMesaj(bk.olayId, Number(r.lastInsertRowid));
     sonGonderim.set(sk, t); if (sonGonderim.size > 50000) sonGonderim.clear();
     const ak = anahtar(siteId, oda);
     for (const k of onbellek.keys()) if (k.startsWith(ak + "|")) onbellek.delete(k);

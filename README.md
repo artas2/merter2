@@ -10,6 +10,14 @@ Site sakinleri için tek uygulama (iOS / Android), tarayıcı sürümü ve sunuc
 | `public/` | Genel Bilinçli Sakin arayüzü ve yönetim paneli (davet kodları, üyeler, platform yönetimi), yasal sayfalar |
 | `docs/MAGAZA.md` | App Store ve Google Play adım adım yayın kılavuzu |
 
+## Bekçi Kedi (maskot ve tanıtım)
+
+Köşede nefes alan, göz kırpan, kuyruk sallayan alaca bir dişi sokak kedisi (kendi çizimimiz). Dokunursan mırıldar; ilk açılışta uygulamayı adım adım tanıtır (Arena açıksa Arena ve sohbet denetimini de anlatır). Kartım sayfasından gizlenir, geri çağrılır, tur yeniden izlenir. Hareket azaltma tercihine uyar; test sürücülerinde kendiliğinden açılmaz. Kod: `merter/index.html` (Claude sayfasında da çalışır).
+
+## Fırsatlar
+
+Her fırsata isteğe bağlı firma web sitesi (yalnızca https) eklenir; kartta büyük, tam yuvarlak, akan dalga desenli "Firmanın sitesine git" düğmesi çıkar, tıklayınca dalgacık ve sıçrama animasyonu oynar.
+
 ## Arena (bilgi yarışması, sezon, turnuva, sohbet)
 
 - **Bilgi kartları:** Okunur, "kendini dene" ile öğrenilir (ücretsiz).
@@ -23,6 +31,7 @@ Site sakinleri için tek uygulama (iOS / Android), tarayıcı sürümü ve sunuc
 - **Sezon:** 28 gün; kişisel sıralama ve blok savaşı.
 - **Turnuva:** Belirli saatlerde oynanır; iki taraf da "hazırım" demelidir.
 - **Sohbet:** Site ve blok odaları, canlı akış (SSE).
+- **Bekçi (sohbet denetim botu):** Mesajları gönderilmeden önce yerelde denetler (dış servis yok). Küfür, tehdit, hakaret, reklam/bağlantı, bağırma ve tekrar (flood); yazım oyunlarına dayanıklı (s1kt1r, s i k t i r, uzatma). Kesin ihlal engellenir ve sebebi söylenir; şüpheli mesaj gönderilir ama yönetimde işaretlenir; IBAN, geçerli TC kimlik no ve e-posta gizlenir. 24 saatte 3 engelde 1 saat, 6 engelde 24 saat otomatik susturma. **Eğitim:** karakter n-gram Naive Bayes modeli (`data/bekci-model.json`); yönetimin "doğru/yanlış alarm" geri bildirimleri sonraki eğitime girer (`npm run bekci:egit`, `--db` ile). Ölçüm (sentetik, ayrı değerlendirme kümesi): engelleme kararında yanlış alarm 0; gerçek sohbet verisiyle ölçülmedi. Kod: `src/bekci.js`, `scripts/bekci-egit.js`.
 - **Şikâyet ve engelleme:** Gündem'de ve sohbette.
 
 Düello, turnuva ve sohbet Premium'dur. Kod: `src/arena.js`, `src/kazanim.js`, `src/gorevler.js`, `src/sohbet.js`, `merter/arena.js`, `merter/simgeler.js`, `merter/ses.js`. Ölçülen kapasite ve x100 yol haritası: **[docs/PERFORMANS.md](docs/PERFORMANS.md)** (`npm run yuk -- --kisi 1000 --sure 90`). Komutların yapay zekâ diline çevrilmesi: [docs/retorik-ustasi.md](docs/retorik-ustasi.md), [docs/KOMUT-GUNLUGU.md](docs/KOMUT-GUNLUGU.md).

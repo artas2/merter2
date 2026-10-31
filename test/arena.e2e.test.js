@@ -265,6 +265,36 @@ test("Yönetim: Şikâyetler sekmesi, susturma; susturulan yazamaz", { timeout: 
   assert.doesNotMatch(await S2.page.textContent("#arMesajlar").catch(() => ""), /numara gizlendi\] *$/);
 });
 
+test("Bekçi: küfürlü mesaj gönderilmez ve uyarı çıkar; yönetim Bekçi sekmesinde görür, yanlış alarm işaretler", { timeout: 60000 }, async () => {
+  const a = S2.page; // S1 önceki testte susturuldu
+  await git(a, "#arena"); if (await a.$('[data-ar="macKapat"]')) await a.click('[data-ar="macKapat"]');
+  await a.click('[data-ar="sekme:sohbet"]'); await a.waitForSelector("#arGiris");
+  await a.fill("#arGiris", "siktir git amk"); await a.press("#arGiris", "Enter");
+  await a.waitForFunction(() => /gönderilmedi/.test(document.body.textContent), null, { timeout: 5000 });
+  assert.doesNotMatch(await a.textContent("#arMesajlar"), /siktir/, "mesaj odaya düşmedi");
+  assert.equal(await a.inputValue("#arGiris"), "siktir git amk", "yazı silinmez, kişi düzeltebilir");
+  await a.waitForTimeout(1700); await a.fill("#arGiris", "Özür dilerim, sık sık böyle olmasın"); await a.press("#arGiris", "Enter");
+  await a.waitForFunction(() => /sık sık böyle/.test(document.getElementById("arMesajlar").textContent), null, { timeout: 8000 });
+  // Yönetim: Bekçi sekmesi
+  const y = Y.page; await git(y, "#davetler"); await y.waitForSelector(".dm-sekme"); await y.click('[data-dm="sekme:bekci"]');
+  await y.waitForSelector(".dm-kabarcik"); assert.match(await y.textContent(".dm"), /Engellendi · küfür/); assert.match(await y.textContent(".dm-ozet"), /engellendi/);
+  assert.match(await y.textContent(".dm-alinti"), /siktir/);
+  await y.click('[data-dm^="bekciGeri:"][data-dm$=":0"]'); await y.waitForFunction(() => /yanlış alarm/.test(document.querySelector(".dm").textContent), null, { timeout: 5000 });
+  assert.deepEqual(await dokunma(y, ".dm-kabarcik button"), [], "44 px altı dokunma hedefi yok");
+  await y.screenshot({ path: path.join(KOK, "docs/screenshots/yonetim-bekci.png") });
+});
+
+test("Bekçi Kedi: gerçek uygulamada tanıtım turu Arena ve Bekçi adımlarını da anlatır", { timeout: 60000 }, async () => {
+  const p = S2.page; await git(p, "#anasayfa");
+  await p.evaluate(() => BS_KEDI.tanit()); await p.waitForSelector(".kt");
+  const basliklar = [await p.textContent("#ktBaslik")];
+  for (let i = 0; i < 15 && (await p.$eval("#ktIleri", e => e.dataset.kt)) !== "bitir"; i++) { await p.click("#ktIleri"); await p.waitForTimeout(60); basliklar.push(await p.textContent("#ktBaslik")); }
+  assert.equal(basliklar.length, 9, basliklar.join(" | ")); assert.ok(basliklar.some(b => /oyun/.test(b)), "Arena adımı"); assert.ok(basliklar.some(b => /Sohbette gözüm/.test(b)), "Bekçi adımı");
+  assert.match(await p.textContent(".kt-alt"), /gizleyebilirsin/); await p.click("#ktIleri"); await p.waitForSelector(".kt", { state: "detached" });
+  assert.ok(await p.$(".kedi:not(.gizli)"), "tur bitince kedi köşede");
+  assert.deepEqual(S2.hatalar, [], "sayfa hatası yok");
+});
+
 test("Turnuva: yönetici formdan oluşturur, sakin kayıt olur", { timeout: 60000 }, async () => {
   const p = Y.page;
   await git(p, "#arena"); await p.click('[data-ar="sekme:turnuva"]'); await p.click('[data-ar="turForm"]');

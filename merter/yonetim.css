@@ -145,3 +145,8 @@
 .dm-hap.on { background: var(--accent); border-color: var(--accent); color: var(--sheet); }
 .dm-uyari-k { color: var(--warn) !important; }
 .dm-kabarcik.sk .dm-avatar { background: radial-gradient(circle at 32% 28%, color-mix(in srgb, #fff 35%, var(--warn)), var(--warn) 70%); }
+
+/* Bekçi sekmesi */
+.dm-ozet { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.dm-ozet span { padding: 6px 14px; border-radius: 999px; background: var(--sheet); border: 1px solid var(--line); font-size: 13px; color: var(--muted); } .dm-ozet b { color: var(--ink); font: 800 16px var(--f-display); margin-right: 4px; }
+.dm-hap.kucuk.on { background: var(--accent); color: #fff; border-color: var(--accent); }

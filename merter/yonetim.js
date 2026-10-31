@@ -16,8 +16,10 @@
   async function yukle() {
     if (S.yukleniyor) return; S.yukleniyor = true;
     try {
-      const [d, u, sk, sik] = await Promise.all([api("GET", "/api/yonetim/davetler"), api("GET", "/api/yonetim/uyeler"), api("POST", "/api/db", { op: "koleksiyon", yol: "sakinler" }).catch(() => ({ belgeler: [] })),
-        api("GET", "/api/yonetim/sikayetler" + (S.kapananlar ? "?durum=kapandi" : "")).catch(() => ({ sikayetler: [] }))]);
+      const [d, u, sk, sik, bek] = await Promise.all([api("GET", "/api/yonetim/davetler"), api("GET", "/api/yonetim/uyeler"), api("POST", "/api/db", { op: "koleksiyon", yol: "sakinler" }).catch(() => ({ belgeler: [] })),
+        api("GET", "/api/yonetim/sikayetler" + (S.kapananlar ? "?durum=kapandi" : "")).catch(() => ({ sikayetler: [] })),
+        api("GET", "/api/yonetim/bekci").catch(() => ({ olaylar: [], ozet: {} }))]);
+      S.bekci = bek;
       S.davetler = d.davetler; S.uyeler = u.uyeler; S.sikayetler = sik.sikayetler; S.adlar = Object.fromEntries(sk.belgeler.map(b => [b.id, (b.veri && b.veri.ad) || ""])); S.hata = "";
     } catch (e) { S.hata = e.message; S.davetler = S.davetler || []; S.uyeler = S.uyeler || []; }
     S.yukleniyor = false; yenidenCiz();
@@ -34,13 +36,14 @@
   function gorunum() {
     if (S.davetler === null && !S.yukleniyor) setTimeout(yukle, 0);
     const ust = `<div class="dm-ust"><p class="eyebrow">${h(site())} · yalnızca yönetim</p><h2 class="title">Davetler ve üyeler</h2>
-      <div class="dm-sekme" role="tablist" style="--adet:3;--konum:${{ davet: 0, uye: 1, sikayet: 2 }[S.sekme]}"><span class="dm-sekme-iz" aria-hidden="true"></span>
+      <div class="dm-sekme" role="tablist" style="--adet:4;--konum:${{ davet: 0, uye: 1, sikayet: 2, bekci: 3 }[S.sekme]}"><span class="dm-sekme-iz" aria-hidden="true"></span>
         <button type="button" role="tab" aria-selected="${S.sekme === "davet"}" data-dm="sekme:davet">Davet kodları</button>
         <button type="button" role="tab" aria-selected="${S.sekme === "uye"}" data-dm="sekme:uye">Üyeler${S.uyeler ? ` <b>${S.uyeler.length}</b>` : ""}</button>
-        <button type="button" role="tab" aria-selected="${S.sekme === "sikayet"}" data-dm="sekme:sikayet">Şikâyet${S.sikayetler && S.sikayetler.length && !S.kapananlar ? ` <b>${S.sikayetler.length}</b>` : ""}</button></div></div>`;
+        <button type="button" role="tab" aria-selected="${S.sekme === "sikayet"}" data-dm="sekme:sikayet">Şikâyet${S.sikayetler && S.sikayetler.length && !S.kapananlar ? ` <b>${S.sikayetler.length}</b>` : ""}</button>
+        <button type="button" role="tab" aria-selected="${S.sekme === "bekci"}" data-dm="sekme:bekci">Bekçi</button></div></div>`;
     const not = `${S.hata ? `<p class="dm-not hata" role="alert">${h(S.hata)}</p>` : ""}${S.durum ? `<p class="dm-not" role="status">${h(S.durum)}</p>` : ""}`;
     if (S.davetler === null) return `<section class="dm">${ust}<div class="dm-bekle" aria-busy="true"><span></span><span></span><span></span></div></section>`;
-    return `<section class="dm">${ust}${not}${S.sekme === "davet" ? davetGorunum() : S.sekme === "uye" ? uyeGorunum() : sikayetGorunum()}</section>`;
+    return `<section class="dm">${ust}${not}${S.sekme === "davet" ? davetGorunum() : S.sekme === "uye" ? uyeGorunum() : S.sekme === "bekci" ? bekciGorunum() : sikayetGorunum()}</section>`;
   }
 
   /* Şikâyetler: aynı içeriğe gelen şikâyetler tek kartta toplanır. Karar: içeriği gizle, yoksay ya da kişiyi sustur. */
@@ -56,6 +59,19 @@
         ${s.aciklamalar.length ? `<small>Açıklama: ${s.aciklamalar.map(h).join(" · ")}</small>` : ""}${s.kisi && s.kisi.susturma ? `<small class="dm-uyari-k">Susturuldu: ${new Date(s.kisi.susturma).toLocaleString("tr-TR")}</small>` : ""}</div>
       ${S.kapananlar ? "" : `<div class="dm-eylem">${s.tur !== "kisi" ? `<button type="button" class="dm-hap kucuk" data-dm="skKarar:${s.id}:gizle">İçeriği gizle</button>` : ""}<button type="button" class="dm-hap kucuk" data-dm="skKarar:${s.id}:yoksay">Yoksay</button>
         <button type="button" class="dm-hap kucuk tehlike" data-dm="skKarar:${s.id}:sustur">24 saat sustur</button>${s.kisi && s.kisi.susturma ? `<button type="button" class="dm-hap kucuk" data-dm="susturKaldir:${h(s.kisi.kim)}">Susturmayı kaldır</button>` : ""}</div>`}</li>`).join("")}</ul>`;
+  }
+
+  /* Bekçi: sohbet denetim botunun olayları. "Doğru alarm" / "Yanlış alarm" geri bildirimi sonraki eğitimde kullanılır. */
+  function bekciGorunum() {
+    const B = S.bekci || { olaylar: [], ozet: {} }, l = B.olaylar.filter(o => o.karar !== "maske" || true);
+    let x = `<p class="lvl">Bekçi, sohbet mesajlarını gönderilmeden önce denetler: küfür, tehdit, hakaret ve reklam gibi mesajları <b>engeller</b>, şüpheli olanları gönderip burada <b>işaretler</b>, telefon, IBAN, TC kimlik ve e-postayı gizler. Mesajlar dışarıya gönderilmez. Tekrarlayan ihlalde 24 saatte 3 engelde 1 saat, 6 engelde 24 saat otomatik susturur; Şikâyet sekmesinden kaldırabilirsiniz. Yanlış alarmları işaretlemeniz Bekçi'nin eğitimine girer. Kayıtlar 90 gün tutulur.</p>
+      <div class="dm-ozet"><span><b>${B.ozet.engelle || 0}</b> engellendi (24 sa)</span><span><b>${B.ozet.izle || 0}</b> işaretlendi (24 sa)</span><span><b>${B.ozet.maske || 0}</b> bilgi gizlendi</span></div>`;
+    if (!l.length) return x + `<div class="dm-bos">${damla(0, "")}<p>Henüz Bekçi kaydı yok.</p></div>`;
+    const AD = { engelle: "Engellendi", izle: "İşaretlendi", maske: "Bilgi gizlendi" };
+    return x + `<ul class="dm-liste">${l.map((o, i) => `<li class="dm-kabarcik sk" style="--i:${i}"><span class="dm-avatar" aria-hidden="true">${o.skor}</span>
+      <div class="dm-govde"><b>${AD[o.karar] || o.karar} · ${h(o.turler.join(", ") || "kişisel bilgi")}</b><p class="dm-alinti">“${h(o.ozet)}”</p>
+        <small>${h(o.oda)} · ${new Date(o.zaman).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}${o.geri === 1 ? " · doğru alarm" : o.geri === 0 ? " · yanlış alarm" : ""}</small></div>
+      ${o.karar === "maske" ? "" : `<div class="dm-eylem"><button type="button" class="dm-hap kucuk${o.geri === 1 ? " on" : ""}" data-dm="bekciGeri:${o.id}:1">Doğru alarm</button><button type="button" class="dm-hap kucuk${o.geri === 0 ? " on" : ""}" data-dm="bekciGeri:${o.id}:0">Yanlış alarm</button></div>`}</li>`).join("")}</ul>`;
   }
 
   function davetGorunum() {
@@ -114,10 +130,11 @@
   async function islem(a) {
     const [k, x] = a.split(/:(.*)/s);
     S.durum = ""; S.hata = "";
-    if (k === "sekme") { S.sekme = x; S.iptalSor = S.cikarSor = null; return yenidenCiz(); }
+    if (k === "sekme") { S.sekme = x; S.iptalSor = S.cikarSor = null; if (x === "bekci" || x === "sikayet") { yenidenCiz(); return yukle(); } return yenidenCiz(); }
     if (k === "max" || k === "gun") { formOku(); if (k === "max") S.form.max = Math.min(500, Math.max(1, S.form.max + Number(x) * (S.form.max >= 10 ? 5 : 1))); else S.form.gun = Math.min(90, Math.max(1, S.form.gun + Number(x))); return yenidenCiz(); }
     if (k === "kopya") { try { await navigator.clipboard.writeText(x); S.durum = `${x} kopyalandı.`; } catch (e) { S.durum = "Kopyalanamadı; kodu basılı tutup seçebilirsiniz."; } return yenidenCiz(); }
     if (k === "paylas") { const d = S.davetler.find(z => z.kod === x) || S.yeni; try { await navigator.share({ title: "Davet kodu", text: paylasMetni(d) }); } catch (e) { /* vazgeçildi */ } return; }
+    if (k === "bekciGeri") { const [id, d] = x.split(":"); try { await api("POST", `/api/yonetim/bekci/${id}/geri-bildirim`, { dogru: d === "1" }); S.durum = d === "1" ? "Doğru alarm olarak işaretlendi." : "Yanlış alarm olarak işaretlendi; sonraki eğitimde kullanılır."; return yukle(); } catch (e) { S.hata = e.message; return yenidenCiz(); } }
     if (k === "skListe") { S.kapananlar = x === "kapandi"; return yukle(); }
     if (k === "skKarar" || k === "susturKaldir") {
       try {

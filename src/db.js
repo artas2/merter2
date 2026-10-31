@@ -240,7 +240,15 @@ const MIGRATIONS = [
      turnuva_mac_id INTEGER, durum TEXT NOT NULL, ver INTEGER NOT NULL DEFAULT 1, bitti INTEGER NOT NULL DEFAULT 0, sonuc TEXT, neden TEXT NOT NULL DEFAULT '',
      tekrar INTEGER NOT NULL DEFAULT 0, sure_a INTEGER NOT NULL, sure_b INTEGER NOT NULL, son INTEGER NOT NULL, olusturma INTEGER NOT NULL
    );
-   CREATE INDEX oyun_maclar_a ON oyun_maclar(a_user, bitti); CREATE INDEX oyun_maclar_b ON oyun_maclar(b_user, bitti);`
+   CREATE INDEX oyun_maclar_a ON oyun_maclar(a_user, bitti); CREATE INDEX oyun_maclar_b ON oyun_maclar(b_user, bitti);`,
+  /* 9: Bekçi (sohbet denetim botu): olay kaydı. Özet ve normalleştirilmiş metin 90 gün sonra silinir; geri bildirim eğitime girer. */
+  `CREATE TABLE bekci_olay (
+     id INTEGER PRIMARY KEY AUTOINCREMENT, site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, oda TEXT NOT NULL, zaman INTEGER NOT NULL,
+     karar TEXT NOT NULL CHECK (karar IN ('izle','engelle','maske')), skor INTEGER NOT NULL, turler TEXT NOT NULL DEFAULT '[]',
+     ozet TEXT NOT NULL DEFAULT '', norm TEXT NOT NULL DEFAULT '', mesaj_id INTEGER, geri INTEGER
+   );
+   CREATE INDEX bekci_olay_site ON bekci_olay(site_id, id); CREATE INDEX bekci_olay_kisi ON bekci_olay(site_id, user_id, zaman);`
 ];
 
 function openDb(file) {

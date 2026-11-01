@@ -4,6 +4,26 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-11-01 · Bekleme ekranlarında Minnoş (yere atılma pozu, fırsat özetleri); komşu verisi kişinin kendi seçimi
+
+**Kullanıcının sözleri:** "Başka bekleme ekranlarına da uygula; bu Minnoş'un gelip kendini yere attığı bir poz ile diğer indirimleri ve fırsatlar hakkında kısa özet bilgiler verir. Komşu verisi diğer kullanıcılara özel olsun, isterse açıp isterse kapatsın."
+
+```
+HEDEF       : Tüm bekleme ekranlarında Minnoş'un yere uzandığı poz + dönen fırsat/indirim özeti; komşu verisi kişiye özel, açıp kapatılabilir.
+KAPSAM      : 1) BS_BEKLE bileşeni: giriş animasyonu (gelip kendini yere atar), nefes, kuyruk, "zzz", sinematik çubuk (%95 hızlı, son %5 yavaş), ipuçları (indirimi yüksek önde).
+              2) Uygulama: Arena (özet, kartlar, sıralama, görevler, maç, turnuva, sohbet), oyun, Minnoş paneli (uzun bekleme), kahve falı (ipucu).
+              3) Komşu rehberi: Kartım'da açma/kapama; kısa ad, blok-kat-daire ve telefon ayrı ayrı; varsayılan kapalı; Minnoş yalnızca paylaşılanı gösterir.
+              4) Gizlilik düzeltmesi: katilim belgesine konum yazılmıyor (belgeyi her üye okuyabiliyordu).
+KISITLAR    : Varsayılan kapalı (rıza); sipariş ve aidat başkalarına hiçbir koşulda gösterilmez; hareket azaltmaya uyulur; önce sor (push, yayın).
+BAŞARI      : Sayfa testi (poz, animasyon adı, dönen ipuçları, çubuk %94–%100 arası), rehber açma/kapama belgesi, Minnoş yalnızca paylaşılanı gösterir (motor + sayfa), arena e2e'de bekleme kartı.
+VARSAYIMLAR : "Komşu verisi özel olsun" = kat, daire, telefon; kişi isterse rehberde paylaşır. Yönetim site işleri için kart verisini zaten görür (kapsam dışı). Rehberde kısa ad gösterilir.
+BELİRSİZ    : Yönetimin de rehber seçimine uyup uymayacağı (şimdilik hayır: işletme gereği).
+```
+
+**Puan: 88 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 3, kısıtlar 4, yapı 4, kısalık 3, dil 4.
+
+---
+
 ## 2026-11-01 · Hesaplar (aidat, market/gıda harcaması), yönetim asistanı, sinematik yükleme, araç yıkama, her hizmette farklı Minnoş
 
 **Kullanıcının sözleri (özet):**

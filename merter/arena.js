@@ -7,6 +7,8 @@
   const api = (m, y, b) => window.BS_API(m, y, b);
   const h = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const bildir = m => { try { if (typeof toast === "function") toast(m); } catch (e) { /* yok */ } };
+  /* Bekleme: Minnoş yere uzanır, fırsat ve indirimleri kısaca anlatır (Merter sayfasındaki BS_BEKLE); yoksa eski nokta animasyonu */
+  const bekleKart = baslik => (window.BS_BEKLE ? window.BS_BEKLE.kart({ baslik }) : `<div class="ar-bekle"><span></span><span></span><span></span></div>`);
   const acik = () => typeof current !== "undefined" && current === "arena";
   const KAT = { acil: "Acil durum", site: "Site yönetimi", komsuluk: "Komşuluk", tasarruf: "Tasarruf", alisveris: "Alışveriş", guvenlik: "Güvenlik" };
   const SEKME = [["kartlar", "Kartlar"], ["duello", "Düello"], ["gorevler", "Görevler"], ["kimlik", "Kimlik"], ["sezon", "Sezon"], ["turnuva", "Turnuva"], ["sohbet", "Sohbet"]];
@@ -54,7 +56,7 @@
 
   /* ---------- Görünüm ---------- */
   function view() {
-    if (!A.ozet) { setTimeout(ozetYukle, 0); setTimeout(sekmeYukle, 0); return `<section class="ar"><div class="ar-bekle" aria-busy="true"><span></span><span></span><span></span></div></section>`; }
+    if (!A.ozet) { setTimeout(ozetYukle, 0); setTimeout(sekmeYukle, 0); return `<section class="ar">${bekleKart("Arena hazırlanıyor…")}</section>`; }
     if (window.BS_OYUN && BS_OYUN.acikMi()) return `<section class="ar">${BS_OYUN.view()}</section>`;
     if (A.macId) return `<section class="ar">${macView()}</section>`;
     if (A.esles !== "yok") return `<section class="ar ar-eslesme">${A.hata ? `<p class="ar-not hata" role="alert">${h(A.hata)}</p>` : ""}${eslesView()}</section>`;
@@ -73,7 +75,7 @@
 
   /* Kartlar */
   function kartlarView() {
-    const K = A.kartlar; if (!K) return `<div class="ar-bekle"><span></span><span></span><span></span></div>`;
+    const K = A.kartlar; if (!K) return `${bekleKart("Bilgi kartları geliyor…")}`;
     const gunun = K.kartlar.find(k => k.id === K.gunun), l = K.kartlar.filter(k => !A.kat || k.k === A.kat);
     return `<p class="ar-ilerleme"><b>${K.ogrenilen}</b>/${K.toplam} kart öğrenildi <span class="ar-cubuk"><i style="width:${Math.round(K.ogrenilen / K.toplam * 100)}%"></i></span></p>
       ${gunun ? `<h3 class="ar-baslik">Günün kartı</h3>${kartHtml(gunun, true)}` : ""}
@@ -175,7 +177,7 @@
     return `<span class="ar-unvanodul bsk-n-${SG().nadir(kod)}">${h(SG().ad(kod))}</span>`;
   }
   function kimlikView() {
-    const K = A.kimlik; if (!K || !SG()) return `<div class="ar-bekle"><span></span><span></span><span></span></div>`;
+    const K = A.kimlik; if (!K || !SG()) return `${bekleKart()}`;
     const sec = K.secim, benk = { ...sec, unvanAd: SG().ad(sec.unvan) }, ist = K.istatistik;
     const liste = K.katalog.filter(k => k.tur === A.kTur), sahip = liste.filter(k => k.var).length;
     const secili = k => A.kTur === "sembol" ? sec.semboller.includes(k.kod) : sec[A.kTur] === k.kod;
@@ -198,7 +200,7 @@
   }
   /* Günlük ve haftalık görevler */
   function gorevlerView() {
-    const G = A.gorevler; if (!G) return `<div class="ar-bekle"><span></span><span></span><span></span></div>`;
+    const G = A.gorevler; if (!G) return `${bekleKart("Görevler hazırlanıyor…")}`;
     const blok = (donem, baslik) => {
       const l = G.gorevler.filter(g => g.donem === donem);
       return `<section class="ar-gorevler"><div class="ar-ghead"><h3 class="ar-baslik">${baslik}</h3><small>${kalan(G.yenilenme[donem])} sonra yenilenir</small></div>
@@ -246,7 +248,7 @@
 
   /* Maç ekranı */
   function macView() {
-    const g = A.mac; if (!g) return `<div class="ar-bekle"><span></span><span></span><span></span></div>`;
+    const g = A.mac; if (!g) return `${bekleKart("Maç hazırlanıyor…")}`;
     const simdi = Date.now() + fark;
     const skor = `<div class="ar-skor"><div class="ben"><small>Sen</small><b>${g.ben.puan}</b><span>${h(g.ben.ad)}</span></div><span class="ar-vs">${g.tur === "antrenman" ? "Antrenman" : g.tur === "turnuva" ? "Turnuva" : "VS"}</span>
       <div class="rakip"><small>${g.rakip ? h(g.rakip.blok ? g.rakip.blok + " Blok" : "Rakip") : "—"}</small><b>${g.rakip ? g.rakip.puan : "–"}</b><span>${g.rakip ? h(g.rakip.ad) : "Tek başına"}</span></div></div>`;
@@ -314,7 +316,7 @@
 
   /* Sezon */
   function sezonView() {
-    const s = A.siralama; if (!s) return `<div class="ar-bekle"><span></span><span></span><span></span></div>`;
+    const s = A.siralama; if (!s) return `${bekleKart("Sıralama hesaplanıyor…")}`;
     const enCok = Math.max(1, ...s.bloklar.map(b => b.puan));
     return `<div class="ar-sezon"><div><small>${h(s.sezon.ad)}</small><b>${kalan(s.sezon.bitis)}</b><span>kaldı · ${s.katilan} oyuncu</span></div>
         <div class="ar-benkart"><span class="ar-unvan">${h(s.ben.unvan)}</span><b>${s.ben.puan}</b><small>${s.ben.sira ? s.ben.sira + ". sıra" : "Henüz puan yok"} · ${s.ben.galibiyet}/${s.ben.mac} galibiyet</small></div></div>
@@ -330,7 +332,7 @@
   const DURUM = { kayit: "Kayıt açık", oynaniyor: "Oynanıyor", bitti: "Bitti", iptal: "İptal" };
   function turnuvaView() {
     if (A.tur) return turDetayView();
-    const T = A.turnuvalar; if (!T) return `<div class="ar-bekle"><span></span><span></span><span></span></div>`;
+    const T = A.turnuvalar; if (!T) return `${bekleKart()}`;
     let x = `<p class="lvl">Turnuvalar belirli saatlerde oynanır. Maç saatinden 5 dakika önce "Hazırım" deyin; iki taraf da hazırsa maç başlar. Maç saatinden 3 dakika sonra gelmeyen taraf turu kaybeder.</p>`;
     if (A.ozet.yonetim) x += A.turForm ? turFormHtml() : `<button type="button" class="ar-hap" data-ar="turForm">+ Turnuva oluştur</button>`;
     x += T.turnuvalar.length ? `<ul class="ar-liste">${T.turnuvalar.map(t => `<li><button type="button" class="ar-turkart ${t.durum}" data-ar="turAc:${t.id}"><span class="ar-etiket">${DURUM[t.durum]}${t.oyun && t.oyun !== "bilgi" ? ` · ${h(t.oyunAd)}` : ""}</span><b>${h(t.ad)}</b>
@@ -395,7 +397,7 @@
   let sohbetDongu = 0;
   function sohbetView() {
     if (!A.ozet.premium) return kilit("Sohbet");
-    const S = A.sohbet; if (!S) { setTimeout(sohbetBaslat, 0); return `<div class="ar-bekle"><span></span><span></span><span></span></div>`; }
+    const S = A.sohbet; if (!S) { setTimeout(sohbetBaslat, 0); return `${bekleKart()}`; }
     return `<div class="ar-sohbet"><div class="ar-cip">${S.odalar.map(o => `<button type="button" class="${A.oda === o.id ? "on" : ""}" data-ar="oda:${h(o.id)}">${h(o.ad)}</button>`).join("")}<span class="ar-cevrim" aria-label="Çevrim içi"><span class="ar-nokta"></span><span id="arCevrim">${A.cevrimici}</span> çevrim içi</span></div>
       ${S.odalar.length < 2 ? `<p class="lvl">Blok sohbeti için Profil'de blokunuzu seçin.</p>` : ""}
       <div class="ar-mesajlar" id="arMesajlar" role="log" aria-live="polite">${mesajlarHtml()}</div>

@@ -29,6 +29,7 @@
     if (!g.bitti && g.sira === renk) ms -= Math.max(0, sunucuSimdi() - Math.max(g.simdi, g.baslangic || 0));
     return Math.max(0, ms);
   }
+  const bekleKart = baslik => (window.BS_BEKLE ? window.BS_BEKLE.kart({ baslik }) : `<div class="ar-bekle" aria-busy="true"><span></span><span></span><span></span></div>`);
   const renkAd = r => (r === "b" ? "Beyaz" : "Siyah");
 
   /* ---- Görünüm ---- */
@@ -101,7 +102,7 @@
       <button type="button" class="ar-hap" data-oy="terfiIptal">Vazgeç</button></div></div>`;
   }
   function view() {
-    const g = S.g; if (!g) return `<div class="ar-bekle" aria-busy="true"><span></span><span></span><span></span></div>`;
+    const g = S.g; if (!g) return `${bekleKart("Oyun hazırlanıyor…")}`;
     const ust = g.ben === "b" ? "s" : "b", alt = g.ben;
     const baslangic = g.baslangic && sunucuSimdi() < g.baslangic;
     const siraYazi = g.bitti ? "" : baslangic ? "Oyun birazdan başlıyor…" : g.sira === g.ben ? "Sıra sende" : "Rakip düşünüyor…";

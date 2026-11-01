@@ -227,6 +227,7 @@ table.lig td,table.lig th{padding:6px 8px;text-align:center;min-width:0}table.li
 @keyframes fsSicra{0%{transform:scale(1)}30%{transform:scale(.94,.9)}60%{transform:scale(1.04,1.07)}100%{transform:scale(1)}}
 @keyframes fsOk{0%{transform:translateX(0)}45%{transform:translateX(34px);opacity:0}46%{transform:translateX(-34px);opacity:0}100%{transform:translateX(0);opacity:1}}
 @keyframes fsDamla{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+.rh-satir{display:flex;gap:10px;align-items:flex-start;min-height:44px;padding:6px 0}.rh-satir input{width:22px;height:22px;flex:none;margin-top:2px}.rh-satir span{display:grid}.rh-satir small{color:var(--muted);font-size:12px}
 .fka{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.mini.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}.fka .ik{width:16px;height:16px}
 #frAra{width:100%;font-size:16px;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);padding:0 12px;margin:0 0 8px}
 .frc{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.frc .chip{flex:none;cursor:pointer;min-height:36px;border-radius:999px;font-family:var(--f-body);font-size:13px}
@@ -349,6 +350,25 @@ textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--l
 @keyframes kGel{0%{transform:translateY(120%) scale(.8)}100%{transform:none}}
 @keyframes kKutu{0%{opacity:0;transform:translateY(40px) scale(.94)}100%{opacity:1;transform:none}}
 
+
+/* Bekleme ekranı: Minnoş yere uzanmış + fırsat ipuçları */
+.bk-kart{display:grid;justify-items:center;gap:8px;padding:18px 14px;margin:8px 0;border-radius:var(--ar-r,26px);background:linear-gradient(160deg,var(--accent-soft),var(--sheet));border:1px solid var(--line);text-align:center}
+.bk-kart.kucuk{padding:10px 12px;gap:4px}.bk-kart.kucuk .bk-sahne{width:110px}
+.bk-sahne{width:180px;overflow:visible}.bk-svg{display:block;width:100%;height:auto;overflow:visible}
+.bk-baslik{margin:0;font:800 16px var(--f-display);color:var(--ink)}
+.bk-ilerleme{width:min(240px,80%);height:8px;border-radius:999px;background:var(--line);overflow:hidden}.bk-ilerleme i{display:block;width:6%;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),#E8872F)}
+.bk-ipucu{display:grid;gap:2px;max-width:34ch;min-height:3.4em;transition:opacity .25s,transform .25s}.bk-ipucu.degis{opacity:0;transform:translateY(6px)}
+.bk-ipucu b{font:800 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}.bk-ipucu span{font:600 14px/1.4 var(--f-body);color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){
+ .bk-sahne{animation:bkAt 1.15s cubic-bezier(.34,1.3,.5,1) both}
+ .bk-ilerleme i{animation:bkIlr 12s forwards}.bk-kuyruk{transform-origin:148px 74px;animation:bkKuyruk 1.8s ease-in-out infinite alternate}
+ .bk-govde{transform-origin:98px 90px;animation:bkNefes 3.4s ease-in-out infinite}.bk-kulak{transform-box:fill-box;transform-origin:50% 100%;animation:bkKulak 6s infinite}
+ .bk-z text{animation:bkZ 3s ease-in-out infinite;opacity:0}.bk-z text:nth-child(2){animation-delay:.6s}.bk-z text:nth-child(3){animation-delay:1.2s}
+}
+@keyframes bkAt{0%{transform:translateX(-170px) rotate(-4deg);opacity:0}35%{opacity:1}55%{transform:translateX(0) translateY(-34px) rotate(-12deg)}72%{transform:translateY(0) rotate(5deg) scale(1.08,.86)}86%{transform:translateY(-6px) rotate(-2deg) scale(.98,1.04)}100%{transform:none}}
+@keyframes bkIlr{0%{width:6%}6%{width:95%}100%{width:99.5%}}
+@keyframes bkKuyruk{from{transform:rotate(-8deg)}to{transform:rotate(14deg)}}@keyframes bkNefes{0%,100%{transform:scale(1,1)}50%{transform:scale(1.015,1.045)}}
+@keyframes bkKulak{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-12deg)}96%{transform:rotate(3deg)}}@keyframes bkZ{0%{opacity:0;transform:translate(0,6px)}40%{opacity:.9}100%{opacity:0;transform:translate(6px,-8px)}}
 /* Minnoş hizmet kartı: her hizmette farklı eşya ve söz */
 .mn-servis{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:start;margin:4px 0 12px;padding:10px 12px;border-radius:24px;background:var(--accent-soft);border:1px solid var(--line)}
 .mn-servis-kedi{position:relative;width:64px}.mn-servis-kedi>svg{display:block;width:100%;height:auto;overflow:visible}
@@ -986,7 +1006,7 @@ function initHizmet(db){
   db.doc("ayarlar/hizmetler").onSnapshot(s=>{HZ=s.exists?s.data():null;if(!hzAy)yen()},()=>{});
   db.doc("hizmetSiparis/"+UID).onSnapshot(s=>{hzBen=s.exists?{siparisler:{...(s.data().siparisler||{})}}:{siparisler:{}};yen()},()=>{});
 }
-function ensureSakinlerHz(){if(!sakinSub&&DB){sakinSub=DB.collection("sakinler").onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});tumSakinler=o;if(current==="sakinler"||current==="hizmet")render(false)},()=>{})}}
+function ensureSakinlerHz(){if(!sakinSub&&DB){sakinSub=DB.collection("sakinler").onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});tumSakinler=o;if(current==="sakinler"||current==="hizmet"||current==="etkinlik"||current==="turnuva")render(false)},()=>{})}}
 const hzPara=v=>v===""||v==null||!Number.isFinite(+v)?"":(+v).toLocaleString("tr-TR",{maximumFractionDigits:2})+" TL";
 function aksamAcik(){const a=hzAyar().utu.aksamSon;if(!/^\d{2}:\d{2}$/.test(a||""))return true;const n=new Date(),[h,m]=a.split(":").map(Number);return n.getHours()*60+n.getMinutes()<h*60+m}
 const hzBugun=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
@@ -1432,6 +1452,15 @@ function oyunVeri(){
   const st=[["BİLGİ",Math.min(10,bilgi),bilgi?bilgi.toFixed(1).replace(".",","):"–"],["KATILIM",Math.min(10,(etk+trn)*2.5),String(etk+trn)],["KOMŞULUK",Math.min(10,posts*2+yor+beg*.5),String(posts+yor)],["TASARRUF",Math.min(10,Math.max(0,ts.fark)/25),ts.fark>0?"~"+Math.round(ts.fark)+" TL":"–"]];
   return {xp,lv,ilk,son,tier,roz,st,kazanilan:roz.filter(r=>r[3]).length};
 }
+function rehberKarti(){
+  const a=rehberAyari(),on=a.acik;
+  const chk=(k,ad,ek)=>`<label class="lvl rh-satir"><input type="checkbox" data-rehber="${k}" ${a[k]?"checked":""} ${on?"":"disabled"}> <span>${ad}${ek?`<small>${ek}</small>`:""}</span></label>`;
+  return `<section class="hcard"><div class="hhead">${ikon("kisi","acc")}<h3>Komşu rehberi (isteğe bağlı)</h3></div>
+   <p class="meta">Varsayılan olarak <b>kapalı</b>: kat, daire ve telefonun komşulara gösterilmez. Açarsan yalnızca işaretlediğin alanlar, Minnoş'a soran komşulara gösterilir. İstediğin zaman kapatırsın.</p>
+   <label class="lvl rh-satir"><input type="checkbox" data-rehber="acik" ${on?"checked":""} ${profil?"":"disabled"}> <span><b>Komşu rehberinde görün</b><small>${profil?"Kısa adın (ör. "+esc(kisaAd(profil.ad))+") görünür.":"Önce kartını oluştur."}</small></span></label>
+   ${chk("konum","Blok ve daire numaramı göster","Örn. C Blok · 5. kat · Daire 12")}${chk("telefon","Telefon numaramı göster",profil&&profil.telefon?"":"Kartında telefon yok")}
+   <p class="lvl" style="margin:6px 0 0">Site yönetimi, site işleri için zaten kart bilgilerini görür; bu ayar yalnızca komşular içindir.</p></section>`;
+}
 function oyunKarti(){
   const o=oyunVeri(),[ad,c1,c2]=KATIPLER[o.tier],yuzde=Math.round((o.xp-o.ilk)/(o.son-o.ilk)*100);
   const isim=(profil.ad||"Sakin").trim(),bas=isim.charAt(0).toLocaleUpperCase("tr"),no=`${String(profil.blok).toUpperCase()}-${profil.kat}-${String(profil.daire).padStart(2,"0")}`;
@@ -1451,6 +1480,7 @@ function oyunKarti(){
    <section class="hcard"><div class="hhead">${ikon("kisi","acc")}<h3>Kartındaki bilgiler</h3></div><div class="pill-row" style="margin:0">${cats.map(c=>`<span class="pill">${esc(c)}</span>`).join("")}</div>
    <p class="lvl" style="margin:8px 0 0">Kartı yalnızca sen görürsün. Seviye ve rozetler eğlence amaçlıdır; resmî bir belge ya da yetki değildir. Puanlar katılımına göre kendiliğinden hesaplanır.</p>
    <div class="confirm"><button type="button" class="btn pri" data-pact="edit">Bilgilerimi düzenle</button></div></section>
+   ${rehberKarti()}
    <section class="hcard"><div class="hhead">${ikon("kisi","acc")}<h3>Minnoş</h3></div><p class="meta">Köşede neşe katan alaca sokak kedimiz. Dokunursan mırıldar; tanışma turunu istediğin zaman yeniden izleyebilirsin.</p>
    <div class="confirm"><button type="button" class="btn pri" data-kedi="tanit">Tanışma turu</button>${window.BS_KEDI&&BS_KEDI.gizliMi()?`<button type="button" class="btn" data-kedi="goster">Köşede göster</button>`:`<button type="button" class="btn" data-kedi="gizle">Köşeden gizle</button>`}</div></section>
    <section class="hcard"><div class="hhead">${ikon("kitap","acc")}<h3>Sana önerilen yol</h3></div><div class="chips" style="margin:0">${yol.map(c=>`<a class="chip ${sc(c)>=6?"ok":""}" href="#${c}">${c} · ${esc(BY[c].title)}${sc(c)?` · ${sc(c)}`:""}</a>`).join("")}</div></section>`;
@@ -1539,7 +1569,7 @@ const BRANSLAR=["Futbol","Basketbol","Voleybol","Masa tenisi","Tavla","Okey","Sa
 const MGZ_KAT=["Kart ve kumanda","Hizmet","Ürün","Diğer"];
 const DURUMLAR={yeni:"Yeni",hazirlaniyor:"Hazırlanıyor",teslim:"Teslim edildi",iptal:"İptal"};
 let ETK=[],TRN=[],MGZ=[],topSub=false;
-let katilim={etk:{},trn:{}},tumKatilim={},mgzBen={siparisler:{}},tumMgz={},tumMgzSub=null;
+let katilim={etk:{},trn:{},rehber:null},tumKatilim={},mgzBen={siparisler:{}},tumMgz={},tumMgzSub=null;
 let topMode="etkinlik",topYonet=false,mgzYonet=false,edDraft=null,edStatus="",tDraft=null,tStatus="",mDraft=null,mStatus="",mgzMsg="";
 const yeniId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const tarihYaz=d=>{if(!d)return "";const x=new Date(d);return isNaN(x)?"":x.toLocaleString("tr-TR",{weekday:"short",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})};
@@ -1549,11 +1579,17 @@ function initTopluluk(db){
   db.doc("ayarlar/etkinlikler").onSnapshot(s=>{ETK=s.exists&&Array.isArray(s.data().liste)?s.data().liste:[];if(!edDraft)yenile()},()=>{});
   db.doc("ayarlar/turnuva").onSnapshot(s=>{TRN=s.exists&&Array.isArray(s.data().liste)?s.data().liste:[];if(!tDraft)yenile()},()=>{});
   db.doc("ayarlar/magaza").onSnapshot(s=>{MGZ=s.exists&&Array.isArray(s.data().urunler)?s.data().urunler:[];if(!mDraft)yenile()},()=>{});
-  db.collection("katilim").onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});tumKatilim=o;const b=o[UID];katilim={etk:{...(b?.etk||{})},trn:{...(b?.trn||{})}};yenile()},()=>{});
+  db.collection("katilim").onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});tumKatilim=o;const b=o[UID];katilim={etk:{...(b?.etk||{})},trn:{...(b?.trn||{})},rehber:b?.rehber||null};yenile()},()=>{});
   db.doc("magazaSiparis/"+UID).onSnapshot(s=>{mgzBen=s.exists?{siparisler:{...(s.data().siparisler||{})}}:{siparisler:{}};yenile()},()=>{});
 }
 function benimKonum(){return profil?{blok:profil.blok,kat:profil.kat,daire:profil.daire}:null}
-async function katilimKaydet(){await DB.doc("katilim/"+UID).set({konum:benimKonum(),etk:katilim.etk,trn:katilim.trn,guncelleme:Date.now()})}
+/* Gizlilik: konum bu belgeye YAZILMAZ (belgeyi her üye okuyabilir). Komşu rehberi yalnızca kişinin açtığı alanları içerir. */
+const kisaAd=a=>{const t=String(a||"").trim().split(/\s+/).filter(Boolean);return t.length>1?`${t[0]} ${t[t.length-1].charAt(0).toLocaleUpperCase("tr")}.`:(t[0]||"Sakin")};
+function rehberAyari(){const r=katilim.rehber;return r&&r.acik?{acik:true,konum:!!r.konum,telefon:!!r.telefon}:{acik:false,konum:false,telefon:false}}
+function rehberBelge(ay){if(!ay.acik||!profil)return null;const r={acik:true,ad:kisaAd(profil.ad)};if(ay.konum)r.konum={blok:profil.blok,kat:profil.kat,daire:profil.daire};if(ay.telefon&&profil.telefon)r.telefon=String(profil.telefon).slice(0,20);return r}
+async function katilimKaydet(){const r=katilim.rehber;await DB.doc("katilim/"+UID).set({etk:katilim.etk,trn:katilim.trn,...(r?{rehber:r}:{}),guncelleme:Date.now()})}
+/* Yönetim listeleri için konum: katılım belgesinde konum tutulmaz (herkes okur); yönetim sakin kayıtlarından alır. Eski belgelerdeki konum yedek olarak kullanılır. */
+function katKonum(uid,d){ensureSakinlerHz();const s=tumSakinler[uid];return s&&s.blok!==undefined?{blok:s.blok,kat:s.kat,daire:s.daire}:(d&&d.konum)||null}
 function etkSayisi(id){return Object.values(tumKatilim).reduce((n,d)=>n+(+d?.etk?.[id]?.kisi||0),0)}
 function takvimUrl(e){const t=new Date(e.tarih);if(isNaN(t))return "";const f=d=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}T${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}00`;
   const b=new Date(t.getTime()+(+e.sureDk||120)*6e4);return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.baslik)}&dates=${f(t)}/${f(b)}&ctz=Europe/Istanbul&location=${encodeURIComponent((AYAR.siteAdi?AYAR.siteAdi+" · ":"")+(e.yer||""))}&details=${encodeURIComponent(e.aciklama||"")}`}
@@ -1591,7 +1627,7 @@ function viewEtkYonet(){
   if(!edDraft)edDraft=JSON.parse(JSON.stringify(ETK));
   const opt=(arr,v)=>arr.map(a=>`<option ${a===v?"selected":""}>${a}</option>`).join("");
   let h=`<p class="lead">Etkinlik ekleyin, düzenleyin. Katılımcıları daire bazında görürsünüz.</p>`;
-  h+=edDraft.map((e,i)=>{const kat=Object.values(tumKatilim).filter(d=>d?.etk?.[e.id]);return `<div class="row"><div class="pgrid">
+  h+=edDraft.map((e,i)=>{const kat=Object.entries(tumKatilim).filter(([,d])=>d?.etk?.[e.id]).map(([u,d])=>({...d,konum:katKonum(u,d)}));return `<div class="row"><div class="pgrid">
     <label class="lvl" for="eb-${i}">Başlık<input id="eb-${i}" data-ed="${i}:baslik" value="${esc(e.baslik)}" maxlength="60"></label>
     <label class="lvl" for="ek-${i}">Tür<select id="ek-${i}" data-ed="${i}:kategori">${opt(ETK_KAT,e.kategori)}</select></label>
     <label class="lvl" for="et-${i}">Tarih ve saat<input id="et-${i}" type="datetime-local" data-ed="${i}:tarih" value="${esc(e.tarih)}"></label>
@@ -1622,7 +1658,7 @@ function viewTurnuva(){
 function viewTurnuvaYonet(){
   if(!tDraft)tDraft=JSON.parse(JSON.stringify(TRN));
   let h=`<p class="lead">Turnuva açın, takım olarak siteleri ekleyin (sitenizin adı: <b>${esc(AYAR.siteAdi||"ayarlarda tanımlı değil")}</b>), maçları ve skorları girin.</p>`;
-  h+=tDraft.map((t,i)=>{const kay=Object.values(tumKatilim).filter(d=>d?.trn?.[t.id]);const teams=t.takimlar||[];
+  h+=tDraft.map((t,i)=>{const kay=Object.entries(tumKatilim).filter(([,d])=>d?.trn?.[t.id]).map(([u,d])=>({...d,konum:katKonum(u,d)}));const teams=t.takimlar||[];
     return `<div class="row"><div class="pgrid">
      <label class="lvl" for="ta-${i}">Turnuva adı<input id="ta-${i}" data-td="${i}:ad" value="${esc(t.ad)}" maxlength="60"></label>
      <label class="lvl" for="tb-${i}">Branş<select id="tb-${i}" data-td="${i}:brans">${BRANSLAR.map(b=>`<option ${b===t.brans?"selected":""}>${b}</option>`).join("")}</select></label>
@@ -2192,6 +2228,10 @@ document.addEventListener("click",async e=>{
   if(e.target.id==="resetYes"){state={scores:{},kanit:{}};queueSave();render(false);return}
   if(e.target.id==="resetNo"){render(false)}
 });
+document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||!t.dataset.rehber||!profil)return;
+  const a=rehberAyari();a[t.dataset.rehber]=t.checked;if(t.dataset.rehber==="acik"&&!t.checked){a.konum=false;a.telefon=false}
+  katilim.rehber=rehberBelge(a);try{await katilimKaydet();toast(a.acik?"Komşu rehberi güncellendi":"Komşu rehberinden çıkıldı")}catch(err){toast("Kaydedilemedi, tekrar dene")}
+  const y=window.scrollY;render(false);window.scrollTo(0,y)});
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-fsite]");if(!a)return;
   const r=a.getBoundingClientRect(),d=document.createElement("span");d.className="fs-damla";const b=Math.max(r.width,r.height)*2.2;d.style.cssText=`left:${e.clientX-r.left||r.width/2}px;top:${e.clientY-r.top||r.height/2}px;width:${b}px;height:${b}px`;
   a.appendChild(d);a.classList.add("tik");setTimeout(()=>{d.remove();a.classList.remove("tik")},900)},true);
@@ -2424,7 +2464,7 @@ function konumBul(tok){
   return {blok,kat,daire};
 }
 const YETKI_YOK={tur:"yetki",cevap:"Komşuların kat, daire, telefon ve siparişleri gizlidir; bunları yalnızca site yönetimi görebilir. Kendi bilgilerini Kartım'da, kendi siparişlerini Sepet ve Hizmet'te görürsün."};
-const kisiselMi=tok=>tok.some(x=>/^telefon|^numaras|^oturuyor|^oturan|^kiraci|^kimin|^malik|^komsum/.test(x))||(tok.includes("kim")&&tok.some(x=>/^otur/.test(x)));
+const kisiselMi=tok=>tok.some(x=>/^telefon|^numaras|^oturuyor|^oturan|^kiraci|^kimin|^malik|^komsum/.test(x))||(tok.includes("kim")&&tok.some(x=>/^otur/.test(x)))||(tok.includes("hangi")&&tok.some(x=>/^daire|^blok|^kat$/.test(x)));
 const yonetimNiyeti=tok=>tok.some(x=>/^hane|^sakin|^siparis|^sepet|^harcama|^talep|^tur$|^tutar|^maliyet/.test(x));
 function siparisHesap(D){
   const urun=id=>(D.urunler||[]).find(u=>u.id===id);let top=0,eksik=0,haneler=0;const ur={},blok={};
@@ -2446,6 +2486,19 @@ function aidatKarti(D,tok,yonetici){
   if(yonetici){const h=haneSayisi(D);if(h.n>0){satirlar.push(satir(`Tüm hanelerin aylık aidatı (${h.n} hane)`,"",`${h.n} hane`,`${tl(a)} / hane`,a*h.n));notlar.push(`Hane sayısı: ${h.kaynak}. Kimin ödediği ya da ödemediği tutulmuyor.`)}}
   return kart("Aidat",satirlar,ay!==1?a*ay:a,notlar);
 }
+/* Sakin: komşu yalnızca kendisi rehberde paylaştıysa, yalnızca paylaştığı alanlarla görünür. Sipariş, aidat vb. hiçbir koşulda verilmez. */
+const REHBER_YOK={tur:"yetki",cevap:"Komşu rehberinde böyle bir kayıt yok. Komşuların kat, daire, telefon ve siparişleri gizlidir; yalnızca kendisi rehberde paylaşırsa o alanı gösterebilirim. Siparişleri ise kimse göremez, yalnızca yönetim görür."};
+const rehberAdBul=(R,mt)=>R.filter(r=>{const a=jetonlar(String(r.ad)).filter(Boolean);if(a.length<2)return false;const ilk=a[0],bas=a[a.length-1];return mt.some(t=>t===ilk||(t.length>=4&&t.startsWith(ilk)))&&mt.some(t=>t===bas||(t.length>=2&&t.startsWith(bas)))});
+function rehberCevap(D,tok,konum,metin){
+  if(tok.some(x=>/^siparis|^harcama|^sepet|^aidat|^borc/.test(x)))return YETKI_YOK;
+  const R=(D.rehber||[]).filter(r=>r&&r.ad);if(!R.length)return REHBER_YOK;
+  const telIstegi=tok.some(x=>/^telefon|^numaras|^tel$|^ara/.test(x)),konumSor=konum.blok||konum.kat!==null||konum.daire,mt=metin.split(" ");
+  let bul=[];
+  if(konumSor)bul=R.filter(r=>r.konum&&(konum.blok===null||harf(r.konum.blok)===konum.blok)&&(konum.kat===null||+r.konum.kat===konum.kat)&&(konum.daire===null||String(r.konum.daire)===konum.daire));
+  else bul=rehberAdBul(R,mt);
+  if(!bul.length)return REHBER_YOK;
+  return kart(bul.length>1?"Komşu rehberi":"Komşu rehberinde",bul.slice(0,6).map(r=>satir(r.ad,telIstegi?(r.telefon||"telefonu paylaşmamış"):"",r.konum?konumYaz(r.konum):"konumu paylaşmamış",telIstegi?"telefon":"")),null,["Bu bilgiler yalnızca kişinin kendi isteğiyle rehberde paylaştığı alanlardır."]);
+}
 /* Yönetici: hane/sakin sayıları, daire ve kişi bilgisi, tur siparişi, harcama, hizmet talepleri, aidat. Sakin: yalnızca kendi harcaması ve aidatı. */
 function yonetim(q,D,rol){
   if(!D)return null;const tok=jetonlar(q),yonetici=rol==="yonetici",metin=tok.join(" ");
@@ -2457,7 +2510,7 @@ function yonetim(q,D,rol){
   }
   // Sakin: kendi harcaması
   if(!yonetici){
-    if(kisiselMi(tok)||(konumVar&&tok.some(x=>/^kim|^telefon|^siparis|^hane/.test(x))))return YETKI_YOK;
+    if(kisiselMi(tok)||(konumVar&&tok.some(x=>/^kim|^telefon|^siparis|^hane/.test(x)))||rehberAdBul((D.rehber||[]).filter(r=>r&&r.ad),metin.split(" ")).length)return rehberCevap(D,tok,konum,metin);
     if(tok.some(x=>/^harcama|^harcad/.test(x))&&tok.some(x=>/^bu$|^benim|^ben|^harcamam|^siparislerim|^benim/.test(x)||x==="harcamam")){
       const m=magazaHesap(D.benMagaza),s=siparisHesap({urunler:D.urunler,sepetler:D.benSepet?[D.benSepet]:[]});
       const satirlar=[];if(m.n)satirlar.push(satir("Mağaza siparişlerim","",`${m.n} sipariş`,"iptal edilenler hariç",m.t));if(s.haneler)satirlar.push(satir("Bu tur toplu sipariş sepetim","","","güncel katalog fiyatıyla",s.top));
@@ -2576,6 +2629,7 @@ async function yonetimVerisi(){
       D.magaza=Object.values(mgz).flatMap(d=>Object.values((d&&d.siparisler)||{}).map(o=>({konum:d.konum,ad:o.ad,adet:o.adet,fiyat:o.fiyat,durum:o.durum})));
       D.hizmetler=Object.values(hz).flatMap(d=>Object.values((d&&d.siparisler)||{}).map(o=>({konum:d.konum,tur:o.tur,durum:o.durum})));
     }else{
+      const kt=await koleksiyonOku("katilim");D.rehber=Object.values(kt).filter(d=>d&&d.rehber&&d.rehber.acik&&d.rehber.ad).map(d=>({ad:d.rehber.ad,konum:d.rehber.konum||null,telefon:d.rehber.telefon||""}));
       D.benMagaza=Object.values((typeof mgzBen!=="undefined"&&mgzBen&&mgzBen.siparisler)||{}).map(o=>({ad:o.ad,adet:o.adet,fiyat:o.fiyat,durum:o.durum}));
       D.benSepet=(typeof sepet!=="undefined"&&sepet&&sepet.kalemler&&KAT.tur.id)?{kalemler:sepet.kalemler,ozel:sepet.ozel||[]}:null;
     }
@@ -2611,11 +2665,11 @@ function panelCiz(){ if(!panel)return; const sg=document.getElementById("mnGovde
     const M=window.MinnosMotor||MinnosMotor;
     govde=`<div class="mn-govde" id="mnGovde">${P.msj.length?"":`<div class="mn-msj"><span>Mırr! Ben Minnoş. Uygulamayla ilgili ne merak ediyorsan sor, bilmediğimi dürüstçe söylerim.</span></div><div class="mn-oneri">${M.SORULAR.map(q=>`<button type="button" data-mn="oneri:${esc(q)}">${esc(q)}</button>`).join("")}</div>`}
       ${P.msj.map(m=>`<div class="mn-msj ${m.ben?"ben":"ai"}">${m.kart?kartHtml(m.kart):`<span>${esc(m.t)}</span>`}${m.k?`<small>${esc(m.k)}</small>`:""}${m.eylem==="fal"?`<br><button type="button" class="mn-ana" data-mn="sekme:fal" style="margin-top:8px">Kahve falına geç</button>`:""}</div>`).join("")}
-      ${P.bekle?`<div class="mn-msj" aria-live="polite"><span class="mn-nokta" aria-label="Minnoş yazıyor"><i></i><i></i><i></i></span></div>`:""}</div>
+      ${P.bekle?(P.uzun?bekleKart({kucuk:true,baslik:"Minnoş düşünüyor…"}):`<div class="mn-msj" aria-live="polite"><span class="mn-nokta" aria-label="Minnoş yazıyor"><i></i><i></i><i></i></span></div>`):""}</div>
      <form class="mn-yaz" data-mn-form="sor"><input id="mnSoru" maxlength="300" autocomplete="off" placeholder="Bir şey sor… (telefon, adres yazma)" aria-label="Minnoş'a sorun" value="${esc(P.taslak||"")}"><button type="submit" ${P.bekle?"disabled":""}>Sor</button></form>`;
   }else{
     const M=window.MinnosMotor||MinnosMotor;
-    govde=`<div class="mn-govde" id="mnGovde">${P.falBekle?`<div class="mn-fincan kapat" aria-live="polite">${FINCAN}<b>Fincan kapatılıyor, telveler soğuyor…</b><div class="mn-ilerleme" role="progressbar" aria-label="Fal hazırlanıyor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="mnIlerle"></i></div><small id="mnYuzde">%0</small></div>`:P.fal?`<div class="mn-fal" role="status">${esc(P.fal.t)}</div><p class="mn-not">${esc(P.fal.k)} · Kahve falı eğlencedir; gelecek bilinemez.</p><button type="button" class="mn-ana" data-mn="yeniFal">Yeni fal</button>`:`
+    govde=`<div class="mn-govde" id="mnGovde">${P.falBekle?`<div class="mn-fincan kapat" aria-live="polite">${FINCAN}<b>Fincan kapatılıyor, telveler soğuyor…</b><div class="mn-ilerleme" role="progressbar" aria-label="Fal hazırlanıyor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="mnIlerle"></i></div><small id="mnYuzde">%0</small>${bekleIpucu()}</div>`:P.fal?`<div class="mn-fal" role="status">${esc(P.fal.t)}</div><p class="mn-not">${esc(P.fal.k)} · Kahve falı eğlencedir; gelecek bilinemez.</p><button type="button" class="mn-ana" data-mn="yeniFal">Yeni fal</button>`:`
       <div class="mn-etiket">Konu</div><div class="mn-cip" role="group" aria-label="Konu">${Object.entries(M.KONULAR).map(([k,v])=>`<button type="button" aria-pressed="${P.konu===k}" data-mn="konu:${k}">${esc(v)}</button>`).join("")}</div>
       <div class="mn-etiket">Fincanda ne gördün? (1–3 sembol)</div><div class="mn-sem" role="group" aria-label="Semboller">${Object.entries(M.SEMBOLLER).map(([k,v])=>`<button type="button" aria-pressed="${P.sem.includes(k)}" data-mn="sem:${k}"><span aria-hidden="true">${SEM_EMOJI[k]||"✦"}</span>${esc(v)}</button>`).join("")}</div>
       <div class="mn-etiket">Aklındaki niyet (isteğe bağlı)</div><input class="mn-niyet" id="mnNiyet" maxlength="80" placeholder="Ör. yeni bir iş" value="${esc(P.niyet)}" aria-label="Niyet">
@@ -2650,7 +2704,8 @@ const escH=e=>{if(e.key==="Escape")panelKapat()};
 function panelKapat(){ if(!panel)return; document.removeEventListener("keydown",escH);panel.remove();panel=null;if(kedi&&!LS.get().gizli)kedi.classList.remove("gizli");if(panelOnceki&&panelOnceki.focus)try{panelOnceki.focus()}catch(e){} }
 const M_=()=>window.MinnosMotor||MinnosMotor;
 async function soruSor(q){
-  if(P.bekle)return; P.msj.push({ben:true,t:q});P.bekle=true;panelCiz();
+  if(P.bekle)return; P.msj.push({ben:true,t:q});P.bekle=true;P.uzun=false;panelCiz();
+  const uzunT=setTimeout(()=>{if(P.bekle){P.uzun=true;panelCiz()}},450);
   let c=null,not="";
   /* 1) Kodla: maliyet hesabı, fırsat/site araması, hazır bilgi. Rakamlar yönetimin girdiği fiyatlardan gelir. */
   const yon=typeof ADMIN!=="undefined"&&ADMIN,r=M_().coz(q,veriTopla(),ogeTopla(),await yonetimVerisi(),yon?"yonetici":"sakin");
@@ -2667,7 +2722,7 @@ async function soruSor(q){
     else not="Hazır cevap";
     if(!c){const y=M_().cevapla(q);c={t:y.cevap,k:not+" · bilgi bankamda yok"}}
   }
-  P.msj.push({ben:false,t:c.t,kart:c.kart,k:c.k,eylem:c.eylem,ai:c.ai});P.bekle=false;panelCiz();
+  clearTimeout(uzunT);P.msj.push({ben:false,t:c.t,kart:c.kart,k:c.k,eylem:c.eylem,ai:c.ai});P.bekle=false;P.uzun=false;panelCiz();
 }
 /* Sinematik yükleme: ilk %95 hızlı (yaklaşık 0,7 sn), son %5 yavaş ve sinematik; iş bitmeden %100 olmaz.
    el: dolan çubuk; is: işin sözü (Promise). Hareket azaltmada iş bitince doğrudan %100. */
@@ -2765,6 +2820,34 @@ const PROP={
  arac:'<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="8" y="21" width="22" height="12" rx="4" fill="#f4d03f" stroke="#b7950b" stroke-width="1.5"/><g class="kopuk"><circle cx="12" cy="13" r="5" fill="#e6f6ff" stroke="#7cc0ff"/><circle cx="24" cy="8" r="4" fill="#e6f6ff" stroke="#7cc0ff"/><circle cx="32" cy="16" r="3" fill="#e6f6ff" stroke="#7cc0ff"/></g></svg>',
  sut:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M15 6h10v5l4 6v18a3 3 0 01-3 3H14a3 3 0 01-3-3V17l4-6z" fill="#fff" stroke="#5b8bb0" stroke-width="2"/><path d="M11 24h18" stroke="#5b8bb0" stroke-width="2"/><rect x="15" y="2" width="10" height="5" rx="1.5" fill="#2f7fd8"/></svg>'
 };
+
+/* ---- Bekleme ekranı: Minnoş gelip kendini yere atar, bekleyene fırsat ve indirimleri kısaca anlatır ---- */
+const FLOP=`<svg viewBox="0 0 170 100" class="bk-svg" role="img" aria-label="Minnoş yere uzanmış, bekliyor">
+ <defs><clipPath id="bkB"><ellipse cx="98" cy="70" rx="56" ry="22"/></clipPath></defs>
+ <ellipse cx="90" cy="94" rx="70" ry="5" fill="#000" opacity=".12"/>
+ <g class="bk-kuyruk"><path d="M148 74C168 72 168 50 154 46" fill="none" stroke="#E8872F" stroke-width="9" stroke-linecap="round"/><path d="M148 74C168 72 168 50 154 46" fill="none" stroke="#2B2A2D" stroke-width="9" stroke-dasharray="4 8" opacity=".8"/><circle cx="154" cy="46" r="4.6" fill="#2B2A2D"/></g>
+ <g class="bk-govde"><ellipse cx="98" cy="70" rx="56" ry="22" fill="#FFF8EE"/><g clip-path="url(#bkB)"><ellipse cx="74" cy="64" rx="26" ry="24" fill="#E8872F"/><ellipse cx="132" cy="76" rx="22" ry="20" fill="#2B2A2D"/></g>
+  <ellipse cx="128" cy="80" rx="19" ry="12" fill="#FFF8EE" stroke="#E7D9C4"/><ellipse cx="46" cy="86" rx="14" ry="6.5" fill="#FFF8EE" stroke="#E7D9C4"/><ellipse cx="62" cy="89" rx="13" ry="6" fill="#FFF8EE" stroke="#E7D9C4"/></g>
+ <g class="bk-bas"><g class="bk-kulak"><polygon points="20,52 16,28 38,42" fill="#E8872F"/><polygon points="22,48 20,36 32,43" fill="#F4A7B5"/></g><polygon points="56,46 62,26 74,48" fill="#2B2A2D"/>
+  <ellipse cx="42" cy="62" rx="27" ry="23" fill="#FFF8EE"/><ellipse cx="28" cy="58" rx="17" ry="19" fill="#E8872F" clip-path="inset(0)"/><ellipse cx="60" cy="58" rx="14" ry="18" fill="#2B2A2D"/><path d="M40 42C36 52 38 60 36 72L48 72C46 60 48 52 44 42Z" fill="#FFF8EE"/>
+  <path d="M26 63q6 5 12 0M48 63q6 5 12 0" fill="none" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/><path d="M38 70h8l-4 5z" fill="#F28CA0"/><path d="M42 75v2M42 77q-3 3-6 1M42 77q3 3 6 1" fill="none" stroke="#5a3a33" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M30 74L10 71M30 77L10 82M54 74L74 71M54 77L74 82" stroke="#8a7a6a" stroke-width="1" stroke-linecap="round" opacity=".6"/></g>
+ <g class="bk-z" fill="#6a7d78" font-family="system-ui,sans-serif" font-weight="800"><text x="78" y="26" font-size="13">z</text><text x="90" y="14" font-size="10">z</text><text x="99" y="6" font-size="8">z</text></g></svg>`;
+function bekleIpuclari(){
+  try{const l=(typeof FRS!=="undefined"&&FRS||[]).filter(gecerli).sort((a,b)=>(+b.oran||0)-(+a.oran||0)||String(a.bitis||"9").localeCompare(String(b.bitis||"9"))).slice(0,6);
+    const t=l.map(f=>`${f.oran?`%${+f.oran} · `:""}${f.isletme}: ${f.baslik}${f.mesafe?` · ${+f.mesafe} dk yürüme`:""}${kalanGun(f)!==null&&kalanGun(f)<=3?` · ${kalanGun(f)<=0?"bugün":kalanGun(f)+" gün"} son`:""}`);
+    if(t.length)return t.concat(["Kupon kodu olan fırsatlarda kodu kopyalayabilirsin.","Bildiğin bir indirimi Fırsatlar'dan öner, komşular da faydalansın."]);
+  }catch(e){}
+  return ["Çevrende yeni bir indirim olunca burada kısaca anlatırım.","Bildiğin bir indirimi Fırsatlar'dan öner, komşular da faydalansın."];
+}
+function bekleIpucu(){const t=bekleIpuclari();return `<div class="bk-ipucu" data-tips="${esc(JSON.stringify(t))}" data-i="0"><b>Beklerken · fırsatlar</b><span>${esc(t[0])}</span></div>`}
+/* Kart: pozlu Minnoş + ilerleme (ilk %95 hızlı, son %5 yavaş sinematik; içerik gelince kart zaten değişir) + dönen ipuçları */
+function bekleKart(o={}){
+  return `<div class="bk-kart${o.kucuk?" kucuk":""}" role="status" aria-busy="true" aria-live="polite"><div class="bk-sahne">${FLOP}</div>
+   <p class="bk-baslik">${esc(o.baslik||"Birazdan geliyor…")}</p><div class="bk-ilerleme" role="progressbar" aria-label="Yükleniyor"><i></i></div>${bekleIpucu()}</div>`;
+}
+setInterval(()=>{for(const el of document.querySelectorAll(".bk-ipucu")){let t;try{t=JSON.parse(el.dataset.tips||"[]")}catch(e){continue}if(t.length<2)continue;const i=(+el.dataset.i+1)%t.length,sp=el.querySelector("span");el.dataset.i=i;el.classList.add("degis");setTimeout(()=>{sp.textContent=t[i];el.classList.remove("degis")},260)}},2800);
+window.BS_BEKLE={kart:bekleKart,ipucu:bekleIpucu,ipuclari:bekleIpuclari};
 const SERVIS_SOZ={
  utu:"Ütü masası hazır! Parçaları say, toplamı ben hesaplarım. Gömlekleri askıda vermek kırışığı azaltır.",
  temizlik:"Süpürgemi kaptım. Randevu gününü seç; evcil hayvan ya da balkon varsa nota yaz ki ekip hazırlıklı gelsin.",

@@ -188,3 +188,26 @@ test("Araç yıkama: tür seçilince tutar ve adet; tür yoksa seçenekler topla
   assert.equal(M.coz("Araç yıkama nasıl yapılır", v, []).id, "arac");
   assert.notEqual(M.coz("araç yıkama ne kadar", { arac: { ...v.arac, aktif: false } }, []).tur, "hesap");
 });
+
+test("Komşu rehberi: sakin yalnızca kişinin kendi paylaştığı alanları görür; paylaşmayan hiç görünmez", () => {
+  const R = [{ ad: "Ayşe Y.", konum: { blok: "C", kat: 5, daire: "12" }, telefon: "0532 111 22 33" }, { ad: "Ali K.", konum: null, telefon: "" }, { ad: "Deniz E.", konum: { blok: "A", kat: 1, daire: "3" }, telefon: "" }];
+  const D = { ...YD, sakinler: undefined, rehber: R };
+  let c = Y("Ayşe Yılmaz telefonu", "sakin", D); assert.equal(c.tur, "hesap"); assert.equal(c.satirlar[0].ad, "Ayşe Y."); assert.equal(c.satirlar[0].deger, "0532 111 22 33"); assert.match(c.satirlar[0].miktar, /C Blok · 5\. kat · Daire 12/);
+  c = Y("Ayşe Yılmaz kim", "sakin", D); assert.equal(c.satirlar[0].deger, "", "telefon sorulmadıkça gösterilmez");
+  c = Y("Ali Kaya telefonu", "sakin", D); assert.equal(c.satirlar[0].deger, "telefonu paylaşmamış"); assert.equal(c.satirlar[0].miktar, "konumu paylaşmamış", "paylaşılmayan alan görünmez");
+  c = Y("C blok 5. kat 12. daire kim oturuyor", "sakin", D); assert.equal(c.satirlar[0].ad, "Ayşe Y.");
+  c = Y("A blok 1. kat 3. daire telefonu", "sakin", D); assert.equal(c.satirlar[0].deger, "telefonu paylaşmamış");
+  for (const q of ["B blok 7. kat 2. daire kim oturuyor", "Mehmet Demir telefonu"]) { const r = Y(q, "sakin", D); assert.equal(r.tur, "yetki", q); assert.match(r.cevap, /rehberinde böyle bir kayıt yok/); assert.doesNotMatch(JSON.stringify(r), /0532|Daire 12|Ayşe/); }
+  c = Y("Ali Kaya hangi dairede", "sakin", D); assert.equal(c.satirlar[0].miktar, "konumu paylaşmamış", "rehberde olup konumu paylaşmayan");
+  for (const q of ["Ayşe Yılmaz'ın siparişleri ne kadar", "Ayşe Yılmaz harcaması"]) assert.equal(Y(q, "sakin", D).tur, "yetki", q), assert.match(Y(q, "sakin", D).cevap, /gizlidir/);
+  assert.doesNotMatch(JSON.stringify(Y("C blok 5. kat 12. daire aidat borcu", "sakin", D)), /Ayşe|0532|12/, "başkasının aidat borcu: veri yok");
+  assert.match(Y("Ayşe Yılmaz telefonu", "sakin", { ...D, rehber: [] }).cevap, /rehberinde böyle bir kayıt yok/, "rehber boşsa (herkes kapalı)");
+  assert.equal(Y("Ayşe Yılmaz telefonu", "sakin", { ...D, rehber: undefined }).tur, "yetki");
+});
+
+test("Sayfa kaynağı: katilim belgesine konum yazılmıyor; rehber yalnızca açılan alanları içeriyor", () => {
+  const i0 = html.indexOf("async function katilimKaydet()"), f = html.slice(i0, html.indexOf("\n", i0));
+  assert.doesNotMatch(f, /konum:/, "katilim belgesinde konum yok"); assert.match(f, /rehber/);
+  const g = html.slice(html.indexOf("function rehberBelge"), html.indexOf("async function katilimKaydet()"));
+  assert.match(g, /if\(ay\.konum\)/); assert.match(g, /if\(ay\.telefon/);
+});

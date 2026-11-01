@@ -284,6 +284,18 @@ test("Bekçi: küfürlü mesaj gönderilmez ve uyarı çıkar; yönetim Bekçi s
   await y.screenshot({ path: path.join(KOK, "docs/screenshots/yonetim-bekci.png") });
 });
 
+test("Bekleme: veri gelene kadar Minnoş yere uzanmış kartı ve fırsat ipucu görünür, sonra arena açılır", { timeout: 60000 }, async () => {
+  const p = S2.page;
+  await p.route("**/api/arena/ozet", async r => { await new Promise(x => setTimeout(x, 1800)); r.continue(); });
+  await p.reload(); await p.waitForSelector("#bsKapi", { state: "hidden" }); await p.waitForTimeout(300);
+  await git(p, "#arena");
+  await p.waitForSelector(".ar .bk-kart", { timeout: 5000 });
+  assert.ok(await p.$(".bk-kart .bk-svg"), "yere uzanmış Minnoş"); assert.match(await p.textContent(".bk-baslik"), /Arena hazırlanıyor/); assert.ok(await p.$(".bk-ilerleme i")); assert.ok(await p.$(".bk-ipucu span"), "fırsat ipucu");
+  await p.screenshot({ path: path.join(KOK, "docs/screenshots/minnos-bekleme.png") });
+  await p.waitForSelector(".ar-sekme", { timeout: 8000 }); assert.equal(await p.$(".bk-kart"), null, "veri gelince bekleme kartı kalkar");
+  await p.unroute("**/api/arena/ozet");
+});
+
 test("Minnoş: gerçek uygulamada tanıtım turu Arena ve Bekçi adımlarını da anlatır", { timeout: 60000 }, async () => {
   const p = S2.page; await git(p, "#anasayfa");
   await p.evaluate(() => BS_KEDI.tanit()); await p.waitForSelector(".kt");

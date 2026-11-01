@@ -349,6 +349,20 @@ textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--l
 @keyframes kGel{0%{transform:translateY(120%) scale(.8)}100%{transform:none}}
 @keyframes kKutu{0%{opacity:0;transform:translateY(40px) scale(.94)}100%{opacity:1;transform:none}}
 
+/* Minnoş hizmet kartı: her hizmette farklı eşya ve söz */
+.mn-servis{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:start;margin:4px 0 12px;padding:10px 12px;border-radius:24px;background:var(--accent-soft);border:1px solid var(--line)}
+.mn-servis-kedi{position:relative;width:64px}.mn-servis-kedi>svg{display:block;width:100%;height:auto;overflow:visible}
+.mn-prop{position:absolute;right:-12px;bottom:-4px;width:36px;height:36px}.mn-prop svg{width:100%;height:100%;overflow:visible}
+.mn-servis-balon b{font:800 13px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}.mn-servis-balon p{margin:2px 0 6px;font:500 14px/1.4 var(--f-body)}
+.mn-servis-cip{display:flex;flex-wrap:wrap;gap:6px}.mn-servis-cip button{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--accent);background:var(--sheet);color:var(--accent);font:700 13px var(--f-body);cursor:pointer;text-align:left}
+.mn-sv-hali{background:color-mix(in srgb,#b8483a 10%,var(--sheet))}.mn-sv-arac{background:color-mix(in srgb,#2f7fd8 10%,var(--sheet))}.mn-sv-sut{background:color-mix(in srgb,#5b8bb0 9%,var(--sheet))}.mn-sv-utu{background:color-mix(in srgb,#7aa5c9 12%,var(--sheet))}.mn-sv-temizlik{background:color-mix(in srgb,#f4c26b 14%,var(--sheet))}
+@media (prefers-reduced-motion:no-preference){
+ .mn-sv-utu .mn-prop{animation:svUtu 2.4s ease-in-out infinite}.mn-sv-temizlik .mn-prop{animation:svSupur 1.6s ease-in-out infinite;transform-origin:70% 10%}
+ .mn-sv-hali .mn-prop{animation:svHali 3s ease-in-out infinite}.mn-sv-arac .kopuk{animation:svKopuk 2.2s ease-in-out infinite}.mn-sv-sut .mn-prop{animation:svSut 3s ease-in-out infinite;transform-origin:50% 90%}
+}
+@keyframes svUtu{0%,100%{transform:translateX(0)}50%{transform:translateX(-10px)}}@keyframes svSupur{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+@keyframes svHali{0%,100%{transform:translateX(0) rotate(0)}50%{transform:translateX(-6px) rotate(-8deg)}}@keyframes svKopuk{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-8px);opacity:.3}}
+@keyframes svSut{0%,80%,100%{transform:rotate(0)}88%{transform:rotate(-10deg)}94%{transform:rotate(6deg)}}
 /* Minnoş paneli: soru-cevap ve kahve falı */
 .mn{position:fixed;inset:0;z-index:68;display:grid;place-items:end center;background:rgba(10,20,17,.5);backdrop-filter:blur(2px)}
 .mn-kutu{display:flex;flex-direction:column;width:min(480px,100%);height:min(640px,92vh);border-radius:30px 30px 0 0;background:var(--sheet);color:var(--ink);border:1px solid var(--line);box-shadow:0 -20px 60px rgba(0,0,0,.35);overflow:hidden}
@@ -376,6 +390,8 @@ textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--l
 .mn-sem button span{font-size:22px;line-height:1}.mn-sem button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .mn-niyet{min-height:48px;padding:0 18px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:16px var(--f-body);width:100%}
 .mn-fincan{display:grid;justify-items:center;gap:8px;padding:10px 0}.mn-fincan svg{width:120px;height:auto;overflow:visible}
+.mn-ilerleme{width:min(260px,80%);height:10px;border-radius:999px;background:var(--accent-soft);overflow:hidden}.mn-ilerleme i{display:block;width:0;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),#E8872F)}
+#mnYuzde{font:800 13px var(--f-mono);color:var(--muted)}
 .mn-fal{padding:16px;border-radius:24px;background:linear-gradient(150deg,var(--accent-soft),var(--sheet));border:1px solid var(--line);font:500 15px/1.6 var(--f-body);white-space:pre-wrap}
 .mn-not{margin:0;font:500 12px/1.4 var(--f-body);color:var(--muted)}
 .mn-kart{display:grid;gap:6px;min-width:0}.mn-kart>b{font:800 15px var(--f-display)}
@@ -566,7 +582,7 @@ const TEMALAR={yesil:{ad:"Yeşil",l:["#1F6B5A","#E2F0EB"],d:["#6CC4A8","#16302A"
 const HAZIR_ALANLAR=[{k:"arac",label:"Araç sayısı",tip:"sayi"},{k:"plaka",label:"Araç plakası",tip:"metin"},{k:"otopark",label:"Otopark yeri",tip:"metin"},
  {k:"evcil",label:"Evcil hayvan var",tip:"evethayir"},{k:"depo",label:"Depo numarası",tip:"metin"}];
 const TIPLER={metin:"Metin",sayi:"Sayı",evethayir:"Evet / hayır",secim:"Seçenekli"};
-function varsayilanAyar(){return {hikmet:true,siteAdi:"",tema:"yesil",karsilama:"",duyuru:"",iletisim:[],bloklar:[],isDurumuSor:true,telefonZorunlu:false,hazir:[],ozel:[],gizliModul:[]}}
+function varsayilanAyar(){return {hikmet:true,siteAdi:"",tema:"yesil",karsilama:"",duyuru:"",iletisim:[],bloklar:[],isDurumuSor:true,telefonZorunlu:false,hazir:[],ozel:[],gizliModul:[],aidat:""}}
 let AYAR=varsayilanAyar(), ayarSub=null, ayDraft=null, ayDirty=false, ayStatus="", aySaving=false;
 try{const c=JSON.parse(localStorage.getItem("bss-ayar")||"null");if(c)AYAR={...varsayilanAyar(),...c}}catch(e){}
 const aktifM=()=>M.filter(m=>!(AYAR.gizliModul||[]).includes(m.code));
@@ -608,6 +624,8 @@ function viewAyarlar(){
   <div class="row"><div class="head"><b>Kimlik</b></div><div class="pgrid">
    <label class="lvl" for="ay-ad">Site adı<input id="ay-ad" data-ay="siteAdi" value="${esc(a.siteAdi)}" maxlength="50" placeholder="Ör. Çınar Evleri"></label>
    <label class="lvl" for="ay-tema">Renk<select id="ay-tema" data-ay="tema">${Object.entries(TEMALAR).map(([k,t])=>`<option value="${k}" ${a.tema===k?"selected":""}>${t.ad}</option>`).join("")}</select></label></div>
+   <label class="lvl" for="ay-aidat" style="display:block;margin-top:8px">Aylık aidat (TL, isteğe bağlı)<input id="ay-aidat" data-ay="aidat" value="${esc(a.aidat??"")}" inputmode="decimal" maxlength="9" placeholder="Ör. 1500"></label>
+   <p class="lvl" style="margin:2px 0 0">Minnoş sakinlere aidat tutarını ve toplamları hesaplar. Ödeme almaz ve ödeme takibi tutmaz.</p>
    <label class="lvl" for="ay-kar" style="display:block;margin-top:8px">Karşılama metni<input id="ay-kar" data-ay="karsilama" value="${esc(a.karsilama)}" maxlength="200" placeholder="Ör. Sitemize hoş geldiniz. Sorularınız için yönetim ofisi hafta içi 09–18 açık."></label>
    <label class="lvl" style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" data-ay="hikmet" ${a.hikmet!==false?"checked":""} style="width:auto"> Ana sayfada günün ayeti ve hadisi bölümünü göster</label>
    <label class="lvl" for="ay-duy" style="display:block;margin-top:8px">Duyuru (ana sayfanın başında görünür)<input id="ay-duy" data-ay="duyuru" value="${esc(a.duyuru)}" maxlength="240"></label>
@@ -661,7 +679,9 @@ async function ayarClick(act){
     if(a.bloklar.some(b=>String(b.daire??"").trim()&&!(n(b.daire)>0&&n(b.daire)<=500))){ayStatus="Daire sayısı 1 ile 500 arasında olmalı.";return render(false)}
     if(a.iletisim.some(c=>c.wa&&String(c.tel||"").trim()&&!waNo(c.tel))){ayStatus="WhatsApp işaretli numara geçerli bir telefon numarası olmalı (ör. 0532 000 00 00).";return render(false)}
     if(new Set(bloklar.map(b=>b.ad)).size!==bloklar.length){ayStatus="Aynı blok adı iki kez girilmiş.";return render(false)}
-    const body={hikmet:a.hikmet!==false,siteAdi:String(a.siteAdi||"").trim().slice(0,50),tema:TEMALAR[a.tema]?a.tema:"yesil",karsilama:String(a.karsilama||"").trim().slice(0,200),
+    const aidatRaw=String(a.aidat??"").replace(",",".").trim(),aidat=aidatRaw===""?"":parseFloat(aidatRaw);
+    if(aidatRaw!==""&&!(Number.isFinite(aidat)&&aidat>=0&&aidat<=1e6)){ayStatus="Aidat tutarı 0 ile 1.000.000 TL arasında bir sayı olmalı.";return render(false)}
+    const body={aidat:aidat===""?"":Math.round(aidat*100)/100,hikmet:a.hikmet!==false,siteAdi:String(a.siteAdi||"").trim().slice(0,50),tema:TEMALAR[a.tema]?a.tema:"yesil",karsilama:String(a.karsilama||"").trim().slice(0,200),
       duyuru:String(a.duyuru||"").trim().slice(0,240),bloklar,
       iletisim:a.iletisim.map(c=>({ad:String(c.ad||"").trim().slice(0,40),tel:String(c.tel||"").trim().slice(0,20),wa:!!c.wa})).filter(c=>c.ad&&c.tel),
       isDurumuSor:!!a.isDurumuSor,telefonZorunlu:!!a.telefonZorunlu,hazir:(a.hazir||[]).filter(k=>HAZIR_ALANLAR.some(h=>h.k===k)),
@@ -950,17 +970,17 @@ function viewProfilForm(){
 /* ---------- Hizmetler: ütü, ev temizliği, halı yıkama, çiftlikten taze süt ---------- */
 const HZ_UTU_VARS=[{id:"gomlek",ad:"Gömlek",fiyat:""},{id:"pantolon",ad:"Pantolon",fiyat:""},{id:"elbise",ad:"Elbise",fiyat:""}];
 const HZ_VARS={utu:{aktif:true,kalemler:HZ_UTU_VARS,toplama:"",aksamSon:"",aksamEk:""},temizlik:{aktif:true,turler:[{id:"ev",ad:"Ev temizliği",aciklama:"",fiyat:""}],saatler:["Sabah (09:00–12:00)","Öğleden sonra (13:00–17:00)"]},
-  hali:{aktif:true,fiyat:"",bilgi:""},sut:{aktif:true,ciftlik:"",aciklama:"",fiyat:"",gunler:["Salı","Cuma"],sonSaat:""}};
+  hali:{aktif:true,fiyat:"",bilgi:""},arac:{aktif:true,turler:[{id:"dis",ad:"Dış yıkama",aciklama:"",fiyat:""},{id:"icdis",ad:"İç ve dış yıkama",aciklama:"",fiyat:""}],saatler:["Sabah (09:00–12:00)","Öğleden sonra (13:00–17:00)"],bilgi:""},sut:{aktif:true,ciftlik:"",aciklama:"",fiyat:"",gunler:["Salı","Cuma"],sonSaat:""}};
 let HZ=null,hzBen={siparisler:{}},tumHz={},hzSub=false,tumHzSub=null;
-const HZ_FORM0=()=>({utu:{adet:{},teslim:"yarin",not:""},tem:{tur:"",tarih:"",saat:"",oda:"",not:""},hali:{adet:1,m2:"",tarih:"",not:""},sut:{litre:1,gun:"",haftalik:false,not:""}});
+const HZ_FORM0=()=>({utu:{adet:{},teslim:"yarin",not:""},tem:{tur:"",tarih:"",saat:"",oda:"",not:""},hali:{adet:1,m2:"",tarih:"",not:""},arac:{tur:"",tip:"Otomobil",tarih:"",saat:"",yer:"",not:""},sut:{litre:1,gun:"",haftalik:false,not:""}});
 let hzMode="utu",hzYonet=false,hzYTab="toplama",hzForm=HZ_FORM0(),hzAy=null,hzMsg="",hzAyMsg="";
 const HZ_UD={yeni:"Talep alındı",toplandi:"Toplandı",hazir:"Hazır",teslim:"Teslim edildi",iptal:"İptal"};
 const HZ_TD={yeni:"Talep alındı",onay:"Onaylandı",tamam:"Tamamlandı",iptal:"İptal"};
 const HZ_SD={yeni:"Sipariş alındı",onay:"Onaylandı",teslim:"Teslim edildi",iptal:"İptal"};
-function hzAyar(){const h=HZ||{},u=h.utu||{},t=h.temizlik||{},hl=h.hali||{},su=h.sut||{};
+function hzAyar(){const h=HZ||{},u=h.utu||{},t=h.temizlik||{},hl=h.hali||{},su=h.sut||{},ar=h.arac||{};
   return {utu:{...HZ_VARS.utu,...u,kalemler:Array.isArray(u.kalemler)&&u.kalemler.length?u.kalemler:HZ_VARS.utu.kalemler},
     temizlik:{...HZ_VARS.temizlik,...t,turler:Array.isArray(t.turler)&&t.turler.length?t.turler:HZ_VARS.temizlik.turler,saatler:Array.isArray(t.saatler)&&t.saatler.length?t.saatler:HZ_VARS.temizlik.saatler},
-    hali:{...HZ_VARS.hali,...hl},sut:{...HZ_VARS.sut,...su,gunler:Array.isArray(su.gunler)&&su.gunler.length?su.gunler:HZ_VARS.sut.gunler}}}
+    hali:{...HZ_VARS.hali,...hl},arac:{...HZ_VARS.arac,...ar,turler:Array.isArray(ar.turler)&&ar.turler.length?ar.turler:HZ_VARS.arac.turler,saatler:Array.isArray(ar.saatler)&&ar.saatler.length?ar.saatler:HZ_VARS.arac.saatler},sut:{...HZ_VARS.sut,...su,gunler:Array.isArray(su.gunler)&&su.gunler.length?su.gunler:HZ_VARS.sut.gunler}}}
 function initHizmet(db){
   if(hzSub)return;hzSub=true;const yen=()=>{if(["hizmet","anasayfa"].includes(current))render(false)};
   db.doc("ayarlar/hizmetler").onSnapshot(s=>{HZ=s.exists?s.data():null;if(!hzAy)yen()},()=>{});
@@ -973,12 +993,15 @@ const hzBugun=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getM
 const hzGun=n=>{const d=new Date();d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
 const tarihKisa=iso=>iso?new Date(iso+"T12:00").toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"}):"";
 function hzBenimListe(){return Object.entries(hzBen.siparisler||{}).map(([oid,s])=>({oid,...s})).sort((a,b)=>(b.tarih||0)-(a.tarih||0))}
-function hzDurumPill(s){const ad=s.tur==="temizlik"?HZ_TD[s.durum]:s.tur==="sut"?HZ_SD[s.durum]:HZ_UD[s.durum];return `<span class="pill ${s.durum==="teslim"||s.durum==="tamam"||s.durum==="onay"?"ok":s.durum==="iptal"?"":"sic"}">${esc(ad||s.durum)}</span>`}
+function hzDurumPill(s){const ad=s.tur==="temizlik"||s.tur==="arac"?HZ_TD[s.durum]:s.tur==="sut"?HZ_SD[s.durum]:HZ_UD[s.durum];return `<span class="pill ${s.durum==="teslim"||s.durum==="tamam"||s.durum==="onay"?"ok":s.durum==="iptal"?"":"sic"}">${esc(ad||s.durum)}</span>`}
 function hzSiparisKart(s,yonetim){
   if(s.tur==="temizlik")return `<div class="row"><div class="head"><b>${ikon("temiz")} ${esc(s.hizmet?.ad||"Temizlik")}</b>${hzDurumPill(s)}</div><div class="lvl">İstenen: ${esc(tarihKisa(s.istenen))} · ${esc(s.saat||"")}${s.oda?" · "+esc(s.oda):""}</div>
     ${s.randevu?`<div class="randevu">${ikon("takvim")} Randevu: <b>${esc(new Date(s.randevu).toLocaleString("tr-TR",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))}</b></div>`:""}
     ${s.not?`<div class="lvl">Not: ${esc(s.not)}</div>`:""}${!yonetim&&s.durum==="yeni"?`<button type="button" class="mini" data-hz="iptal:${esc(s.oid)}" style="margin-top:6px">Talebi iptal et</button>`:""}</div>`;
   const iptalBtn=!yonetim&&s.durum==="yeni"?`<button type="button" class="mini" data-hz="iptal:${esc(s.oid)}" style="margin-top:6px">Talebi iptal et</button>`:"";
+  if(s.tur==="arac")return `<div class="row"><div class="head"><b>${ikon("arac")} Araç yıkama · ${esc(s.hizmet?.ad||"")}</b>${hzDurumPill(s)}</div><div class="lvl">${esc(s.tip||"")} · İstenen: ${esc(tarihKisa(s.istenen))} · ${esc(s.saat||"")}${s.yer?" · "+esc(s.yer):""}${s.hizmet&&s.hizmet.fiyat!==""&&s.hizmet.fiyat!=null?` · ~${hzPara(s.hizmet.fiyat)}`:""}</div>
+    ${s.randevu?`<div class="randevu">${ikon("takvim")} Randevu: <b>${esc(new Date(s.randevu).toLocaleString("tr-TR",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))}</b></div>`:""}
+    ${s.not?`<div class="lvl">Not: ${esc(s.not)}</div>`:""}${iptalBtn}</div>`;
   if(s.tur==="hali")return `<div class="row"><div class="head"><b>${ikon("hali")} Halı yıkama · ${+s.adet} halı</b>${hzDurumPill(s)}</div><div class="lvl">Toplama: ${esc(tarihKisa(s.istenen))}${s.m2?` · ~${esc(s.m2)} m²`:""}${s.tutar!==""&&s.tutar!=null?` · ~${hzPara(s.tutar)}`:""}</div>
     ${s.not?`<div class="lvl">Not: ${esc(s.not)}</div>`:""}${iptalBtn}</div>`;
   if(s.tur==="sut")return `<div class="row"><div class="head"><b>${ikon("sut")} Taze süt · ${String(+s.litre).replace(".",",")} L</b>${hzDurumPill(s)}</div><div class="lvl">Teslim günü: ${esc(s.gun)}${s.haftalik?" · her hafta":""}${s.tutar!==""&&s.tutar!=null?` · ~${hzPara(s.tutar)}`:""}${s.ciftlik?` · ${esc(s.ciftlik)}`:""}</div>
@@ -987,11 +1010,23 @@ function hzSiparisKart(s,yonetim){
   return `<div class="row"><div class="head"><b>${ikon("utu")} Ütü · ${+s.toplam} parça</b>${hzDurumPill(s)}</div><div class="lvl">${parca}</div><div class="lvl">Teslim: ${s.teslim==="aksam"?"Aynı akşam":"Ertesi gün"}${s.tutar!==""&&s.tutar!=null?` · ~${hzPara(s.tutar)}`:""} · ${esc(new Date(s.tarih).toLocaleDateString("tr-TR",{day:"numeric",month:"long"}))}</div>
     ${s.not?`<div class="lvl">Not: ${esc(s.not)}</div>`:""}${!yonetim&&s.durum==="yeni"?`<button type="button" class="mini" data-hz="iptal:${esc(s.oid)}" style="margin-top:6px">Talebi iptal et</button>`:""}</div>`;
 }
+/* Her hizmette Minnoş'un hızlı soruları formdaki değerlerden kurulur */
+function minnosServis(tur){
+  if(!window.BS_KEDI||!BS_KEDI.servisKarti)return "";const f=hzForm,A=hzAyar();let q=[];
+  try{
+    if(tur==="utu"){const p=A.utu.kalemler.filter(k=>+f.utu.adet[k.id]>0).map(k=>`${+f.utu.adet[k.id]} ${k.ad.toLocaleLowerCase("tr")}`);q=[p.length?`${p.join(" ")} ütü ne kadar?`:"5 gömlek 3 pantolon ütü ne kadar?"]}
+    else if(tur==="hali"){const m=String(f.hali.m2||"").trim();q=[`${m||"10"} m² halıyı kaça yıkatırım?`,"Halı yıkama fiyatı nedir?"]}
+    else if(tur==="arac"){const t=A.arac.turler.find(x=>x.id===(f.arac.tur||A.arac.turler[0].id));q=[t?`${t.ad} kaç TL?`:"Araç yıkama ne kadar?","Araç yıkama ne kadar?"]}
+    else if(tur==="sut"){q=[`${+f.sut.litre||1} litre süt kaça gelir?`,`Haftalık ${+f.sut.litre||1} litre taze süt ne kadar?`]}
+    else if(tur==="temizlik"){q=["Ev temizliği ne kadar?"]}
+  }catch(e){}
+  return BS_KEDI.servisKarti(tur,[...new Set(q)]);
+}
 function viewHizmet(){
   if(!DB||!UID)return `<h2 class="title">Hizmetler</h2><div class="pending">Hizmetler için claude.ai hesabınızla giriş yapmış olmanız gerekiyor.</div>`;
   const A=hzAyar(),acik=hzBenimListe().filter(s=>s.durum!=="teslim"&&s.durum!=="tamam"&&s.durum!=="iptal");
   let h=`<p class="eyebrow">Site hizmetleri${AYAR.siteAdi?" · "+esc(AYAR.siteAdi):""}</p><h2 class="title">Hizmetler</h2>
-   <div class="seg"><button type="button" data-hz="mode:utu" aria-pressed="${hzMode==="utu"}">Ütü</button><button type="button" data-hz="mode:temizlik" aria-pressed="${hzMode==="temizlik"}">Ev temizliği</button><button type="button" data-hz="mode:hali" aria-pressed="${hzMode==="hali"}">Halı yıkama</button><button type="button" data-hz="mode:sut" aria-pressed="${hzMode==="sut"}">Taze süt</button><button type="button" data-hz="mode:siparis" aria-pressed="${hzMode==="siparis"}">Taleplerim${acik.length?` (${acik.length})`:""}</button></div>
+   <div class="seg"><button type="button" data-hz="mode:utu" aria-pressed="${hzMode==="utu"}">Ütü</button><button type="button" data-hz="mode:temizlik" aria-pressed="${hzMode==="temizlik"}">Ev temizliği</button><button type="button" data-hz="mode:hali" aria-pressed="${hzMode==="hali"}">Halı yıkama</button><button type="button" data-hz="mode:arac" aria-pressed="${hzMode==="arac"}">Araç yıkama</button><button type="button" data-hz="mode:sut" aria-pressed="${hzMode==="sut"}">Taze süt</button><button type="button" data-hz="mode:siparis" aria-pressed="${hzMode==="siparis"}">Taleplerim${acik.length?` (${acik.length})`:""}</button></div>
    ${ADMIN?`<div class="pill-row" style="margin:-4px 0 12px"><button type="button" class="pill pbtn" data-hz="yonet" aria-pressed="${hzYonet}">${hzYonet?"Sakin görünümüne dön":"Yönet"}</button></div>`:""}`;
   if(ADMIN&&hzYonet)return h+viewHizYonet();
   if(!profil)h+=`<div class="scorebox"><b>Önce kartınızı oluşturun</b><p class="lvl" style="margin:4px 0 8px">Hizmet dairenize göre sunulur.</p><a class="chip acc" href="#profil">Kartımı oluştur →</a></div>`;
@@ -999,7 +1034,7 @@ function viewHizmet(){
   if(hzMode==="hali"){
     const H=A.hali;if(H.aktif===false)return h+`<div class="pending">Halı yıkama hizmeti şu an kapalı.</div>`;
     const f=hzForm.hali,m2=hzNum(f.m2,0,500),tutar=H.fiyat!==""&&H.fiyat!=null&&m2?m2*(+H.fiyat):null;
-    h+=`<section class="hcard"><div class="hhead">${ikon("hali","acc")}<h3>Halı yıkama</h3></div>
+    h+=`<section class="hcard"><div class="hhead">${ikon("hali","acc")}<h3>Halı yıkama</h3></div>${minnosServis("hali")}
       <p class="meta">Halı sayısını ve toplama gününü seçin. Görevli kapınızdan alır, yıkanıp kuruyunca geri getirir.</p>
       ${H.bilgi?`<p class="toplama">${ikon("saat")} ${esc(H.bilgi)}</p>`:""}
       <div class="clist" style="margin-top:10px"><div class="citem"><span class="tile" style="background:#9A3412" aria-hidden="true">${ikon("hali")}</span><div class="cn"><b>Halı</b><small>${H.fiyat!==""&&H.fiyat!=null?hzPara(H.fiyat)+" / m²":"Fiyat yönetimce belirlenir"}</small></div>
@@ -1011,10 +1046,25 @@ function viewHizmet(){
       <button type="button" class="btn pri" data-hz="haligonder" ${profil?"":"disabled"} style="width:100%;margin-top:10px;min-height:48px">Halı yıkama talebi gönder</button><p class="lvl" id="hzMsg">${esc(hzMsg)}</p></section>`;
     return h;
   }
+  if(hzMode==="arac"){
+    const R=A.arac;if(R.aktif===false)return h+`<div class="pending">Araç yıkama hizmeti şu an kapalı.</div>`;
+    const f=hzForm.arac,secili=f.tur||R.turler[0].id,sl=f.saat||R.saatler[0];
+    h+=`<section class="hcard"><div class="hhead">${ikon("arac","acc")}<h3>Araç yıkama</h3></div>${minnosServis("arac")}<p class="meta">Yıkama türünü, gün ve saat aralığını seçin. Yönetim randevuyu onaylar; aracınız otoparkta yıkanır.</p>
+      ${R.bilgi?`<p class="toplama">${ikon("saat")} ${esc(R.bilgi)}</p>`:""}
+      <div class="turlar" role="radiogroup" aria-label="Yıkama türü">${R.turler.map(t=>`<label class="tur${t.id===secili?" on":""}"><input type="radio" name="aractur" data-hzf="arac:tur" value="${esc(t.id)}" ${t.id===secili?"checked":""}><span><b>${esc(t.ad)}</b>${t.aciklama?`<small>${esc(t.aciklama)}</small>`:""}<small>${hzPara(t.fiyat)||"Fiyat yönetimce belirlenir"}</small></span></label>`).join("")}</div>
+      <div class="pgrid"><label class="lvl" for="ar-tip">Araç tipi<select id="ar-tip" data-hzf="arac:tip">${["Otomobil","SUV / arazi","Ticari / minibüs","Motosiklet"].map(x=>`<option ${x===f.tip?"selected":""}>${x}</option>`).join("")}</select></label>
+      <label class="lvl" for="ar-tarih">İstediğiniz gün<input id="ar-tarih" type="date" data-hzf="arac:tarih" value="${esc(f.tarih)}" min="${hzGun(1)}" max="${hzGun(30)}"></label>
+      <label class="lvl" for="ar-saat">Saat aralığı<select id="ar-saat" data-hzf="arac:saat">${R.saatler.map(x=>`<option ${x===sl?"selected":""}>${esc(x)}</option>`).join("")}</select></label>
+      <label class="lvl" for="ar-yer">Otopark yeri (isteğe bağlı)<input id="ar-yer" data-hzf="arac:yer" value="${esc(f.yer)}" maxlength="30" placeholder="Ör. B2 kat, 14 numara"></label></div>
+      <label class="lvl" for="ar-not" style="display:block;margin-top:8px">Not (ör. koltuklar da silinsin)<textarea id="ar-not" data-hzf="arac:not" maxlength="200">${esc(f.not)}</textarea></label>
+      <p class="lvl" style="margin:6px 0 0">Plaka ya da araç anahtarını buraya yazmayın; anahtar teslimini yönetimle ayrıca konuşun. Fiyat araç tipine göre değişebilir, kesin tutarı yönetim söyler.</p>
+      <button type="button" class="btn pri block" data-hz="aracgonder" ${profil?"":"disabled"} style="width:100%;margin-top:10px;min-height:48px">Araç yıkama talebi gönder</button><p class="lvl" id="hzMsg">${esc(hzMsg)}</p></section>`;
+    return h;
+  }
   if(hzMode==="sut"){
     const S=A.sut;if(S.aktif===false)return h+`<div class="pending">Taze süt siparişi şu an kapalı.</div>`;
     const f=hzForm.sut,gun=S.gunler.includes(f.gun)?f.gun:S.gunler[0],litre=+f.litre||1,tutar=S.fiyat!==""&&S.fiyat!=null?litre*(+S.fiyat):null;
-    h+=`<section class="hcard"><div class="hhead">${ikon("sut","acc")}<h3>Çiftlikten taze süt</h3></div>
+    h+=`<section class="hcard"><div class="hhead">${ikon("sut","acc")}<h3>Çiftlikten taze süt</h3></div>${minnosServis("sut")}
       <p class="meta">${S.ciftlik?esc(S.ciftlik)+". ":""}${S.aciklama?esc(S.aciklama)+" ":""}Litreyi ve teslim gününü seçin; süt belirlenen gün kapınıza getirilir.</p>
       ${S.sonSaat?`<p class="toplama">${ikon("saat")} Siparişler teslimden önceki gün ${esc(S.sonSaat)}'a kadar alınır.</p>`:""}
       <div class="clist" style="margin-top:10px"><div class="citem"><span class="tile" style="background:#0E7490" aria-hidden="true">${ikon("sut")}</span><div class="cn"><b>Süt</b><small>${S.fiyat!==""&&S.fiyat!=null?hzPara(S.fiyat)+" / litre":"Fiyat yönetimce belirlenir"}</small></div>
@@ -1029,7 +1079,7 @@ function viewHizmet(){
   if(hzMode==="temizlik"){
     const T=A.temizlik;if(T.aktif===false)return h+`<div class="pending">Ev temizliği hizmeti şu an kapalı.</div>`;
     const f=hzForm.tem,secili=f.tur||T.turler[0].id,sl=f.saat||T.saatler[0];
-    h+=`<section class="hcard"><div class="hhead">${ikon("temiz","acc")}<h3>Ev temizliği talebi</h3></div><p class="meta">Tür, gün ve saat aralığını seçin. Yönetim randevuyu onaylar; onaylanınca burada görürsünüz.</p>
+    h+=`<section class="hcard"><div class="hhead">${ikon("temiz","acc")}<h3>Ev temizliği talebi</h3></div>${minnosServis("temizlik")}<p class="meta">Tür, gün ve saat aralığını seçin. Yönetim randevuyu onaylar; onaylanınca burada görürsünüz.</p>
       <div class="turlar" role="radiogroup" aria-label="Temizlik türü">${T.turler.map(t=>`<label class="tur${t.id===secili?" on":""}"><input type="radio" name="temtur" data-hzf="tem:tur" value="${esc(t.id)}" ${t.id===secili?"checked":""}><span><b>${esc(t.ad)}</b>${t.aciklama?`<small>${esc(t.aciklama)}</small>`:""}<small>${hzPara(t.fiyat)||"Fiyat yönetimce belirlenir"}</small></span></label>`).join("")}</div>
       <div class="pgrid"><label class="lvl" for="tm-tarih">İstediğiniz gün<input id="tm-tarih" type="date" data-hzf="tem:tarih" value="${esc(f.tarih)}" min="${hzGun(1)}" max="${hzGun(60)}"></label>
       <label class="lvl" for="tm-saat">Saat aralığı<select id="tm-saat" data-hzf="tem:saat">${T.saatler.map(x=>`<option ${x===sl?"selected":""}>${esc(x)}</option>`).join("")}</select></label>
@@ -1043,7 +1093,7 @@ function viewHizmet(){
   const f=hzForm.utu,top=U.kalemler.reduce((n,k)=>n+(+f.adet[k.id]||0),0),fiyatli=U.kalemler.every(k=>!(+f.adet[k.id]>0)||k.fiyat!==""&&k.fiyat!=null);
   const ek=f.teslim==="aksam"&&U.aksamEk!==""&&U.aksamEk!=null?+U.aksamEk:0,tutar=top&&fiyatli?U.kalemler.reduce((n,k)=>n+(+f.adet[k.id]||0)*((+k.fiyat||0)+ek),0):null;
   const aksam=aksamAcik();if(!aksam&&f.teslim==="aksam")f.teslim="yarin";
-  h+=`<section class="hcard"><div class="hhead">${ikon("utu","acc")}<h3>Ütü hizmeti</h3></div>
+  h+=`<section class="hcard"><div class="hhead">${ikon("utu","acc")}<h3>Ütü hizmeti</h3></div>${minnosServis("utu")}
     <p class="meta">Parça sayısını yazın. Site görevlisi kapınızdan alır, ${aksam?"aynı akşam ya da ertesi gün":"ertesi gün"} geri getirir.</p>
     ${U.toplama?`<p class="toplama">${ikon("saat")} ${esc(U.toplama)}</p>`:""}
     <div class="clist" style="margin-top:10px">${U.kalemler.map(k=>`<div class="citem"><span class="tile" style="background:#6D28D9" aria-hidden="true">${esc(k.ad.trim().charAt(0).toLocaleUpperCase("tr"))}</span><div class="cn"><b>${esc(k.ad)}</b><small>${hzPara(k.fiyat)||"Fiyat yönetimce belirlenir"}${k.fiyat!==""?" / parça":""}</small></div>
@@ -1062,7 +1112,7 @@ const konumYaz=k=>k?`${esc(k.blok)} Blok · ${katAd(k.kat)} · Daire ${esc(k.dai
 function viewHizYonet(){
   if(!tumHzSub){tumHzSub=DB.collection("hizmetSiparis").onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});tumHz=o;if(current==="hizmet")render(false)},()=>{})}
   ensureSakinlerHz();
-  const tabs=[["toplama","Ütü toplama"],["temizlik","Temizlik talepleri"],["hali","Halı"],["sut","Süt"],["ayar","Ayarlar"]];
+  const tabs=[["toplama","Ütü toplama"],["temizlik","Temizlik talepleri"],["hali","Halı"],["arac","Araç"],["sut","Süt"],["ayar","Ayarlar"]];
   let h=`<div class="seg">${tabs.map(([k,t])=>`<button type="button" data-hz="ytab:${k}" aria-pressed="${hzYTab===k}">${t}</button>`).join("")}</div>`;
   if(hzYTab==="toplama"){
     const u=hzTumListe("utu"),acik=u.filter(s=>["yeni","toplandi","hazir"].includes(s.durum)).sort((a,b)=>(a.teslim==="aksam"?0:1)-(b.teslim==="aksam"?0:1)||konumSira(a,b));
@@ -1084,6 +1134,13 @@ function viewHizYonet(){
        <div class="confirm">${ileri?`<button type="button" class="btn pri" data-hz="dur:${s.uid}:${s.oid}:${ileri[0]}">${ileri[1]}</button>`:""}<button type="button" class="mini" data-hz="dur:${s.uid}:${s.oid}:iptal">İptal</button>${s.durum==="hazir"&&tel?waBtn(tel,`Merhaba, ${AYAR.siteAdi||"site"} halı yıkama siparişiniz hazır, kapınıza getiriyoruz.`,"Hazır mesajı"):""}</div></div>`}).join(""):`<div class="pending">Açık halı yıkama talebi yok.</div>`;
     return h;
   }
+  if(hzYTab==="arac"){
+    const t=hzTumListe("arac").sort((a,b)=>(a.durum==="yeni"?0:1)-(b.durum==="yeni"?0:1)||String(a.istenen).localeCompare(String(b.istenen)));
+    h+=t.length?t.map(s=>{const tel=tumSakinler[s.uid]?.telefon;return `<div class="row"><div class="head"><b>${konumYaz(s.konum)}</b>${hzDurumPill(s)}</div><div class="lvl">${esc(s.hizmet?.ad||"")} · ${esc(s.tip||"")} · ${esc(tarihKisa(s.istenen))} · ${esc(s.saat||"")}${s.yer?" · "+esc(s.yer):""}</div>${s.not?`<div class="lvl">Not: ${esc(s.not)}</div>`:""}
+      ${s.randevu?`<div class="randevu">${ikon("takvim")} ${esc(new Date(s.randevu).toLocaleString("tr-TR",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))}</div>`:""}
+      <div class="confirm">${s.durum==="yeni"?`<input type="datetime-local" id="rv-${s.uid}-${s.oid}" aria-label="Randevu zamanı" value="${esc(s.istenen||"")}T10:00" style="min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:0 8px;font-size:15px"><button type="button" class="btn pri" data-hz="onay:${s.uid}:${s.oid}">Onayla</button>`:""}${s.durum==="onay"?`<button type="button" class="btn pri" data-hz="dur:${s.uid}:${s.oid}:tamam">Yıkandı</button>`:""}${["yeni","onay"].includes(s.durum)?`<button type="button" class="mini" data-hz="dur:${s.uid}:${s.oid}:iptal">İptal</button>`:""}${s.durum==="onay"&&tel?waBtn(tel,`Merhaba, ${AYAR.siteAdi||"site"} araç yıkama randevunuz ${new Date(s.randevu).toLocaleString("tr-TR",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})} olarak onaylandı.`,"Randevu mesajı"):""}</div></div>`}).join(""):`<div class="pending">Araç yıkama talebi yok.</div>`;
+    return h;
+  }
   if(hzYTab==="sut"){
     const l=hzTumListe("sut"),acik=l.filter(s=>["yeni","onay"].includes(s.durum)),gunler={};acik.forEach(s=>{gunler[s.gun]=(gunler[s.gun]||0)+(+s.litre||0)});
     h+=`<div class="summary">${Object.entries(gunler).map(([g,n])=>`<div><b>${String(n).replace(".",",")} L</b><span>${esc(g)}</span></div>`).join("")||`<div><b>0 L</b><span>açık sipariş</span></div>`}</div>`;
@@ -1101,7 +1158,7 @@ function viewHizYonet(){
   return h+viewHizAyar();
 }
 function viewHizAyar(){
-  if(!hzAy)hzAy=JSON.parse(JSON.stringify(hzAyar()));const a=hzAy,U=a.utu,T=a.temizlik,H=a.hali,S=a.sut;
+  if(!hzAy)hzAy=JSON.parse(JSON.stringify(hzAyar()));const a=hzAy,U=a.utu,T=a.temizlik,H=a.hali,S=a.sut,R=a.arac;
   return `<div class="row"><div class="head"><b>Ütü hizmeti</b></div>
    <label class="lvl" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-hza="utu:aktif" ${U.aktif!==false?"checked":""} style="width:auto"> Hizmet açık</label>
    ${U.kalemler.map((k,i)=>`<div class="pgrid birey"><label class="lvl" for="uk-${i}">Parça<input id="uk-${i}" data-hzk="utu:${i}:ad" value="${esc(k.ad)}" maxlength="30"></label><label class="lvl" for="uf-${i}">Fiyat (TL / parça)<input id="uf-${i}" data-hzk="utu:${i}:fiyat" value="${esc(k.fiyat)}" inputmode="decimal" placeholder="Boş = sorulur"></label><button type="button" class="btn" data-hz="kdel:utu:${i}">Çıkar</button></div>`).join("")}
@@ -1117,6 +1174,12 @@ function viewHizAyar(){
    <label class="lvl" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-hza="hali:aktif" ${H.aktif!==false?"checked":""} style="width:auto"> Hizmet açık</label>
    <div class="pgrid"><label class="lvl" for="hl-fiyat">Fiyat (TL / m²)<input id="hl-fiyat" data-hza="hali:fiyat" value="${esc(H.fiyat??"")}" inputmode="decimal" placeholder="Boş = sorulur"></label>
    <label class="lvl" for="hl-bilgi">Bilgi (sakinlere gösterilir)<input id="hl-bilgi" data-hza="hali:bilgi" value="${esc(H.bilgi||"")}" maxlength="120" placeholder="Ör. Teslim 3–5 iş günü, firma adı"></label></div></div>
+  <div class="row"><div class="head"><b>Araç yıkama</b></div>
+   <label class="lvl" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-hza="arac:aktif" ${R.aktif!==false?"checked":""} style="width:auto"> Hizmet açık</label>
+   ${R.turler.map((k,i)=>`<div class="pgrid birey"><label class="lvl" for="rk-${i}">Tür<input id="rk-${i}" data-hzk="arac:${i}:ad" value="${esc(k.ad)}" maxlength="40"></label><label class="lvl" for="rf-${i}">Fiyat (TL)<input id="rf-${i}" data-hzk="arac:${i}:fiyat" value="${esc(k.fiyat??"")}" inputmode="decimal" placeholder="Boş = sorulur"></label><label class="lvl" for="ra-${i}">Açıklama<input id="ra-${i}" data-hzk="arac:${i}:aciklama" value="${esc(k.aciklama||"")}" maxlength="80"></label><button type="button" class="btn" data-hz="kdel:arac:${i}">Çıkar</button></div>`).join("")}
+   ${R.turler.length<8?`<button type="button" class="btn" data-hz="kekle:arac" style="margin-top:6px">+ Yıkama türü ekle</button>`:""}
+   <label class="lvl" for="rs-saat" style="display:block;margin-top:8px">Saat aralıkları (virgülle)<input id="rs-saat" data-hza="arac:saatlerStr" value="${esc(R.saatlerStr??R.saatler.join(", "))}"></label>
+   <label class="lvl" for="r-bilgi" style="display:block;margin-top:8px">Bilgi (sakinlere gösterilir)<input id="r-bilgi" data-hza="arac:bilgi" value="${esc(R.bilgi||"")}" maxlength="120" placeholder="Ör. Yıkama otoparkta yapılır, SUV için ek ücret"></label></div>
   <div class="row"><div class="head"><b>Çiftlikten taze süt</b></div>
    <label class="lvl" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-hza="sut:aktif" ${S.aktif!==false?"checked":""} style="width:auto"> Hizmet açık</label>
    <div class="pgrid"><label class="lvl" for="st-ciftlik">Çiftlik / tedarikçi adı<input id="st-ciftlik" data-hza="sut:ciftlik" value="${esc(S.ciftlik||"")}" maxlength="60"></label>
@@ -1156,6 +1219,12 @@ async function hzClick(a){
     const adet=Math.max(1,Math.min(20,Math.floor(+f.adet||1))),tutar=H.fiyat!==""&&H.fiyat!=null&&m2?Math.round(m2*(+H.fiyat)*100)/100:"";
     const oid="h"+Date.now().toString(36);await hzYaz(oid,{tur:"hali",adet,m2:m2===""?"":m2,istenen:f.tarih,tutar,not:String(f.not||"").trim().slice(0,200),durum:"yeni",tarih:Date.now()});
     hzForm.hali=HZ_FORM0().hali;hzMsg="";hzMode="siparis";toast("Halı yıkama talebiniz alındı");return yen()}
+  if(k==="aracgonder"){if(!profil){location.hash="#profil";return}const R=hzAyar().arac,f=hzForm.arac,tur=R.turler.find(q=>q.id===(f.tur||R.turler[0].id))||R.turler[0];
+    const saat=R.saatler.includes(f.saat)?f.saat:R.saatler[0];
+    if(!f.tarih||f.tarih<hzGun(1)||f.tarih>hzGun(30)){hzMsg="Yarından başlayarak 30 gün içinde bir gün seçin.";return yen()}
+    const tip=["Otomobil","SUV / arazi","Ticari / minibüs","Motosiklet"].includes(f.tip)?f.tip:"Otomobil";
+    const oid="a"+Date.now().toString(36);await hzYaz(oid,{tur:"arac",hizmet:{ad:tur.ad,fiyat:tur.fiyat??""},tip,istenen:f.tarih,saat,yer:String(f.yer||"").trim().slice(0,30),not:String(f.not||"").trim().slice(0,200),durum:"yeni",tarih:Date.now()});
+    hzForm.arac=HZ_FORM0().arac;hzMsg="";hzMode="siparis";toast("Araç yıkama talebiniz alındı");return yen()}
   if(k==="sutgonder"){if(!profil){location.hash="#profil";return}const S=hzAyar().sut,f=hzForm.sut,gun=S.gunler.includes(f.gun)?f.gun:S.gunler[0];
     const litre=Math.max(1,Math.min(10,Math.floor(+f.litre||1))),tutar=S.fiyat!==""&&S.fiyat!=null?Math.round(litre*(+S.fiyat)*100)/100:"";
     const oid="s"+Date.now().toString(36);await hzYaz(oid,{tur:"sut",litre,gun,haftalik:!!f.haftalik,ciftlik:S.ciftlik||"",tutar,not:String(f.not||"").trim().slice(0,200),durum:"yeni",tarih:Date.now()});
@@ -1164,8 +1233,8 @@ async function hzClick(a){
   if(!ADMIN)return;
   if(k==="dur"){await DB.doc("hizmetSiparis/"+x).update({siparisler:{[y]:{durum:z,["t_"+z]:Date.now()}}});return}
   if(k==="onay"){const v=document.getElementById(`rv-${x}-${y}`)?.value;if(!v||isNaN(new Date(v))){toast("Randevu zamanını seçin");return}await DB.doc("hizmetSiparis/"+x).update({siparisler:{[y]:{durum:"onay",randevu:v,t_onay:Date.now()}}});toast("Randevu onaylandı");return}
-  if(k==="kekle"){const L=x==="utu"?hzAy.utu.kalemler:hzAy.temizlik.turler;L.push({id:"k"+Date.now().toString(36),ad:"",fiyat:"",aciklama:""});return yen()}
-  if(k==="kdel"){const L=x==="utu"?hzAy.utu.kalemler:hzAy.temizlik.turler;L.splice(+y,1);return yen()}
+  if(k==="kekle"){const L=x==="utu"?hzAy.utu.kalemler:x==="arac"?hzAy.arac.turler:hzAy.temizlik.turler;L.push({id:"k"+Date.now().toString(36),ad:"",fiyat:"",aciklama:""});return yen()}
+  if(k==="kdel"){const L=x==="utu"?hzAy.utu.kalemler:x==="arac"?hzAy.arac.turler:hzAy.temizlik.turler;L.splice(+y,1);return yen()}
   if(k==="aykaydet"){const a=hzAy,U=a.utu,T=a.temizlik;
     const kal=U.kalemler.map(q=>({id:String(q.id||("k"+Math.random().toString(36).slice(2,7))).slice(0,20),ad:String(q.ad||"").trim().slice(0,30),fiyat:hzNum(q.fiyat,0,100000)})).filter(q=>q.ad);
     if(kal.some(q=>q.fiyat===null)){hzAyMsg="Ütü fiyatlarını sayı olarak girin.";return yen()}if(U.aktif!==false&&!kal.length){hzAyMsg="En az bir parça türü gerekli.";return yen()}
@@ -1174,12 +1243,17 @@ async function hzClick(a){
     if(tur.some(q=>q.fiyat===null)){hzAyMsg="Temizlik fiyatlarını sayı olarak girin.";return yen()}
     const saatler=String(T.saatlerStr??T.saatler.join(", ")).split(",").map(q=>q.trim().slice(0,40)).filter(Boolean).slice(0,8);
     if(T.aktif!==false&&(!tur.length||!saatler.length)){hzAyMsg="Temizlik için en az bir tür ve bir saat aralığı gerekli.";return yen()}
-    const H=a.hali,S=a.sut,hf=hzNum(H.fiyat,0,100000),sf=hzNum(S.fiyat,0,100000);
+    const H=a.hali,S=a.sut,R=a.arac,hf=hzNum(H.fiyat,0,100000),sf=hzNum(S.fiyat,0,100000);
+    const rtur=R.turler.map(q=>({id:String(q.id||("k"+Math.random().toString(36).slice(2,7))).slice(0,20),ad:String(q.ad||"").trim().slice(0,40),aciklama:String(q.aciklama||"").trim().slice(0,80),fiyat:hzNum(q.fiyat,0,1e6)})).filter(q=>q.ad);
+    if(rtur.some(q=>q.fiyat===null)){hzAyMsg="Araç yıkama fiyatlarını sayı olarak girin.";return yen()}
+    const rsaat=String(R.saatlerStr??R.saatler.join(", ")).split(",").map(q=>q.trim().slice(0,40)).filter(Boolean).slice(0,8);
+    if(R.aktif!==false&&(!rtur.length||!rsaat.length)){hzAyMsg="Araç yıkama için en az bir tür ve bir saat aralığı gerekli.";return yen()}
     if(hf===null||sf===null){hzAyMsg="Halı ve süt fiyatlarını sayı olarak girin.";return yen()}
     const gunler=String(S.gunlerStr??S.gunler.join(", ")).split(",").map(q=>q.trim().slice(0,20)).filter(Boolean).slice(0,7),sson=String(S.sonSaat||"");
     if(S.aktif!==false&&!gunler.length){hzAyMsg="Süt için en az bir teslim günü gerekli.";return yen()}if(sson&&!/^\d{2}:\d{2}$/.test(sson)){hzAyMsg="Süt son sipariş saati geçersiz.";return yen()}
     const yeni={utu:{aktif:U.aktif!==false,kalemler:kal,toplama:String(U.toplama||"").trim().slice(0,120),aksamSon:son,aksamEk:ek},temizlik:{aktif:T.aktif!==false,turler:tur,saatler},
       hali:{aktif:H.aktif!==false,fiyat:hf,bilgi:String(H.bilgi||"").trim().slice(0,120)},
+      arac:{aktif:R.aktif!==false,turler:rtur,saatler:rsaat,bilgi:String(R.bilgi||"").trim().slice(0,120)},
       sut:{aktif:S.aktif!==false,ciftlik:String(S.ciftlik||"").trim().slice(0,60),aciklama:String(S.aciklama||"").trim().slice(0,120),fiyat:sf,gunler,sonSaat:sson},guncelleme:Date.now()};
     await DB.doc("ayarlar/hizmetler").set(yeni);HZ=yeni;hzAy=null;hzAyMsg="Kaydedildi.";return yen()}
   }catch(err){toast(err?.code==="invalid_argument"?"Bu işlem için izniniz yok":"İşlem yapılamadı, tekrar deneyin")}
@@ -1190,13 +1264,13 @@ function hzEvent(e){
     if(g==="hali"&&f==="m2"){const H=hzAyar().hali,m2=hzNum(t.value,0,500),el=document.getElementById("hlTutar"),oz=document.getElementById("hlOzet");
       if(el)el.textContent=H.fiyat!==""&&H.fiyat!=null&&m2?"~"+hzPara(m2*(+H.fiyat)):"—";if(oz)oz.textContent=`${+o.adet||1} halı${m2?` · ${String(m2).replace(".",",")} m²`:""}`}if(e.type==="change"&&(t.type==="radio"||t.tagName==="SELECT"||t.type==="checkbox")){const s=window.scrollY;render(false);window.scrollTo(0,s)}return true}
   if(t.dataset.hza&&hzAy){const [g,f]=t.dataset.hza.split(":");hzAy[g][f]=t.type==="checkbox"?t.checked:t.value;return true}
-  if(t.dataset.hzk&&hzAy){const [g,i,f]=t.dataset.hzk.split(":");(g==="utu"?hzAy.utu.kalemler:hzAy.temizlik.turler)[+i][f]=t.value;return true}
+  if(t.dataset.hzk&&hzAy){const [g,i,f]=t.dataset.hzk.split(":");(g==="utu"?hzAy.utu.kalemler:g==="arac"?hzAy.arac.turler:hzAy.temizlik.turler)[+i][f]=t.value;return true}
   return false;
 }
 function hizmetKarti(){
   const A=hzAyar(),acik=hzBenimListe().filter(s=>!["teslim","tamam","iptal"].includes(s.durum));
-  const ad=s=>s.tur==="temizlik"?esc(s.hizmet?.ad||"Temizlik"):s.tur==="hali"?`Halı yıkama · ${+s.adet} halı`:s.tur==="sut"?`Taze süt · ${+s.litre} L`:`Ütü · ${+s.toplam} parça`;
-  return `<a class="hcard link" href="#hizmet"><div class="hhead">${ikon("utu","acc")}<h3>Ütü, temizlik, halı ve süt</h3>${ikon("sag","go")}</div>${acik.length?`<ul class="mods">${acik.slice(0,2).map(s=>`<li>${ad(s)} ${hzDurumPill(s)}</li>`).join("")}</ul>`:`<p class="meta">Ütü parçalarınızı görevli kapınızdan alsın, ev temizliği için randevu alın, halınızı yıkatın, çiftlikten taze süt sipariş edin.</p>`}</a>`;
+  const ad=s=>s.tur==="temizlik"?esc(s.hizmet?.ad||"Temizlik"):s.tur==="arac"?`Araç yıkama · ${esc(s.hizmet?.ad||"")}`:s.tur==="hali"?`Halı yıkama · ${+s.adet} halı`:s.tur==="sut"?`Taze süt · ${+s.litre} L`:`Ütü · ${+s.toplam} parça`;
+  return `<a class="hcard link" href="#hizmet"><div class="hhead">${ikon("utu","acc")}<h3>Ütü, temizlik, halı, araç ve süt</h3>${ikon("sag","go")}</div>${acik.length?`<ul class="mods">${acik.slice(0,2).map(s=>`<li>${ad(s)} ${hzDurumPill(s)}</li>`).join("")}</ul>`:`<p class="meta">Ütü parçalarınızı görevli kapınızdan alsın, ev temizliği için randevu alın, halınızı ve aracınızı yıkatın, çiftlikten taze süt sipariş edin.</p>`}</a>`;
 }
 
 
@@ -2006,6 +2080,7 @@ const IK={
  utu:'<path d="M3 17h18l-3-8H9a6 6 0 00-6 6v2z"/><path d="M6 12h5"/>',
  temiz:'<path d="M12 3l1.8 4.7L18.5 9.5 13.8 11.3 12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/>',
  hali:'<rect x="5" y="4" width="14" height="16" rx="1"/><path d="M8 4V2M12 4V2M16 4V2M8 22v-2M12 22v-2M16 22v-2"/><path d="M12 8l3 4-3 4-3-4z"/>',
+ arac:'<path d="M5 16h14l-1.5-5.5A2 2 0 0015.6 9H8.4a2 2 0 00-1.9 1.5L5 16z"/><path d="M4 16h16v3H4z"/><circle cx="8" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/><path d="M9 5c0 1 1 1.5 1 2.5M13 4c0 1 1 1.5 1 2.5"/>',
  sut:'<path d="M9 2h6v3l2 3v12a2 2 0 01-2 2H9a2 2 0 01-2-2V8l2-3z"/><path d="M7 12h10"/><path d="M9 5h6"/>',
  wa:'<path d="M4 20l1.3-4A8 8 0 1112 20a8 8 0 01-4-1.1L4 20z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1a4 4 0 01-2-2l1-1-1-2L9 9.5z"/>'
 };
@@ -2141,10 +2216,11 @@ const BILGI=[
  {id:"etkinlik",k:["etkinlik","program","toplanti","davet"],c:"Etkinlik sayfasında site programı ve toplantılar yer alır. Neyin ne zaman olduğunu orada görürsün."},
  {id:"hava",k:["hava","yagmur","sicaklik","ne giyeyim","mont"],c:"Bugün sayfasında hava durumu ve ne giyilebileceği önerisi var. Resmî tahmin için Meteoroloji'ye bakmayı unutma."},
  {id:"sepet",k:["sepet","market","toplu siparis","alisveris"],c:"Sepet'te toplu market siparişi verirsin: ürünleri ekle, sipariş turu açıkken gönder. Yönetim toplayıp dağıtır. Fiyat ve tur ayrıntılarını yönetim belirler."},
- {id:"hizmetler",k:["hizmetler","hangi hizmetler","hizmetlerimiz","hizmetleriniz","ne hizmet"],c:"Hizmet sayfasında ütü, ev temizliği, halı yıkama ve çiftlikten taze süt var. Toplu market siparişi ise Sepet'te verilir."},
+ {id:"hizmetler",k:["hizmetler","hangi hizmetler","hizmetlerimiz","hizmetleriniz","ne hizmet"],c:"Hizmet sayfasında ütü, ev temizliği, halı yıkama, araç yıkama ve çiftlikten taze süt var. Toplu market siparişi ise Sepet'te verilir."},
  {id:"utu",k:["utu","gomlek","pantolon utu"],c:"Hizmet > Ütü: parça sayılarını yazarsın, görevli kapından alır, ertesi gün (açıksa aynı akşam) getirir. Fiyatı yönetim belirler; uygulama ödeme almaz."},
  {id:"temizlik",k:["ev temizligi","temizlik","temizlikci","randevu"],c:"Hizmet > Ev temizliği: tür, gün ve saat aralığını seçersin; yönetim randevuyu onaylar, onaylanınca orada görürsün. Anahtar ya da kapı şifresini buraya yazma."},
  {id:"hali",k:["hali","hali yikama","halim"],c:"Hizmet > Halı yıkama: halı sayısını, tahmini metrekareyi ve toplama gününü seçersin. Görevli alır, yıkanınca geri getirir. Kesin tutar ölçümden sonra belli olur."},
+ {id:"arac",k:["arac","araba","oto yikama","arac yikama","araba yikama","otopark"],c:"Hizmet > Araç yıkama: yıkama türünü (dış ya da iç ve dış gibi), araç tipini, gün ve saat aralığını seçersin; yönetim randevuyu onaylar. Plaka ve anahtarı yazma; fiyatı yönetim belirler ve araç tipine göre değişebilir."},
  {id:"sut",k:["sut","ciftlik","taze sut","litre"],c:"Hizmet > Taze süt: çiftlikten litreyi ve teslim gününü seçersin; istersen her hafta tekrarlanır. Çiftliğin adını, fiyatı ve günleri yönetim belirler."},
  {id:"firsat",k:["firsat","indirim","kupon","kampanya","kod","firmanin sitesi"],c:"Fırsatlar'da çevredeki indirimler listelenir. Kupon kodunu kopyalayabilir, haritada açabilir; firmanın kendi sitesi varsa büyük 'Firmanın sitesine git' düğmesiyle oraya geçebilirsin."},
  {id:"kartim",k:["kartim","profil","seviye","rozet","xp","sakin karti"],c:"Kartım'da seviyeni, rozetlerini ve arena kimliğini görürsün. Kartı yalnızca sen görürsün; kat ve daire numaran başkalarına gösterilmez."},
@@ -2285,6 +2361,15 @@ function hesapla(q,v){
     if(adet&&tok.includes("ayni")&&tok.some(x=>x.startsWith("aksam"))&&fiyatVar(v.utu.aksamEk)&&+v.utu.aksamEk>0){ekle("Aynı akşam teslim ek ücreti",`${adet} adet`,`${tl(+v.utu.aksamEk)} / adet`,adet*+v.utu.aksamEk)}
     if(!adet&&fiyatNiyeti(tok)){for(const k of v.utu.kalemler||[])if(fiyatVar(k.fiyat))ekle(`Ütü: ${k.ad}`,"",`${tl(+k.fiyat)} / adet`,null);bulundu=bulundu||satir.length>0;if(satir.length)eksikSoru="Toplam için kaç parça olduğunu yaz (ör. 5 gömlek 3 pantolon ütü)."}
   }
+  // Araç yıkama: tür seçildiyse o, değilse türlerin listesi; "2 araç" gibi adet çarpılır
+  if(v.arac&&v.arac.aktif!==false&&(koke(tok,"arac")>=0||koke(tok,"araba")>=0||(tok.includes("oto")&&koke(tok,"yika")>=0))&&(fiyatNiyeti(tok)||tok.some(x=>sayiOku(x)!==null))){
+    const turler=v.arac.turler||[],sec=turler.filter(t=>{const tt=jetonlar(t.ad).filter(x=>x.length>=2&&!["ve","yikama"].includes(x));return tt.length&&tt.every(x=>tok.some(y=>y===x||y.startsWith(x)))});
+    const ai=Math.max(koke(tok,"arac"),koke(tok,"araba")),m=ai>=0?miktarBul(tok,ai):null,n=m&&m.n>0&&m.n<=20?m.n:1;bulundu=true;
+    const liste=sec.length?[sec.sort((a,b)=>jetonlar(b.ad).length-jetonlar(a.ad).length)[0]]:turler;
+    if(!liste.length)fiyatYok("Araç yıkama");
+    for(const t of liste){if(!fiyatVar(t.fiyat)){fiyatYok(`Araç yıkama: ${t.ad}`);continue}ekle(`Araç yıkama: ${t.ad}`,sec.length?`${n} araç`:"",sec.length?`${tl(+t.fiyat)} / araç`:"",sec.length?n*+t.fiyat:+t.fiyat)}
+    if(!sec.length&&liste.length>1){for(const r of satir)if(/^Araç yıkama: /.test(r.ad))r.alternatif=true;not.push("Bunlar seçenekler, toplanmaz. Türü yazarsan (ör. iç ve dış yıkama) tek tutar hesaplarım.")}
+    not.push("Fiyat araç tipine göre değişebilir; kesin tutarı yönetim söyler.")}
   // Ev temizliği
   if(v.temizlik&&v.temizlik.aktif!==false&&koke(tok,"temizli")>=0&&fiyatNiyeti(tok)){bulundu=true;
     const t=(v.temizlik.turler||[]);if(!t.length)fiyatYok("Ev temizliği");for(const x of t){if(fiyatVar(x.fiyat))ekle(`Ev temizliği: ${x.ad}`,"",`${tl(+x.fiyat)}`,+x.fiyat);else fiyatYok(`Ev temizliği: ${x.ad}`)}
@@ -2299,7 +2384,7 @@ function hesapla(q,v){
   const asil=bilinen.filter(s=>!/^Haftalık tekrar/.test(s.ad)&&!/market\/pazar/.test(s.ad));
   const top2=asil.reduce((a,s)=>a+s.tutar,0);
   const sutKarsilastirma=satir.some(s=>/market\/pazar/.test(s.ad));
-  return {tur:"hesap",baslik,satirlar:satir,toplam:asil.length&&!sutKarsilastirma?top2:null,notlar:[...new Set([...not,...(eksikSoru?[eksikSoru]:[])])],oneriler:oner.slice(0,3),eksik:!!eksikSoru};
+  return {tur:"hesap",baslik,satirlar:satir,toplam:asil.length&&!sutKarsilastirma&&!satir.some(r=>r.alternatif)?top2:null,notlar:[...new Set([...not,...(eksikSoru?[eksikSoru]:[])])],oneriler:oner.slice(0,3),eksik:!!eksikSoru};
 }
 /* ---- Site araması ---- */
 const DUR=new Set(["ve","mi","mu","var","nerede","nereden","bulabilirim","bulurum","en","uygun","ucuz","icin","ile","bir","bu","su","o","ne","nasil","hangi","kadar","nedir","hakkinda","bana","bize","goster","ara","bul","lazim","istiyorum","yok","var","midir","miyim","mıyım","olan","gibi","kaca","kac"]);
@@ -2325,7 +2410,100 @@ function firsatAra(q,firsatlar){
     .filter(x=>x.p>=2).sort((a,b)=>(+b.f.oran||0)-(+a.f.oran||0)||(+a.f.mesafe||999)-(+b.f.mesafe||999)||String(a.f.bitis||"9").localeCompare(String(b.f.bitis||"9"))).slice(0,3).map(x=>x.f);
 }
 /* Dağıtıcı: hesap → fırsat niyeti → hazır bilgi → site araması → yok */
-function coz(q,v,ogeler){
+/* ---- Hesaplar ve yönetim asistanı (kodla). Komşu verisi (kat, daire, telefon, sipariş) YALNIZCA yönetici rolüyle işlenir. ---- */
+const harf=s=>String(s==null?"":s).toLocaleUpperCase("tr");
+const konumYaz=k=>k?`${k.blok||"?"} Blok · ${+k.kat===0?"Zemin kat":k.kat+". kat"} · Daire ${k.daire}`:"Konum yok";
+function konumBul(tok){
+  let blok=null,kat=null,daire=null;
+  const bi=tok.indexOf("blok");
+  if(bi>0&&/^[a-z]$/.test(tok[bi-1]))blok=tok[bi-1].toUpperCase();
+  else{const i=tok.findIndex((x,j)=>/^[a-z]$/.test(x)&&tok[j+1]==="blok");if(i>=0)blok=tok[i].toUpperCase()}
+  const ki=tok.indexOf("kat");if(ki>0&&sayiOku(tok[ki-1])!==null)kat=sayiOku(tok[ki-1]);
+  const di=tok.findIndex(x=>x==="daire"||x==="dairesi"||x==="dairenin"||x==="dairede");
+  if(di>=0){if(sayiOku(tok[di-1])!==null)daire=String(sayiOku(tok[di-1]));else if(sayiOku(tok[di+1])!==null)daire=String(sayiOku(tok[di+1]))}
+  return {blok,kat,daire};
+}
+const YETKI_YOK={tur:"yetki",cevap:"Komşuların kat, daire, telefon ve siparişleri gizlidir; bunları yalnızca site yönetimi görebilir. Kendi bilgilerini Kartım'da, kendi siparişlerini Sepet ve Hizmet'te görürsün."};
+const kisiselMi=tok=>tok.some(x=>/^telefon|^numaras|^oturuyor|^oturan|^kiraci|^kimin|^malik|^komsum/.test(x))||(tok.includes("kim")&&tok.some(x=>/^otur/.test(x)));
+const yonetimNiyeti=tok=>tok.some(x=>/^hane|^sakin|^siparis|^sepet|^harcama|^talep|^tur$|^tutar|^maliyet/.test(x));
+function siparisHesap(D){
+  const urun=id=>(D.urunler||[]).find(u=>u.id===id);let top=0,eksik=0,haneler=0;const ur={},blok={};
+  for(const s of D.sepetler||[]){let h=false,t=0;
+    for(const [id,q] of Object.entries(s.kalemler||{})){if(!(q>0))continue;h=true;const u=urun(id);if(!u)continue;ur[id]=ur[id]||{u,q:0,t:0};ur[id].q+=q;if(fiyatVar(u.fiyat)){t+=q*+u.fiyat;ur[id].t+=q*+u.fiyat}else eksik++}
+    if((s.ozel||[]).length)h=true;
+    if(h){haneler++;top+=t;const b=(s.konum&&s.konum.blok)||"?";blok[b]=blok[b]||{n:0,t:0};blok[b].n++;blok[b].t+=t}}
+  return {haneler,top,eksik,ur,blok};
+}
+function magazaHesap(L){let t=0,n=0,eksik=0;const kisi=new Set();for(const s of L||[]){if(s.durum==="iptal")continue;n++;if(fiyatVar(s.fiyat))t+=(+s.adet||1)*+s.fiyat;else eksik++;kisi.add(JSON.stringify(s.konum||{}))}return {t,n,eksik,kisi:kisi.size}}
+const kart=(baslik,satirlar,toplam,notlar)=>({tur:"hesap",baslik,satirlar,toplam:toplam===undefined?null:toplam,notlar:notlar||[],oneriler:[],yonetim:true});
+const satir=(ad,deger,miktar,birim,tutar)=>({ad,miktar:miktar||"",birim:birim||"",tutar:tutar===undefined?null:tutar,deger:deger});
+function haneSayisi(D){const b=(D.bloklar||[]).reduce((a,x)=>a+(+x.daire>0?+x.daire*(x.kat>=0?1:1):0),0);return b>0?{n:b,kaynak:"blok ayarlarındaki daire sayıları"}:{n:(D.sakinler||[]).length,kaynak:"kart oluşturan sakin sayısı"}}
+function aidatKarti(D,tok,yonetici){
+  if(!fiyatVar(D.aidat)||!(+D.aidat>0))return null;const a=+D.aidat;
+  let ay=1;const ai=tok.findIndex(x=>x==="ay"||x.startsWith("aylik")&&false);if(ai>0&&sayiOku(tok[ai-1])!==null)ay=sayiOku(tok[ai-1]);if(tok.some(x=>x.startsWith("yillik"))||tok.includes("yil"))ay=12;
+  const satirlar=[satir("Aylık aidat","",`1 ay`,`${tl(a)} / ay`,a)];if(ay!==1)satirlar.push(satir(`${ay} aylık aidat`,"",`${ay} ay`,`${tl(a)} / ay`,a*ay));
+  const notlar=["Tutarı yönetim girmiştir. Ödeme takibi ve ödemeyi yapmak bu uygulamada yok; ödemeyi yönetimin bildirdiği yoldan yaparsın."];
+  if(yonetici){const h=haneSayisi(D);if(h.n>0){satirlar.push(satir(`Tüm hanelerin aylık aidatı (${h.n} hane)`,"",`${h.n} hane`,`${tl(a)} / hane`,a*h.n));notlar.push(`Hane sayısı: ${h.kaynak}. Kimin ödediği ya da ödemediği tutulmuyor.`)}}
+  return kart("Aidat",satirlar,ay!==1?a*ay:a,notlar);
+}
+/* Yönetici: hane/sakin sayıları, daire ve kişi bilgisi, tur siparişi, harcama, hizmet talepleri, aidat. Sakin: yalnızca kendi harcaması ve aidatı. */
+function yonetim(q,D,rol){
+  if(!D)return null;const tok=jetonlar(q),yonetici=rol==="yonetici",metin=tok.join(" ");
+  const konum=konumBul(tok),konumVar=konum.blok||konum.kat!==null||konum.daire;
+  // Aidat (herkes kendi aidatını görür; yönetici toplamı da görür)
+  if(tok.some(x=>x.startsWith("aidat"))){
+    if(tok.some(x=>/^odeme(y|d)en|^odemey|^borc|^geciken/.test(x)||(x==="odemeyen")))return {tur:"bilgi",id:"aidat-takip",cevap:"Aidat ödeme takibi bu uygulamada henüz yok: kimin ödeyip ödemediğini tutmuyorum, tahsilat yapmıyorum. Tutarı ve toplamı hesaplayabilirim. Ödeme takibi istenirse ayrı bir kayıt ve yönetim ekranı yapılabilir.",eylem:null};
+    const k=aidatKarti(D,tok,yonetici);if(k)return k;return null;
+  }
+  // Sakin: kendi harcaması
+  if(!yonetici){
+    if(kisiselMi(tok)||(konumVar&&tok.some(x=>/^kim|^telefon|^siparis|^hane/.test(x))))return YETKI_YOK;
+    if(tok.some(x=>/^harcama|^harcad/.test(x))&&tok.some(x=>/^bu$|^benim|^ben|^harcamam|^siparislerim|^benim/.test(x)||x==="harcamam")){
+      const m=magazaHesap(D.benMagaza),s=siparisHesap({urunler:D.urunler,sepetler:D.benSepet?[D.benSepet]:[]});
+      const satirlar=[];if(m.n)satirlar.push(satir("Mağaza siparişlerim","",`${m.n} sipariş`,"iptal edilenler hariç",m.t));if(s.haneler)satirlar.push(satir("Bu tur toplu sipariş sepetim","","","güncel katalog fiyatıyla",s.top));
+      if(!satirlar.length)return {tur:"bilgi",id:"harcama-yok",cevap:"Şu an sipariş ya da sepet kaydın görünmüyor, bu yüzden bir harcama hesaplayamadım.",eylem:null};
+      return kart("Market ve gıda harcamam",satirlar,satirlar.reduce((a,x)=>a+x.tutar,0),["Tutarlar katalogdaki güncel fiyatlarla hesaplandı; fiyat sonradan değiştiyse geçmiş siparişte fark olabilir.",...(m.eksik||s.eksik?["Fiyatı girilmemiş ürünler toplamda yok."]:[])]);
+    }
+    return null;
+  }
+  // ---- Yönetici ----
+  // Daire ya da kişi sorgusu
+  const adSorgu=(D.sakinler||[]).filter(s=>{const a=jetonlar(s.ad).filter(x=>x.length>=2);return a.length>=2&&a.every(x=>metin.split(" ").some(t=>t===x||(t.length>=4&&t.startsWith(x))))});
+  if((konumVar&&(konum.daire||konum.kat!==null)&&(tok.some(x=>/^kim|^telefon|^otur|^bilgi|^sakin/.test(x))||true)&&(konum.daire||konum.kat!==null))||adSorgu.length){
+    let bul=adSorgu;if(!bul.length){bul=(D.sakinler||[]).filter(s=>(konum.blok===null||harf(s.blok)===konum.blok)&&(konum.kat===null||+s.kat===konum.kat)&&(konum.daire===null||String(s.daire)===konum.daire))}
+    const telIstegi=tok.some(x=>/^telefon|^numaras|^tel$|^ara/.test(x));
+    if(!bul.length)return kart("Daire bilgisi",[],null,[`Bu konumda kart oluşturmuş bir sakin görünmüyor${konum.blok?` (${konum.blok} Blok)`:""}. Daire boş olabilir ya da sakin henüz kartını doldurmamış olabilir.`]);
+    return kart(bul.length>1?"Bulunan sakinler":"Sakin bilgisi",bul.slice(0,6).map(s=>satir(`${s.ad||"İsimsiz"}${s.durum?" · "+s.durum:""}`,telIstegi?(s.telefon||"telefon yok"):"",konumYaz({blok:s.blok,kat:s.kat,daire:s.daire}),telIstegi?"telefon":"")),null,["Bu bilgi yalnızca yönetime gösterilir; başkalarıyla paylaşma.",...(bul.length>6?[`${bul.length} kayıt var, ilk 6'sı gösterildi.`]:[])]);
+  }
+  if(tok.some(x=>/^hane|^sakin/.test(x))&&tok.some(x=>/^kac|^say|^kayitli|^toplam/.test(x))&&!tok.some(x=>/^siparis|^harcama|^talep/.test(x))){
+    const b={};for(const s of D.sakinler||[]){const k=s.blok||"?";b[k]=(b[k]||0)+1}const n=(D.sakinler||[]).length;
+    const satirlar=Object.entries(b).sort().map(([k,v])=>satir(`${k} Blok`,`${v} kayıt`));
+    return kart("Kayıtlı sakinler",[satir("Kart oluşturan sakin",`${n}`),...satirlar],null,[`Toplam hane sayısı ${haneSayisi(D).n} (${haneSayisi(D).kaynak}).`]);
+  }
+  // Hizmet talepleri
+  if(tok.some(x=>/^talep/.test(x))||(tok.some(x=>/^bekleyen|^acik/.test(x))&&tok.some(x=>/^utu|^hali|^sut|^temizlik|^hizmet/.test(x)))){
+    const acik=["yeni","toplandi","hazir","onay"],ad={utu:"Ütü",temizlik:"Ev temizliği",hali:"Halı yıkama",sut:"Taze süt"},say={};
+    for(const h of D.hizmetler||[]){if(!acik.includes(h.durum))continue;say[h.tur]=(say[h.tur]||0)+1}
+    const sec=tok.map(x=>({utu:"utu",hali:"hali",sut:"sut",temizlik:"temizlik",temizligi:"temizlik"})[x.slice(0,8)]||({utu:"utu",hali:"hali",sut:"sut"})[x.slice(0,4)]||null).filter(Boolean);
+    const turler=sec.length?[...new Set(sec)]:Object.keys(ad);
+    return kart("Açık hizmet talepleri",turler.map(t=>satir(ad[t],`${say[t]||0} talep`)),null,["Açık: yeni, toplandı, hazır ya da onaylı olanlar (teslim edilmemiş)."]);
+  }
+  // Tur siparişi ve harcama
+  if(tok.some(x=>/^siparis|^sepet|^harcama|^tutar|^maliyet|^tur$|^market|^gida|^pazar/.test(x))){
+    const s=siparisHesap(D),m=magazaHesap(D.magaza);
+    let blokF=konum.blok;const notlar=["Tutarlar katalogdaki güncel fiyatlarla hesaplandı; fiyat sonradan değiştiyse geçmiş siparişte fark olabilir."];
+    if(s.eksik||m.eksik)notlar.push(`Fiyatı girilmemiş ${s.eksik+m.eksik} kalem toplamda yok.`);
+    const satirlar=[satir("Toplu sipariş (bu tur): hane",`${s.haneler} hane`,"","",null),satir("Toplu sipariş (bu tur) tutarı","",`${s.haneler} hane`,s.haneler?`hane başı ort. ${tl(s.top/s.haneler)}`:"",s.top),satir("Mağaza siparişleri","",`${m.n} sipariş`,`${m.kisi} hane, iptaller hariç`,m.t)];
+    const enCok=Object.values(s.ur).sort((a,b)=>b.t-a.t||b.q-a.q).slice(0,3);
+    for(const e of enCok)satirlar.push(satir(`En çok: ${e.u.ad}`,"",`${e.q.toLocaleString("tr-TR")} ${e.u.birim||"adet"}`,"",e.t));
+    if(blokF){const b=s.blok[blokF];satirlar.push(satir(`${blokF} Blok toplu sipariş`,"",`${b?b.n:0} hane`,"",b?b.t:0))}
+    else if(tok.some(x=>/^blok/.test(x)))for(const [k,v] of Object.entries(s.blok).sort())satirlar.push(satir(`${k} Blok`,"",`${v.n} hane`,"",v.t));
+    return kart("Market ve gıda harcaması",satirlar,s.top+m.t,notlar);
+  }
+  return null;
+}
+function coz(q,v,ogeler,D,rol){
+  const y=yonetim(q,D,rol||"sakin");if(y)return y;
   const h=hesapla(q,v||{});if(h)return h;
   const tok=jetonlar(q);
   if(FIRSAT_NIYET(tok)){const f=firsatAra(q,(v||{}).firsatlar);if(f.length)return {tur:"firsat",sonuclar:f};
@@ -2334,7 +2512,7 @@ function coz(q,v,ogeler){
   const r=ara(q,ogeler);if(r.length)return {tur:"arama",sonuclar:r};
   return {tur:"yok"};
 }
-return {asc,BILGI,SORULAR,belirle,cevapla,fal,KONULAR,SEMBOLLER,jetonlar,hesapla,ara,firsatAra,coz,tl};
+return {asc,BILGI,SORULAR,belirle,cevapla,fal,KONULAR,SEMBOLLER,jetonlar,hesapla,ara,firsatAra,coz,tl,yonetim,konumBul,kisiselMi};
 })();
 /*MINNOS-MOTOR-BITIS*/
 
@@ -2356,14 +2534,15 @@ const SVG=(u)=>`<svg viewBox="0 0 120 130" role="img" aria-label="Minnoş: alaca
   <g class="k-mutlu"><path d="M39.5 61q6.5-9 13 0M67.5 61q6.5-9 13 0" fill="none" stroke="#1a1a1a" stroke-width="2.6" stroke-linecap="round"/></g>
   <path d="M56 69h8l-4 5z" fill="#F28CA0"/><path d="M60 74v3M60 77q-4 4-8 1M60 77q4 4 8 1" fill="none" stroke="#5a3a33" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M44 73L18 69M44 76L18 80M76 73L102 69M76 76L102 80" stroke="#8a7a6a" stroke-width="1.1" stroke-linecap="round" opacity=".7"/></g></svg>`;
-const LS={get(){try{return JSON.parse(localStorage.getItem("bss-kedi")||"{}")}catch(e){return {}}},set(o){try{localStorage.setItem("bss-kedi",JSON.stringify({...LS.get(),...o}));return true}catch(e){return false}},ok(){try{localStorage.setItem("bss-kedi-t","1");localStorage.removeItem("bss-kedi-t");return true}catch(e){return false}}};
+let LS_BELLEK={}; /* depolama kapalıysa (gizli mod) tercih bu oturumda yine de geçerli */
+const LS={get(){try{return {...LS_BELLEK,...JSON.parse(localStorage.getItem("bss-kedi")||"{}")}}catch(e){return {...LS_BELLEK}}},set(o){LS_BELLEK={...LS_BELLEK,...o};try{localStorage.setItem("bss-kedi",JSON.stringify({...LS.get(),...o}));return true}catch(e){return false}},ok(){try{localStorage.setItem("bss-kedi-t","1");localStorage.removeItem("bss-kedi-t");return true}catch(e){return false}}};
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const arena=()=>!!window.BS_ARENA;
 const ADIMLAR=()=>[
  {m:"Miyav! Ben Minnoş.",a:"Bu sokakta doğdum, burada kaldım. Alaca tüylü, dişi bir sokak kedisiyim; kulağımdaki küçük çentik de bana bakıldığının işareti. Artık sitenin bekçi kedisiyim. Seni kısaca gezdireyim mi?"},
  {m:"Her gün bir hikmet.",a:"Ana sayfada günün ayeti ya da hadisi seni bekliyor. İstersen onu telefonunun duvar kâğıdı yapabilirsin.",g:["#hikmet","Hikmet'e bak"]},
  {m:"Komşular burada buluşuyor.",a:"Gündem'de duyurular ve paylaşımlar, Etkinlik'te site programı var. Bir şey olursa ilk burada duyarsın.",g:["#gundem","Gündem'e git"]},
- {m:"Market, ütü, halı, süt…",a:"Sepet'te toplu market siparişi verirsin. Hizmet'te ütü, ev temizliği, halı yıkama ve çiftlikten taze süt var.",g:["#hizmet","Hizmetlere git"]},
+ {m:"Market, ütü, halı, araç, süt…",a:"Sepet'te toplu market siparişi verirsin. Hizmet'te ütü, ev temizliği, halı yıkama, araç yıkama ve çiftlikten taze süt var.",g:["#hizmet","Hizmetlere git"]},
  {m:"Fırsatları kaçırma.",a:"Çevredeki indirimler Fırsatlar'da. Bir firmanın kendi sitesi varsa oradaki büyük düğmeyle doğrudan gidebilirsin.",g:["#firsat","Fırsatlara git"]},
  ...(arena()?[{m:"Biraz oyun oynayalım mı?",a:"Arena'da bilgi kartlarını öğrenir, komşularınla yarışırsın. Turnuvalarda satranç ve tavla da oynanıyor. Kazandıkça simge, çerçeve ve Mavi Öz toplarsın; görevler de var.",g:["#arena","Arena'ya git"]},
   {m:"Sohbette gözüm üzerinde.",a:"Küfür, tehdit ve reklam gibi mesajları ben durdururum; telefon, IBAN ve kimlik numarasını gizlerim. Yanlış karar verirsem yönetime haber ver, ben de öğrenirim."}]:[]),
@@ -2385,11 +2564,29 @@ async function durumYukle(){ if(!apiVar()){P.ai={yapayZeka:false,kapali:"sayfa"}
 const durumYazi=()=>{const a=P.ai;if(!a)return "";if(a.yapayZeka&&a.premium)return `Yapay zekâ açık · bugün ${a.kalan??"?"} soru hakkın kaldı`;if(a.yapayZeka&&!a.premium)return "Hazır cevap modu · yapay zekâ cevapları Premium'a dahil";if(a.kapali==="sayfa")return "Hazır cevap modu · yapay zekâ bu sayfada yok, uygulamada çalışır";return "Hazır cevap modu · yapay zekâ henüz kapalı"};
 const TIPAD={firsat:"Fırsat",duyuru:"Duyuru",etkinlik:"Etkinlik",mac:"Turnuva",tur:"Pazar ve market",gonderi:"Gündem paylaşımı",hizmet:"Hizmet",urun:"Ürün"};
 function kisalt(t,n=90){t=String(t||"").replace(/\s+/g," ").trim();return t.length>n?t.slice(0,n)+"…":t}
-function veriTopla(){try{const A=hzAyar();return {hali:A.hali,sut:A.sut,utu:A.utu,temizlik:A.temizlik,urunler:(typeof KAT!=="undefined"&&KAT&&KAT.urunler)||[],firsatlar:(typeof FRS!=="undefined"&&FRS||[]).filter(gecerli)}}catch(e){return {}}}
+function veriTopla(){try{const A=hzAyar();return {arac:A.arac,hali:A.hali,sut:A.sut,utu:A.utu,temizlik:A.temizlik,urunler:(typeof KAT!=="undefined"&&KAT&&KAT.urunler)||[],firsatlar:(typeof FRS!=="undefined"&&FRS||[]).filter(gecerli)}}catch(e){return {}}}
+const koleksiyonOku=c=>new Promise(r=>{let bitti=false;const son=o=>{if(!bitti){bitti=true;r(o)}};try{const u=DB.collection(c).onSnapshot(sn=>{const o={};sn.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});son(o);try{u&&u()}catch(e){}},()=>son({}))}catch(e){son({})}setTimeout(()=>son({}),4000)});
+/* Yönetim verisi: yalnızca yönetici rolünde diğer sakinlerin verisi okunur. Sakin için yalnızca kendi kayıtları. */
+async function yonetimVerisi(){
+  const D={aidat:AYAR.aidat,bloklar:AYAR.bloklar||[],urunler:(typeof KAT!=="undefined"&&KAT&&KAT.urunler)||[]},yon=typeof ADMIN!=="undefined"&&ADMIN&&typeof DB!=="undefined"&&DB;
+  try{
+    if(yon){const [sak,sep,mgz,hz]=await Promise.all(["sakinler","sepetler","magazaSiparis","hizmetSiparis"].map(koleksiyonOku));
+      D.sakinler=Object.values(sak).filter(x=>x&&x.ad).map(x=>({ad:x.ad,blok:x.blok,kat:x.kat,daire:x.daire,durum:x.durum,telefon:x.telefon||""}));
+      D.sepetler=Object.values(sep).filter(d=>d&&d.tur===KAT.tur.id).map(d=>({konum:{blok:d.blok,kat:d.kat,daire:d.daire},kalemler:d.kalemler||{},ozel:d.ozel||[]}));
+      D.magaza=Object.values(mgz).flatMap(d=>Object.values((d&&d.siparisler)||{}).map(o=>({konum:d.konum,ad:o.ad,adet:o.adet,fiyat:o.fiyat,durum:o.durum})));
+      D.hizmetler=Object.values(hz).flatMap(d=>Object.values((d&&d.siparisler)||{}).map(o=>({konum:d.konum,tur:o.tur,durum:o.durum})));
+    }else{
+      D.benMagaza=Object.values((typeof mgzBen!=="undefined"&&mgzBen&&mgzBen.siparisler)||{}).map(o=>({ad:o.ad,adet:o.adet,fiyat:o.fiyat,durum:o.durum}));
+      D.benSepet=(typeof sepet!=="undefined"&&sepet&&sepet.kalemler&&KAT.tur.id)?{kalemler:sepet.kalemler,ozel:sepet.ozel||[]}:null;
+    }
+  }catch(e){}
+  return D;
+}
 function ogeTopla(){const o=[];try{
   for(const x of gundemOgeleri())o.push({tip:x.tip,baslik:x.baslik||(x.tip==="gonderi"?"Komşu paylaşımı":""),metin:kisalt(x.metin,200),link:x.link||(x.tip==="etkinlik"?"#etkinlik":"#gundem"),t:x.t||0});
   const A=hzAyar(),f=v=>v!==""&&v!=null?`${(+v).toLocaleString("tr-TR")} TL`:"fiyat yönetimce belirlenir";
   if(A.hali.aktif!==false)o.push({tip:"hizmet",baslik:"Halı yıkama",metin:`${f(A.hali.fiyat)} / m² · halı yıkama, halı temizleme`,link:"#hizmet"});
+  if(A.arac.aktif!==false)for(const k of A.arac.turler)o.push({tip:"hizmet",baslik:`Araç yıkama: ${k.ad}`,metin:f(k.fiyat)+" · araba, oto yıkama",link:"#hizmet"});
   if(A.sut.aktif!==false)o.push({tip:"hizmet",baslik:"Çiftlikten taze süt",metin:`${f(A.sut.fiyat)} / litre ${A.sut.ciftlik||""}`,link:"#hizmet"});
   if(A.utu.aktif!==false)for(const k of A.utu.kalemler)o.push({tip:"hizmet",baslik:`Ütü: ${k.ad}`,metin:f(k.fiyat)+" / parça",link:"#hizmet"});
   if(A.temizlik.aktif!==false)for(const k of A.temizlik.turler)o.push({tip:"hizmet",baslik:`Ev temizliği: ${k.ad}`,metin:f(k.fiyat),link:"#hizmet"});
@@ -2397,7 +2594,7 @@ function ogeTopla(){const o=[];try{
  }catch(e){}return o}
 function kartHtml(r){
   const gitLink=(h,ad)=>`<a class="mn-git" href="${esc(h)}" data-mn="git">${esc(ad)}</a>`;
-  if(r.tur==="hesap")return `<div class="mn-kart"><b>${esc(r.baslik)}</b>${r.satirlar.map(s=>`<div class="mn-satir"><span>${esc(s.ad)}${s.miktar||s.birim?`<small>${esc([s.miktar,s.birim].filter(Boolean).join(" · "))}</small>`:""}</span><b>${s.tutar===null?"—":esc(M_().tl(s.tutar))}</b></div>`).join("")}
+  if(r.tur==="hesap")return `<div class="mn-kart"><b>${esc(r.baslik)}</b>${r.satirlar.map(s=>`<div class="mn-satir"><span>${esc(s.ad)}${s.miktar||s.birim?`<small>${esc([s.miktar,s.birim].filter(Boolean).join(" · "))}</small>`:""}</span><b>${s.deger?esc(s.deger):s.tutar===null?"—":esc(M_().tl(s.tutar))}</b></div>`).join("")}
     ${r.toplam!==null&&r.satirlar.length>1?`<div class="mn-satir toplam"><span>Toplam</span><b>${esc(M_().tl(r.toplam))}</b></div>`:""}${r.notlar.map(n=>`<p class="mn-not">${esc(n)}</p>`).join("")}
     ${r.oneriler.length?`<div class="mn-etiket">Çevredeki fırsatlar</div>${r.oneriler.map(f=>`<div class="mn-sonuc"><b>${esc(f.isletme)}${f.oran?` · %${+f.oran}`:""}</b><span>${esc(f.baslik)}</span></div>`).join("")}${gitLink("#firsat","Fırsatlara git")}`:""}</div>`;
   if(r.tur==="firsat")return `<div class="mn-kart"><b>Fırsatlarda buldum</b><p class="mn-not">İndirimi yüksek ve yakın olanlar önde. Süresi geçenler gösterilmez.</p>${r.sonuclar.map(f=>`<div class="mn-sonuc"><b>${esc(f.isletme)}${f.oran?` · %${+f.oran} indirim`:""}</b><span>${esc(f.baslik)}${f.mesafe?` · ${+f.mesafe} dk yürüme`:""}${f.adres?` · ${esc(f.adres)}`:""}</span></div>`).join("")}${gitLink("#firsat","Hepsini Fırsatlar'da gör")}</div>`;
@@ -2418,7 +2615,7 @@ function panelCiz(){ if(!panel)return; const sg=document.getElementById("mnGovde
      <form class="mn-yaz" data-mn-form="sor"><input id="mnSoru" maxlength="300" autocomplete="off" placeholder="Bir şey sor… (telefon, adres yazma)" aria-label="Minnoş'a sorun" value="${esc(P.taslak||"")}"><button type="submit" ${P.bekle?"disabled":""}>Sor</button></form>`;
   }else{
     const M=window.MinnosMotor||MinnosMotor;
-    govde=`<div class="mn-govde" id="mnGovde">${P.falBekle?`<div class="mn-fincan kapat" aria-live="polite">${FINCAN}<b>Fincan kapatılıyor, telveler soğuyor…</b></div>`:P.fal?`<div class="mn-fal" role="status">${esc(P.fal.t)}</div><p class="mn-not">${esc(P.fal.k)} · Kahve falı eğlencedir; gelecek bilinemez.</p><button type="button" class="mn-ana" data-mn="yeniFal">Yeni fal</button>`:`
+    govde=`<div class="mn-govde" id="mnGovde">${P.falBekle?`<div class="mn-fincan kapat" aria-live="polite">${FINCAN}<b>Fincan kapatılıyor, telveler soğuyor…</b><div class="mn-ilerleme" role="progressbar" aria-label="Fal hazırlanıyor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="mnIlerle"></i></div><small id="mnYuzde">%0</small></div>`:P.fal?`<div class="mn-fal" role="status">${esc(P.fal.t)}</div><p class="mn-not">${esc(P.fal.k)} · Kahve falı eğlencedir; gelecek bilinemez.</p><button type="button" class="mn-ana" data-mn="yeniFal">Yeni fal</button>`:`
       <div class="mn-etiket">Konu</div><div class="mn-cip" role="group" aria-label="Konu">${Object.entries(M.KONULAR).map(([k,v])=>`<button type="button" aria-pressed="${P.konu===k}" data-mn="konu:${k}">${esc(v)}</button>`).join("")}</div>
       <div class="mn-etiket">Fincanda ne gördün? (1–3 sembol)</div><div class="mn-sem" role="group" aria-label="Semboller">${Object.entries(M.SEMBOLLER).map(([k,v])=>`<button type="button" aria-pressed="${P.sem.includes(k)}" data-mn="sem:${k}"><span aria-hidden="true">${SEM_EMOJI[k]||"✦"}</span>${esc(v)}</button>`).join("")}</div>
       <div class="mn-etiket">Aklındaki niyet (isteğe bağlı)</div><input class="mn-niyet" id="mnNiyet" maxlength="80" placeholder="Ör. yeni bir iş" value="${esc(P.niyet)}" aria-label="Niyet">
@@ -2456,8 +2653,9 @@ async function soruSor(q){
   if(P.bekle)return; P.msj.push({ben:true,t:q});P.bekle=true;panelCiz();
   let c=null,not="";
   /* 1) Kodla: maliyet hesabı, fırsat/site araması, hazır bilgi. Rakamlar yönetimin girdiği fiyatlardan gelir. */
-  const r=M_().coz(q,veriTopla(),ogeTopla());
-  if(["hesap","firsat","firsatYok","arama"].includes(r.tur))c={kart:r,k:r.tur==="hesap"?"Site fiyatlarından hesaplandı":"Site araması"};
+  const yon=typeof ADMIN!=="undefined"&&ADMIN,r=M_().coz(q,veriTopla(),ogeTopla(),await yonetimVerisi(),yon?"yonetici":"sakin");
+  if(["hesap","firsat","firsatYok","arama"].includes(r.tur))c={kart:r,k:r.yonetim?"Yönetime özel · site verisinden":r.tur==="hesap"?"Site fiyatlarından hesaplandı":"Site araması"};
+  else if(r.tur==="yetki")c={t:r.cevap,k:"Gizlilik"};
   else if(r.tur==="bilgi")c={t:r.cevap,k:"Hazır cevap",eylem:r.eylem};
   /* 2) Bilinmeyen soru: yapay zekâ (açıksa), değilse dürüst "bilmiyorum" */
   if(!c){
@@ -2471,14 +2669,39 @@ async function soruSor(q){
   }
   P.msj.push({ben:false,t:c.t,kart:c.kart,k:c.k,eylem:c.eylem,ai:c.ai});P.bekle=false;panelCiz();
 }
+/* Sinematik yükleme: ilk %95 hızlı (yaklaşık 0,7 sn), son %5 yavaş ve sinematik; iş bitmeden %100 olmaz.
+   el: dolan çubuk; is: işin sözü (Promise). Hareket azaltmada iş bitince doğrudan %100. */
+function sinemaYukle(is,guncelle){
+  const azalt=matchMedia("(prefers-reduced-motion: reduce)").matches,t0=performance.now();let bitti=false,yuzde=0;
+  is.then(()=>{bitti=true},()=>{bitti=true});
+  return new Promise(son=>{
+    if(azalt){is.finally(()=>{guncelle(100);son()});return}
+    let sonBas=null,sonDeger=0;
+    const adim=t=>{
+      const d=t-t0;
+      if(!bitti||sonBas===null){
+        if(d<700)yuzde=95*(1-Math.pow(1-d/700,3));               /* %0 → %95 hızlı (ease-out) */
+        else yuzde=Math.min(99.4,95+4.4*(1-Math.exp(-(d-700)/2600))); /* iş sürüyorsa %99,4'e asimptotik sürünme */
+        if(bitti&&d>=700){sonBas=t;sonDeger=yuzde}
+      }
+      if(sonBas!==null){const k=Math.min(1,(t-sonBas)/1100),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;yuzde=sonDeger+(100-sonDeger)*e} /* son %5 sinematik (ease-in-out, 1,1 sn) */
+      guncelle(yuzde);
+      if(yuzde>=100)return setTimeout(son,180);
+      requestAnimationFrame(adim);
+    };
+    requestAnimationFrame(adim);
+  });
+}
 async function falBak(){
   if(!P.sem.length||P.falBekle)return; P.falBekle=true;panelCiz();
-  const baslat=Date.now(); let t=null,k="Hazır fal (yapay zekâ kullanılmadı)";
-  if(apiVar()){ try{ const r=await window.BS_API("POST","/api/minnos/fal",{konu:P.konu,semboller:P.sem,niyet:P.niyet});
-      if(r.kaynak==="yapay-zeka"){t=r.cevap;k="Yapay zekâ yorumu";if(P.ai)P.ai.kalan=r.kalan} }catch(e){} }
-  if(!t) t=M_().fal({konu:P.konu,semboller:P.sem,niyet:P.niyet,gun:new Date().toISOString().slice(0,10)});
-  const kalan=Math.max(0,2300-(Date.now()-baslat)); // fincan animasyonu tamamlansın
-  setTimeout(()=>{P.falBekle=false;P.fal={t,k};panelCiz()},matchMedia("(prefers-reduced-motion: reduce)").matches?0:kalan);
+  let t=null,k="Hazır fal (yapay zekâ kullanılmadı)";
+  const is=(async()=>{
+    if(apiVar()){ try{ const r=await window.BS_API("POST","/api/minnos/fal",{konu:P.konu,semboller:P.sem,niyet:P.niyet});
+        if(r.kaynak==="yapay-zeka"){t=r.cevap;k="Yapay zekâ yorumu";if(P.ai)P.ai.kalan=r.kalan} }catch(e){} }
+    if(!t) t=M_().fal({konu:P.konu,semboller:P.sem,niyet:P.niyet,gun:new Date().toISOString().slice(0,10)});
+  })();
+  await sinemaYukle(is,y=>{const i=document.getElementById("mnIlerle"),z=document.getElementById("mnYuzde"),b=i&&i.parentNode;if(i)i.style.width=y.toFixed(1)+"%";if(z)z.textContent="%"+Math.floor(y);if(b)b.setAttribute("aria-valuenow",String(Math.floor(y)))});
+  P.falBekle=false;P.fal={t,k};panelCiz();
 }
 function mount(){
   if(kedi||LS.get().gizli)return;
@@ -2534,11 +2757,33 @@ function basla(){
   const bekle=setInterval(()=>{if(!hazirMi())return;clearInterval(bekle);
     setTimeout(()=>{ const d=LS.get(); mount(); if(!d.gordu&&LS.ok()&&!document.querySelector(".kt")){setTimeout(tanit,900)} },700)},400);
 }
+/* Her hizmette Minnoş farklı servis edilir: hizmete özel eşya, söz ve hızlı sorular */
+const PROP={
+ utu:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 28h28l-3-10c-1-3-3-4-6-4H14c-3 0-5 2-6 5z" fill="#7aa5c9" stroke="#2b3a44" stroke-width="2"/><path d="M14 14v-4h12" fill="none" stroke="#2b3a44" stroke-width="2.5" stroke-linecap="round"/><path d="M8 32h24" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>',
+ temizlik:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M30 3L19 22" stroke="#8a6a4a" stroke-width="3" stroke-linecap="round"/><path d="M10 22h14l4 14H6z" fill="#f4c26b" stroke="#a5782a" stroke-width="1.5"/><path d="M12 26l-2 10M17 26v10M22 26l2 10" stroke="#a5782a" stroke-width="1.2"/></svg>',
+ hali:'<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="16" width="31" height="13" rx="6.5" fill="#b8483a"/><path d="M10 16v13M17 16v13M24 16v13" stroke="#e8d2a6" stroke-width="2"/><circle cx="33" cy="22.5" r="6" fill="#e8d2a6" stroke="#b8483a" stroke-width="2"/><circle cx="33" cy="22.5" r="2" fill="#b8483a"/></svg>',
+ arac:'<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="8" y="21" width="22" height="12" rx="4" fill="#f4d03f" stroke="#b7950b" stroke-width="1.5"/><g class="kopuk"><circle cx="12" cy="13" r="5" fill="#e6f6ff" stroke="#7cc0ff"/><circle cx="24" cy="8" r="4" fill="#e6f6ff" stroke="#7cc0ff"/><circle cx="32" cy="16" r="3" fill="#e6f6ff" stroke="#7cc0ff"/></g></svg>',
+ sut:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M15 6h10v5l4 6v18a3 3 0 01-3 3H14a3 3 0 01-3-3V17l4-6z" fill="#fff" stroke="#5b8bb0" stroke-width="2"/><path d="M11 24h18" stroke="#5b8bb0" stroke-width="2"/><rect x="15" y="2" width="10" height="5" rx="1.5" fill="#2f7fd8"/></svg>'
+};
+const SERVIS_SOZ={
+ utu:"Ütü masası hazır! Parçaları say, toplamı ben hesaplarım. Gömlekleri askıda vermek kırışığı azaltır.",
+ temizlik:"Süpürgemi kaptım. Randevu gününü seç; evcil hayvan ya da balkon varsa nota yaz ki ekip hazırlıklı gelsin.",
+ hali:"Halıyı rulo yapıp bekliyorum. Metrekaresini yazarsan tutarı hesaplarım; leke varsa nota yaz.",
+ arac:"Köpükler hazır! Türünü seç, fiyatını söyleyeyim. Plakanı ve anahtarını buraya yazma.",
+ sut:"Taze süte bayılırım! Çiftlik mi market mi, hangisi uygun, istersen karşılaştırayım."
+};
+function servisKarti(tur,sorular){
+  if(LS.get().gizli||!PROP[tur])return "";
+  return `<div class="mn-servis mn-sv-${tur}" role="note" aria-label="Minnoş'tan ${tur} ipucu"><div class="mn-servis-kedi">${SVG("s"+tur)}<span class="mn-prop">${PROP[tur]}</span></div>
+    <div class="mn-servis-balon"><b>Minnoş</b><p>${esc(SERVIS_SOZ[tur])}</p><div class="mn-servis-cip">${(sorular||[]).map(q=>`<button type="button" data-kedi-sor="${esc(q)}">${esc(q)}</button>`).join("")}<button type="button" data-kedi-sor="">Başka bir şey sor</button></div></div></div>`;
+}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-kedi-sor]");if(!b)return;e.preventDefault();const q=b.dataset.kediSor;panelAc("sohbet");if(q)setTimeout(()=>soruSor(q),120)});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-kedi]");if(!b)return;const k=b.dataset.kedi;
   if(k==="tanit")tanit();else if(k==="goster")window.BS_KEDI.goster();else if(k==="gizle")window.BS_KEDI.gizle();
   if(k!=="tanit"){try{const y=window.scrollY;render(false);window.scrollTo(0,y)}catch(err){}}});
-window.BS_KEDI={panel:panelAc,gizliMi:()=>!!LS.get().gizli,tanit,mount,goster:()=>{LS.set({gizli:false});if(kedi)kedi.classList.remove("gizli");else mount()},gizle:()=>{LS.set({gizli:true});if(kedi)kedi.classList.add("gizli")},dokun:()=>kedi&&dokun(),durum:()=>({gorunur:!!kedi&&!kedi.classList.contains("gizli"),tur:!!tur})};
+window.BS_KEDI={servisKarti,panel:panelAc,gizliMi:()=>!!LS.get().gizli,tanit,mount,goster:()=>{LS.set({gizli:false});if(kedi)kedi.classList.remove("gizli");else mount()},gizle:()=>{LS.set({gizli:true});if(kedi)kedi.classList.add("gizli")},dokun:()=>kedi&&dokun(),durum:()=>({gorunur:!!kedi&&!kedi.classList.contains("gizli"),tur:!!tur})};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",basla);else basla();
+try{if(typeof current!=="undefined"&&current==="hizmet"&&typeof render==="function")render(false)}catch(e){}
 })();
 </script>
 

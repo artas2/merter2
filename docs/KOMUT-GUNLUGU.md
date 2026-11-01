@@ -4,6 +4,37 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-11-01 · Hesaplar (aidat, market/gıda harcaması), yönetim asistanı, sinematik yükleme, araç yıkama, her hizmette farklı Minnoş
+
+**Kullanıcının sözleri (özet):**
+- Daha iyi sonuç alacaksak yapay zekâ servisine bağlarız, kullanıcılara bildirim gideriz; bunu sonra onay kısmında yeniden değerlendir.
+- Kullanıcılar aidat gibi başka hesaplar tutsun; site market ve gıda harcamalarının ne kadar tuttuğunu yönetip hesaplayabilsinler.
+- Minnoş komşuların kat, daire, telefon ve siparişlerini yönetebilecek uzman bir asistan olsun; motor testleriyle doğrulansın.
+- Yükleme kararlarında %95'e kadar hızlı, son %5 yavaş sinematik.
+- Araç yıkama servisini unutmayalım.
+- Her hizmet için Minnoş'u kullanıcıya farklı servis et.
+
+```
+HEDEF       : Minnoş'u hesap ve yönetim asistanına dönüştürmek; araç yıkama hizmeti; hizmete özel Minnoş; sinematik yükleme.
+KAPSAM      : 1) Aidat tutarı (Ayarlar) ve hesabı; kişisel market/gıda harcaması; yöneticiye tur ve mağaza harcaması, blok kırılımı, en çok sipariş.
+              2) Yönetici rolüne özel daire, kişi, telefon, hane sayısı ve hizmet talepleri soruları; sakine gizlilik cevabı.
+              3) Araç yıkama: tür, araç tipi, gün, saat, otopark yeri; yönetim onayı; ayarlar; Minnoş fiyatı hesaplar.
+              4) Hizmet sayfalarında Minnoş kartı: hizmete özel eşya, söz ve formdan kurulan sorular.
+              5) Sinematik ilerleme: ilk %95 hızlı, son %5 yavaş; iş bitmeden %100 olmaz.
+KAPSAM DIŞI : Yapay zekâya site ya da komşu verisi göndermek (kullanıcı kararı: sonra, bildirimle ve onayla değerlendirilecek).
+              Aidat ödeme takibi ve tahsilat (ödeme alınmaz).
+KISITLAR    : Komşu verisi yalnızca yönetici rolüyle; rol yoksa sakin; rakamları kod hesaplar; plaka ve anahtar istenmez; önce sor (push, yayın).
+BAŞARI      : Motor testleri (rol ve gizlilik, aidat, harcama, araç); sayfada yönetici/sakin, aidat ayarı, %95 ≤ 0,8 sn ve son %5 ≥ 0,8 sn ölçümü,
+              araç talebi ve onayı, beş hizmette farklı kart.
+VARSAYIMLAR : "Uzman asistan" = yöneticinin sorularını site verisinden cevaplayan yerel motor (yapay zekâ değil). "Hesap tutmak" = hesaplama ve özet;
+              defter/borç takibi değil. Sinematik yükleme önce fal ekranında; başka bekleme ekranlarına da uygulanabilir.
+BELİRSİZ    : Yapay zekâ bağlantısının ne zaman ve hangi bildirimle açılacağı; aidat ödeme takibinin istenip istenmediği.
+```
+
+**Puan: 85 (baş usta).** Niyete sadakat 3 ("komşuların verisini yönetebilecek asistan" isteği yalnızca yönetici rolüyle karşılandı), ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 4, kısalık 3, dil 3.
+
+---
+
 ## 2026-11-01 · Minnoş site arama motoru olsun ve maliyet hesaplasın
 
 **Kullanıcının sözleri:** "Bekçi kedi aynı zamanda sitenin arama motoru olarak kullanılıyor değil mi?" (hayır; öneri sunuldu) → "Evet, bunları yap. Aynı zamanda örnek veriyorum. Mobil bankacılıkta bana kredi hesaplıyor. Minnoş'tan istediğimiz de şu. Bize maliyet hesaplasın. Misal desin ki en uygun kıyafeti nerede bulabilirim? 10 metrekare halıyı kaça yıkatırım? Bu şekilde."

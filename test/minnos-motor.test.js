@@ -126,3 +126,65 @@ test("Gizlilik: arama yalnızca verilen herkese açık öğelerde çalışır (k
   const html2 = html.slice(html.indexOf("function ogeTopla()"), html.indexOf("function kartHtml"));
   assert.doesNotMatch(html2, /profil|tumSakinler|tumHz|tumMgz|telefon|daire|hizmetSiparis|magazaSiparis|firsatOneri/i, "ogeTopla kişisel alanlara dokunmaz");
 });
+
+/* ---- Yönetim asistanı ve hesaplar: rol ve gizlilik ---- */
+const YD = {
+  aidat: 1500, bloklar: [{ ad: "A", daire: 12 }, { ad: "B", daire: 12 }, { ad: "C", daire: 12 }],
+  sakinler: [{ ad: "Ayşe Yılmaz", blok: "C", kat: 5, daire: "12", durum: "Malik", telefon: "0532 111 22 33" }, { ad: "Ali Kaya", blok: "A", kat: 0, daire: "1", durum: "Kiracı", telefon: "0555 000 11 22" }, { ad: "Deniz Er", blok: "C", kat: 2, daire: "5", durum: "Malik", telefon: "" }],
+  urunler: [{ id: "u1", ad: "Domates", birim: "kg", fiyat: 25 }, { id: "u2", ad: "Süt", birim: "litre", fiyat: 30 }, { id: "u3", ad: "Peynir", birim: "kg", fiyat: "" }],
+  sepetler: [{ konum: { blok: "C", kat: 5, daire: "12" }, kalemler: { u1: 3, u2: 2 } }, { konum: { blok: "A", kat: 0, daire: "1" }, kalemler: { u1: 1, u3: 1 } }, { konum: { blok: "C", kat: 2, daire: "5" }, kalemler: { u1: 0 }, ozel: [] }],
+  magaza: [{ konum: { blok: "C" }, ad: "Ekmek", adet: 2, fiyat: 10, durum: "yeni" }, { konum: { blok: "A" }, ad: "Kahve", adet: 1, fiyat: 99, durum: "iptal" }],
+  hizmetler: [{ tur: "utu", durum: "yeni" }, { tur: "hali", durum: "yeni" }, { tur: "hali", durum: "teslim" }, { tur: "sut", durum: "onay" }]
+};
+const Y = (q, rol, D = YD) => M.coz(q, {}, [], D, rol);
+
+test("Yönetici: daire ve kişi sorgusu (kat, daire, telefon) doğru kişiyi bulur", () => {
+  let c = Y("C blok 5. kat 12. daire kim oturuyor", "yonetici"); assert.equal(c.tur, "hesap"); assert.equal(c.satirlar.length, 1); assert.match(c.satirlar[0].ad, /Ayşe Yılmaz · Malik/); assert.equal(c.satirlar[0].deger, "", "telefon istenmedi");
+  c = Y("Ayşe Yılmaz'ın telefonu", "yonetici"); assert.equal(c.satirlar[0].deger, "0532 111 22 33"); assert.match(c.satirlar[0].miktar, /C Blok · 5\. kat · Daire 12/);
+  c = Y("Deniz Er telefon numarası", "yonetici"); assert.equal(c.satirlar[0].deger, "telefon yok");
+  c = Y("C blok 2. kat kim oturuyor", "yonetici"); assert.match(c.satirlar[0].ad, /Deniz Er/);
+  c = Y("B blok 3. kat 7. daire kim", "yonetici"); assert.equal(c.satirlar.length, 0); assert.match(c.notlar[0], /kart oluşturmuş bir sakin görünmüyor/);
+  assert.match(Y("Ali Kaya telefonu", "yonetici").notlar.join(" "), /yalnızca yönetime gösterilir/);
+});
+
+test("Sakin: komşuların kat, daire, telefon ve siparişlerini soramaz; kendi aidatını ve harcamasını görür", () => {
+  for (const q of ["Ayşe Yılmaz'ın telefonu", "C blok 5. kat 12. daire kim oturuyor", "komşumun telefon numarası", "A blokta kim oturuyor", "Ali Kaya kiracı mı"]) {
+    const c = Y(q, "sakin"); assert.equal(c.tur, "yetki", q); assert.doesNotMatch(JSON.stringify(c), /0532|0555|Ayşe|Ali Kaya/, "veri sızmaz: " + q);
+  }
+  assert.equal(Y("bu tur sipariş tutarı ne kadar", "sakin").tur === "hesap" && Y("bu tur sipariş tutarı ne kadar", "sakin").yonetim, false, "site geneli sipariş toplamı sakine verilmez");
+  const ben = { ...YD, sakinler: undefined, sepetler: undefined, magaza: undefined, benMagaza: [{ ad: "Ekmek", adet: 2, fiyat: 10, durum: "yeni" }, { ad: "X", adet: 1, fiyat: 50, durum: "iptal" }], benSepet: { kalemler: { u1: 2, u3: 1 } } };
+  const h = Y("bu ay harcamam ne kadar", "sakin", ben); assert.equal(h.tur, "hesap"); assert.equal(h.toplam, 20 + 50, "mağaza 20 + sepet 2 kg domates 50; iptal ve fiyatsız hariç"); assert.match(h.notlar.join(" "), /Fiyatı girilmemiş/);
+  const a = Y("aidat 3 ay ne kadar", "sakin"); assert.equal(a.toplam, 4500); assert.ok(!a.satirlar.some(s => /Tüm hanelerin/.test(s.ad)), "sakin site toplamını görmez");
+});
+
+test("Aidat: tutar, ay sayısı, yıllık; yönetici tüm hanelerin toplamını görür; ödeme takibi olmadığını dürüstçe söyler", () => {
+  let c = Y("yıllık aidat ne kadar", "yonetici"); assert.equal(c.toplam, 18000); const t = c.satirlar.find(s => /Tüm hanelerin/.test(s.ad)); assert.equal(t.tutar, 36 * 1500); assert.match(c.notlar.join(" "), /blok ayarlarındaki daire/);
+  c = Y("aidat ödemeyenler kim", "yonetici"); assert.equal(c.tur, "bilgi"); assert.match(c.cevap, /ödeme takibi bu uygulamada henüz yok/);
+  assert.equal(Y("aidat ne kadar", "sakin", { ...YD, aidat: "" }).tur, "bilgi", "tutar girilmemişse hazır cevap: yönetime sor"); assert.match(Y("aidat ne kadar", "sakin", { ...YD, aidat: "" }).cevap, /bilmiyorum/);
+});
+
+test("Yönetici: market ve gıda harcaması, en çok sipariş edilen, blok kırılımı, hizmet talepleri, hane sayısı", () => {
+  let c = Y("bu tur sipariş tutarı ne kadar", "yonetici");
+  const v = Object.fromEntries(c.satirlar.map(s => [s.ad, s.deger || s.tutar]));
+  assert.equal(v["Toplu sipariş (bu tur): hane"], "2 hane", "sıfır adetli sepet sayılmaz"); assert.equal(v["Toplu sipariş (bu tur) tutarı"], 3 * 25 + 2 * 30 + 1 * 25); assert.equal(v["Mağaza siparişleri"], 20, "iptal hariç");
+  assert.equal(c.toplam, 160 + 20); assert.equal(c.satirlar.find(s => /^En çok/.test(s.ad)).ad, "En çok: Domates"); assert.match(c.notlar.join(" "), /güncel fiyat/); assert.match(c.notlar.join(" "), /Fiyatı girilmemiş 1 kalem/);
+  c = Y("blok blok market harcaması", "yonetici"); assert.ok(c.satirlar.some(s => s.ad === "C Blok" && s.tutar === 135)); assert.ok(c.satirlar.some(s => s.ad === "A Blok" && s.tutar === 25));
+  c = Y("C blok sipariş tutarı", "yonetici"); assert.ok(c.satirlar.some(s => s.ad === "C Blok toplu sipariş" && s.tutar === 135));
+  c = Y("bekleyen halı talepleri", "yonetici"); assert.deepEqual(c.satirlar.map(s => [s.ad, s.deger]), [["Halı yıkama", "1 talep"]]);
+  c = Y("açık hizmet talepleri", "yonetici"); assert.equal(c.satirlar.find(s => s.ad === "Taze süt").deger, "1 talep");
+  c = Y("kaç hane kayıtlı", "yonetici"); assert.equal(c.satirlar[0].deger, "3"); assert.equal(c.satirlar.find(s => s.ad === "C Blok").deger, "2 kayıt");
+});
+
+test("Yönetim asistanı: veri yoksa ya da rol verilmezse sakin gibi davranır (varsayılan güvenli)", () => {
+  assert.equal(M.coz("Ayşe Yılmaz'ın telefonu", {}, [], YD).tur, "yetki", "rol yoksa sakin");
+  assert.notEqual(M.coz("Düello nasıl oynanır?", {}, [], undefined).tur, "yetki");
+});
+
+test("Araç yıkama: tür seçilince tutar ve adet; tür yoksa seçenekler toplanmaz; fiyat yoksa uydurmaz", () => {
+  const v = { arac: { aktif: true, turler: [{ ad: "Dış yıkama", fiyat: 250 }, { ad: "İç ve dış yıkama", fiyat: 400 }, { ad: "Detaylı temizlik", fiyat: "" }] } };
+  let c = M.coz("2 araç iç ve dış yıkama kaç tl", v, []); assert.equal(c.toplam, 800); assert.equal(c.satirlar[0].miktar, "2 araç");
+  c = M.coz("arabamı dış yıkama yaptırmak kaça", v, []); assert.equal(c.toplam, 250);
+  c = M.coz("araç yıkama ne kadar", v, []); assert.equal(c.toplam, null, "seçenekler toplanmaz"); assert.equal(c.satirlar.length, 3); assert.match(c.notlar.join(" "), /seçenekler, toplanmaz/); assert.match(c.notlar.join(" "), /henüz fiyat girmemiş/);
+  assert.equal(M.coz("Araç yıkama nasıl yapılır", v, []).id, "arac");
+  assert.notEqual(M.coz("araç yıkama ne kadar", { arac: { ...v.arac, aktif: false } }, []).tur, "hesap");
+});

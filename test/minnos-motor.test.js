@@ -211,3 +211,30 @@ test("Sayfa kaynağı: katilim belgesine konum yazılmıyor; rehber yalnızca a�
   const g = html.slice(html.indexOf("function rehberBelge"), html.indexOf("async function katilimKaydet()"));
   assert.match(g, /if\(ay\.konum\)/); assert.match(g, /if\(ay\.telefon/);
 });
+
+/* ---- Et: Sepet > Kasap (anlaşmalı kasap) ve Hizmet > Taze et (anlaşmalı çiftlik) ---- */
+const ET_VERI = {
+  ...VERI,
+  et: { aktif: true, ciftlik: "Anadolu Çiftliği", kalemler: [{ ad: "Dana eti", fiyat: 700 }, { ad: "Kuzu eti", fiyat: "" }, { ad: "Bütün piliç", fiyat: 150 }] },
+  urunler: [...VERI.urunler, { ad: "Kuşbaşı", kat: "kasap", tedarikci: "Hasan Usta Kasap", birim: "kg", fiyat: 800, aktif: true }, { ad: "Sucuk", kat: "kasap", birim: "500 g", fiyat: "", aktif: true }]
+};
+test("Et hesabı: çiftlik eti kilosu yönetimin girdiği fiyattan, fiyatsız ürün uydurulmaz", () => {
+  let c = M.coz("2,5 kg dana eti kaça gelir?", ET_VERI, []);
+  assert.equal(c.tur, "hesap"); assert.equal(c.toplam, 1750); assert.equal(c.satirlar[0].miktar, "2,5 kg"); assert.match(c.notlar.join(" "), /soğuk zincir/);
+  c = M.coz("3 kg bütün piliç ne kadar", ET_VERI, []); assert.equal(c.toplam, 450);
+  c = M.coz("2 kg kuzu eti kaç TL", ET_VERI, []); assert.equal(c.toplam, null); assert.match(c.notlar.join(" "), /henüz fiyat girmemiş/);
+  c = M.coz("2 kg kuşbaşı kaça gelir", ET_VERI, []); assert.equal(c.toplam, 1600, "kasap ürünü katalogdan hesaplanır");
+  c = M.coz("1 sucuk kaç TL", ET_VERI, []); assert.equal(c.toplam, null); assert.match(c.notlar.join(" "), /henüz fiyat girmemiş/);
+});
+test("Et hesabı: çiftlik ile kasap seçenek olarak gösterilir, toplanmaz; kapalı hizmet hesaplanmaz", () => {
+  const v = { ...ET_VERI, urunler: [...ET_VERI.urunler, { ad: "Dana kıyma", kat: "kasap", birim: "kg", fiyat: 900, aktif: true }] };
+  const c = M.coz("2 kg dana kaça gelir", v, []); assert.equal(c.tur, "hesap");
+  assert.equal(c.toplam, null, "iki seçenek toplanmaz"); assert.ok(c.satirlar.every(r => r.alternatif), "satırlar seçenek işaretli");
+  assert.ok(c.satirlar.length >= 2 && c.satirlar.some(r => /Çiftlik eti/.test(r.ad)));
+  const kapali = M.coz("2 kg dana eti kaça gelir", { ...ET_VERI, et: { ...ET_VERI.et, aktif: false }, urunler: [] }, []);
+  assert.ok(!kapali || kapali.tur !== "hesap");
+});
+test("Et bilgi bankası: kasap ve çiftlik eti soruları doğru konuya gider", () => {
+  for (const q of ["Kasaptan et sipariş edebilir miyim?", "Çiftlik etini nasıl alırım?", "Kıyma nereden alabilirim?"]) assert.equal(M.cevapla(q).id, "et", q);
+  assert.equal(M.cevapla("Taze süt sipariş edebilir miyim?").id, "sut", "süt etkilenmedi");
+});

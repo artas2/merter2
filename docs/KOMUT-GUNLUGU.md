@@ -4,6 +4,26 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-11-01 · Et satışı: Sepet > Kasap (anlaşmalı kasaplar) ve Hizmet > Taze et (anlaşmalı çiftlikler)
+
+**Kullanıcının sözleri:** "Çünkü yakında et de satacağız." → "Bence her ikisi için de yapalım. Birinde anlaşmalı kasaplarımızı kullanırız. Diğerinde de anlaşmalı çiftliklerimizden kullanıcıya yardımcı oluruz."
+
+```
+HEDEF       : Ete iki yoldan erişim: toplu turda anlaşmalı kasap ürünleri; ayrı bir hizmetle anlaşmalı çiftlikten kilo ve teslim günü seçilen sipariş.
+KAPSAM      : 1) Sepet: üçüncü bölüm "Kasap" (Dana, Kuzu, Tavuk ve hindi, Şarküteri); üründe isteğe bağlı "anlaşmalı kasap" adı; yönetici katalogda bölüm/kasap seçer; örnek katalog fiyatsız gelir.
+              2) Hizmet: "Taze et" (çiftlik adı, ürün listesi ve TL/kg fiyatı, 0,5 kg adım, teslim günleri, son saat, soğuk zincir notu); sakin sipariş + Taleplerim; yönetici Et sekmesi (kg özeti, onay/teslim/iptal) ve ayarlar.
+              3) Minnoş: et sahnesi, bilgi bankası maddesi "et", maliyet hesabı (çiftlik eti ve kasap ürünü seçenek olarak yan yana, toplanmaz).
+KAPSAM DIŞI : Ödeme alma, stok, tedarikçiye otomatik sipariş, mevzuat doğrulaması.
+KISITLAR    : Fiyatı yönetim girer; fiyat yoksa uydurulmaz ("henüz fiyat girmemiş"); fiyatlar tahmindir, tartımla kesinleşir; ayarlarda uyarı: gıda satışı için işletme kaydı/izin/soğuk zincir koşullarını yönetim doğrular, uygulama doğrulamaz.
+BAŞARI      : Motor testleri (hesap, seçenek, kapalı hizmet, bilgi bankası), sayfa testi (23 kontrol: kasap sekmesi, sepet kaydı, et formu, tutar, sipariş kaydı, yönetici özeti/onay, ayar doğrulaması), tam paket.
+VARSAYIMLAR : Kasap ürünleri mevcut toplu tur akışıyla (haftalık) gelir; çiftlik eti ayrı sipariştir, durumlar sütle aynı. Birim kg; kuşbaşı vb. kasap ürünleri için 0,5 kg adım.
+BELİRSİZ    : Gerçek kasap/çiftlik adları ve fiyatları (yönetim girer); et satışı için gereken resmî kayıt/izinler (doğrulanmadı, yönetimin kontrolü).
+```
+
+**Puan: 86 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 3, kısıtlar 4, yapı 4, kısalık 3, dil 4 (kapsam dışı mevzuat açıkça belirtildi).
+
+---
+
 ## 2026-11-01 · Bekleme ekranlarında Minnoş (yere atılma pozu, fırsat özetleri); komşu verisi kişinin kendi seçimi
 
 **Kullanıcının sözleri:** "Başka bekleme ekranlarına da uygula; bu Minnoş'un gelip kendini yere attığı bir poz ile diğer indirimleri ve fırsatlar hakkında kısa özet bilgiler verir. Komşu verisi diğer kullanıcılara özel olsun, isterse açıp isterse kapatsın."

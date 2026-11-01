@@ -360,7 +360,7 @@ textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--l
 .mn-sekme button{min-height:44px;border:0;border-radius:999px;background:none;color:var(--muted);font:700 14px var(--f-body);cursor:pointer}.mn-sekme button[aria-selected="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 4px 12px rgba(0,0,0,.12)}
 .mn-durum{margin:0 14px 6px;padding:6px 12px;border-radius:999px;background:var(--paper);color:var(--muted);font:600 12px var(--f-body)}
 .mn-govde{flex:1;min-height:0;overflow-y:auto;padding:6px 14px 10px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain}
-.mn-msj{max-width:86%;padding:10px 14px;border-radius:20px 20px 20px 6px;background:var(--paper);border:1px solid var(--line);font:500 15px/1.45 var(--f-body);white-space:pre-wrap;overflow-wrap:anywhere}
+.mn-msj{max-width:92%;padding:10px 14px;border-radius:20px 20px 20px 6px;background:var(--paper);border:1px solid var(--line);font:500 15px/1.45 var(--f-body);white-space:pre-wrap;overflow-wrap:anywhere}
 .mn-msj.ben{align-self:flex-end;border-radius:20px 20px 6px 20px;background:var(--accent);color:#fff;border-color:transparent}
 .mn-msj small{display:block;margin-top:4px;font:700 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.mn-msj.ai small{color:var(--accent)}
 .mn-oneri{display:flex;flex-wrap:wrap;gap:6px}.mn-oneri button{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--sheet);color:var(--ink);font:600 13px var(--f-body);cursor:pointer}
@@ -378,6 +378,11 @@ textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--l
 .mn-fincan{display:grid;justify-items:center;gap:8px;padding:10px 0}.mn-fincan svg{width:120px;height:auto;overflow:visible}
 .mn-fal{padding:16px;border-radius:24px;background:linear-gradient(150deg,var(--accent-soft),var(--sheet));border:1px solid var(--line);font:500 15px/1.6 var(--f-body);white-space:pre-wrap}
 .mn-not{margin:0;font:500 12px/1.4 var(--f-body);color:var(--muted)}
+.mn-kart{display:grid;gap:6px;min-width:0}.mn-kart>b{font:800 15px var(--f-display)}
+.mn-satir{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px dashed var(--line)}.mn-satir span{display:grid;min-width:0;font:600 14px var(--f-body)}.mn-satir small{font:500 12px var(--f-body);color:var(--muted)}.mn-satir b{font:800 15px var(--f-mono);white-space:nowrap}
+.mn-satir.toplam{border-bottom:0;border-top:2px solid var(--accent);margin-top:2px}.mn-satir.toplam b{color:var(--accent);font-size:17px}
+.mn-sonuc{display:grid;gap:2px;padding:8px 10px;border-radius:14px;background:var(--sheet);border:1px solid var(--line);color:var(--ink);text-decoration:none;min-height:44px;align-content:center}.mn-sonuc b{font:800 13px var(--f-body)}.mn-sonuc span{font:500 13px/1.35 var(--f-body)}
+.mn-git{display:inline-flex;align-items:center;min-height:44px;margin:4px 6px 0 0;padding:0 14px;border-radius:999px;border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--accent);font:700 13px var(--f-body);text-decoration:none}
 @media (prefers-reduced-motion:no-preference){
  .mn-kutu{animation:mnAc .45s cubic-bezier(.34,1.56,.64,1) both}.mn-msj{animation:mnMsj .35s cubic-bezier(.34,1.56,.64,1) both}
  .mn-nokta i{animation:mnNokta 1s ease-in-out infinite}.mn-nokta i:nth-child(2){animation-delay:.15s}.mn-nokta i:nth-child(3){animation-delay:.3s}
@@ -2129,7 +2134,7 @@ const asc=t=>String(t==null?"":t).toLocaleLowerCase("tr").replace(/ı/g,"i").rep
 const BILGI=[
  {id:"selam",k:["merhaba","selam","gunaydin","iyi aksamlar","iyi geceler","nasilsin","naber"],c:"Mırr! Merhaba komşum. Ben Minnoş. Uygulamayı gezdirebilir, sorularını cevaplayabilir ve istersen kahve falına bakabilirim."},
  {id:"kim",k:["kimsin","adin ne","adin nedir","minnos","kedi misin","kim bu"],c:"Ben Minnoş: bu sitenin sokaklarında büyüyen, alaca tüylü, dişi bir sokak kedisiyim. Bekçilik yaparım; sohbette gözüm üzerinizde, sorularınızı da cevaplarım."},
- {id:"yardim",k:["yardim","neler yapabilirsin","ne yapabilirsin","ne bilirsin","ne yapiyorsun","komut"],c:"Uygulamayı anlatabilirim: Hikmet, Gündem, Sepet, Hizmetler, Fırsatlar, Kartım, Arena, turnuvalar, Mavi Öz, görevler, sohbet. Kahve falına da bakarım. Bir şey sor, bilmiyorsam dürüstçe söylerim."},
+ {id:"yardim",k:["yardim","neler yapabilirsin","ne yapabilirsin","ne bilirsin","ne yapiyorsun","komut"],c:"Üç şey yapabilirim: (1) Maliyet hesaplarım: '10 m² halıyı kaça yıkatırım?', '5 gömlek 3 pantolon ütü ne kadar?', '5 litre süt kaça gelir?' gibi; rakamlar yönetimin girdiği fiyatlardan çıkar. (2) Sitede ararım: Fırsatlar, Gündem, Etkinlik, Hizmet ve Sepet ürünlerinde; 'En uygun kıyafeti nerede bulabilirim?' gibi. (3) Uygulamayı anlatırım ve istersen kahve falına bakarım."},
  {id:"hikmet",k:["hikmet","ayet","hadis","gunun sozu","gunun ayeti","gunun hadisi"],c:"Ana sayfanın üstünde günün ayeti ya da hadisi var. Okla bir öncekine ya da sonrakine geçebilir, paylaşabilir, beğenebilirsin. Metinlerin doğruluğunu kendi kaynağından kontrol etmeyi unutma."},
  {id:"duvar",k:["duvar kagidi","kilit ekrani","arka plan","wallpaper","ekran resmi"],c:"Hikmet kartındaki 'Duvar kâğıdı' düğmesi seçili sözü telefonunun duvar kâğıdı ve kilit ekranı yapar. Android'de istersen aralıklarla kendiliğinden değişir; iPhone'da bunu Kestirmeler üzerinden kurarsın."},
  {id:"gundem",k:["gundem","duyuru","paylasim","gonderi","yorum yaz"],c:"Gündem'de komşuların duyuruları ve paylaşımları var. Yorum yazabilir, uygunsuz bir içerik görürsen 'Şikâyet et' diyebilirsin."},
@@ -2162,7 +2167,7 @@ const BILGI=[
  {id:"fal",k:["fal","kahve","falim","falima bak","fincan"],c:"Kahve falına bakarım! Aşağıdaki 'Kahve falı' sekmesine geç, konuyu ve fincanda gördüğün sembolleri seç. Unutma, bu bir eğlence.",eylem:"fal"},
  {id:"tesekkur",k:["tesekkur","sagol","eyvallah","tesekkurler"],c:"Mırr, rica ederim komşum! Başka bir şey sorarsan buradayım."}
 ];
-const SORULAR=["Düello nasıl oynanır?","Duvar kâğıdı nasıl yapılır?","Mavi Öz nedir?","Sohbette neden mesajım gitmedi?","Hangi hizmetler var?","Turnuvada neler oynanıyor?"];
+const SORULAR=["10 m² halıyı kaça yıkatırım?","En uygun kıyafeti nerede bulabilirim?","5 gömlek 3 pantolon ütü ne kadar?","5 litre süt kaça gelir?","Düello nasıl oynanır?","Duvar kâğıdı nasıl yapılır?","Mavi Öz nedir?","Sohbette neden mesajım gitmedi?"];
 function belirle(q){
   const t=asc(q);if(!t)return null;const tok=t.split(" ");let en=null,enP=0;
   for(const e of BILGI){let p=0;
@@ -2218,7 +2223,118 @@ function fal({konu,semboller,niyet,gun}){
   const n=String(niyet||"").replace(/\s+/g," ").trim().slice(0,80);
   return [sec(ACILIS),...sem.map(x=>sec(SEM[x])),(n?`Aklındaki "${n}" meselesine gelince: `:`${KONULAR[kk][0].toLocaleUpperCase("tr")+KONULAR[kk].slice(1)} tarafında: `)+sec(KONU[kk]),sec(KAPANIS)].join(" ");
 }
-return {asc,BILGI,SORULAR,belirle,cevapla,fal,KONULAR,SEMBOLLER};
+/* ---- Maliyet hesabı ve site araması (kodla; yapay zekâ rakam üretmez) ---- */
+const SAYI={bir:1,iki:2,uc:3,dort:4,bes:5,alti:6,yedi:7,sekiz:8,dokuz:9,on:10,yirmi:20,otuz:30,elli:50,yuz:100};
+const BIRIM={kg:"kg",kilo:"kg",kilogram:"kg",litre:"litre",lt:"litre",l:"litre",adet:"adet",tane:"adet",m2:"m2"};
+const sayiOku=x=>{if(x==null)return null;if(/^\d+(\.\d+)?$/.test(x))return parseFloat(x);return SAYI[x]!==undefined?SAYI[x]:null};
+function jetonlar(q){
+  let t=String(q==null?"":q).toLocaleLowerCase("tr").replace(/m²|mt²|mt2|m2|metre\s*kare\w*|metrekare\w*/g," mkare ").replace(/(\d),(\d)/g,"$1.$2");
+  t=t.replace(/ı/g,"i").replace(/[çğöşüâîû]/g,c=>({"ç":"c","ğ":"g","ö":"o","ş":"s","ü":"u","â":"a","î":"i","û":"u"}[c])).replace(/[^a-z0-9. ]+/g," ");
+  t=t.replace(/(\d)([a-z])/g,"$1 $2").replace(/([a-z])(\d)/g,"$1 $2");
+  return t.split(/\s+/).map(x=>x.replace(/^\.+|\.+$/g,"")).filter(Boolean).map(x=>x==="mkare"?"m2":x);
+}
+const tl=n=>(Math.round(n*100)/100).toLocaleString("tr-TR",{maximumFractionDigits:2})+" TL";
+const fiyatVar=f=>f!==""&&f!=null&&Number.isFinite(+f)&&+f>=0;
+/* tok içinde ad (ASCII kök) geçen yerin miktarını bulur: "2 kg domates", "domates 2 kg", "5 gömlek" */
+const SIFAT=new Set(["taze","ciftlik","ciftligi","ciftlikten","organik","koy","yerli","buyuk","kucuk","ince","kalin"]);
+function miktarBul(tok,i){
+  while(i>0&&SIFAT.has(tok[i-1])){tok=tok.slice(0,i-1).concat(tok.slice(i));i--} /* sıfatları atla: "5 litre taze süt" */
+  const p1=tok[i-1],p2=tok[i-2],n1=tok[i+1],n2=tok[i+2];
+  if(p1&&BIRIM[p1]&&sayiOku(p2)!==null)return {n:sayiOku(p2),birim:BIRIM[p1]};
+  if(sayiOku(p1)!==null&&!(BIRIM[tok[i-2]]))return {n:sayiOku(p1),birim:null};
+  if(n1&&sayiOku(n1)!==null)return {n:sayiOku(n1),birim:BIRIM[n2]||null};
+  return null;
+}
+const koke=(tok,k)=>tok.findIndex(x=>x===k||(k.length>=3&&x.startsWith(k)));
+const FIYAT_SOZ=["kaca","kac","fiyat","fiyati","ucret","ucreti","maliyet","hesapla","tutar","tl","ne","kadar","tutar","yikatirim","yaptirim","yaptirir","getirir","eder","olur"];
+const fiyatNiyeti=tok=>tok.some(x=>["kaca","kac","fiyat","fiyati","ucret","ucreti","maliyet","maliyeti","hesapla","hesaplar","tutar","tutari","eder","tl"].includes(x))||(tok.includes("ne")&&tok.includes("kadar"));
+function hesapla(q,v){
+  const tok=jetonlar(q),satir=[],not=[],oner=[];let eksikSoru=null,bulundu=false;
+  const fiyatYok=(ad)=>{satir.push({ad,miktar:"",birim:"",tutar:null});not.push(`${ad} için yönetim henüz fiyat girmemiş; kesin fiyatı yönetimden öğren.`)};
+  const ekle=(ad,miktar,bf,tutar)=>satir.push({ad,miktar,birim:bf,tutar});
+  // Halı
+  const hi=koke(tok,"hali");if(v.hali&&v.hali.aktif!==false&&hi>=0){bulundu=true;
+    const mi=tok.indexOf("m2"),n=mi>0?sayiOku(tok[mi-1]):null;
+    if(!fiyatVar(v.hali.fiyat))fiyatYok("Halı yıkama");
+    else if(n!==null&&n>0){ekle("Halı yıkama",`${n.toLocaleString("tr-TR")} m²`,`${tl(+v.hali.fiyat)} / m²`,n*+v.hali.fiyat);not.push("Tutar tahminidir; kesin tutar ölçümden sonra belli olur.")}
+    else if(fiyatNiyeti(tok)){ekle("Halı yıkama","",`${tl(+v.hali.fiyat)} / m²`,null);eksikSoru="Toplam için halının kaç metrekare olduğunu da yaz (ör. 10 m² halı)."}
+    else bulundu=false;
+    if(bulundu)for(const f of (v.firsatlar||[]))if(/hali|yikama/.test(jetonlar(f.isletme+" "+f.baslik+" "+(f.aciklama||"")).join(" ")))oner.push(f);
+  }
+  // Süt (çiftlik hizmeti) ve market ürünü karşılaştırması
+  const si=koke(tok,"sut");let sutHizmetL=null,sutHizmetFiyat=null;
+  if(v.sut&&v.sut.aktif!==false&&si>=0){
+    const m=miktarBul(tok,si),litre=m&&(m.birim==="litre"||m.birim===null)?m.n:null,haftalik=tok.some(x=>x.startsWith("haftalik")||x==="hafta");
+    const hizmetIstegi=tok.some(x=>x.startsWith("ciftlik")||x==="taze"||x.startsWith("hizmet"));
+    if(fiyatNiyeti(tok)||litre!==null){
+      if(!fiyatVar(v.sut.fiyat))fiyatYok("Çiftlikten taze süt");
+      else{const L=litre!==null?litre:1;ekle("Çiftlikten taze süt",`${L.toLocaleString("tr-TR")} litre`,`${tl(+v.sut.fiyat)} / litre`,L*+v.sut.fiyat);sutHizmetL=L;sutHizmetFiyat=+v.sut.fiyat;bulundu=true;
+        if(haftalik){ekle("Haftalık tekrar, ayda ~4 teslimat","",`4 × ${tl(L*+v.sut.fiyat)}`,4*L*+v.sut.fiyat)}
+        if(litre===null)not.push("Litre yazmadığın için 1 litre hesapladım.");}
+      if(!hizmetIstegi&&sutHizmetL!==null&&Array.isArray(v.urunler)){const u=v.urunler.find(x=>x.aktif!==false&&jetonlar(x.ad)[0]&&jetonlar(x.ad)[0].startsWith("sut")&&fiyatVar(x.fiyat));
+        if(u&&u.birim==="litre"){ekle(`${u.ad} (market/pazar)`,`${sutHizmetL.toLocaleString("tr-TR")} litre`,`${tl(+u.fiyat)} / litre`,sutHizmetL*+u.fiyat);
+          const fark=Math.abs(+u.fiyat-sutHizmetFiyat)*sutHizmetL;if(fark>0)not.push(`${+u.fiyat<sutHizmetFiyat?"Market/pazar":"Çiftlik"} litrede ${tl(Math.abs(+u.fiyat-sutHizmetFiyat))} daha ucuz; ${sutHizmetL.toLocaleString("tr-TR")} litrede ${tl(fark)} fark eder.`);
+          not.push("Çiftlik sütü kapına gelir, market ürünü sipariş turuna göre gelir; kalite ve teslimat farkını da düşün.")}}
+    }
+  }
+  // Ütü
+  if(v.utu&&v.utu.aktif!==false&&koke(tok,"utu")>=0){let top=0,adet=0;const l=[];
+    for(const k of v.utu.kalemler||[]){const kk=jetonlar(k.ad)[0];if(!kk)continue;const i=koke(tok,kk);if(i<0)continue;const m=miktarBul(tok,i);if(!m)continue;
+      if(!fiyatVar(k.fiyat)){fiyatYok(`Ütü: ${k.ad}`);bulundu=true;continue}
+      ekle(`Ütü: ${k.ad}`,`${m.n.toLocaleString("tr-TR")} adet`,`${tl(+k.fiyat)} / adet`,m.n*+k.fiyat);adet+=m.n;top+=m.n*+k.fiyat;bulundu=true}
+    if(adet&&tok.includes("ayni")&&tok.some(x=>x.startsWith("aksam"))&&fiyatVar(v.utu.aksamEk)&&+v.utu.aksamEk>0){ekle("Aynı akşam teslim ek ücreti",`${adet} adet`,`${tl(+v.utu.aksamEk)} / adet`,adet*+v.utu.aksamEk)}
+    if(!adet&&fiyatNiyeti(tok)){for(const k of v.utu.kalemler||[])if(fiyatVar(k.fiyat))ekle(`Ütü: ${k.ad}`,"",`${tl(+k.fiyat)} / adet`,null);bulundu=bulundu||satir.length>0;if(satir.length)eksikSoru="Toplam için kaç parça olduğunu yaz (ör. 5 gömlek 3 pantolon ütü)."}
+  }
+  // Ev temizliği
+  if(v.temizlik&&v.temizlik.aktif!==false&&koke(tok,"temizli")>=0&&fiyatNiyeti(tok)){bulundu=true;
+    const t=(v.temizlik.turler||[]);if(!t.length)fiyatYok("Ev temizliği");for(const x of t){if(fiyatVar(x.fiyat))ekle(`Ev temizliği: ${x.ad}`,"",`${tl(+x.fiyat)}`,+x.fiyat);else fiyatYok(`Ev temizliği: ${x.ad}`)}
+    not.push("Ev temizliği için yönetim randevuyu onaylar; tutar türe göre değişir.")}
+  // Market / pazar ürünleri (süt yukarıda ele alındı)
+  if(Array.isArray(v.urunler)){for(const u of v.urunler){if(u.aktif===false)continue;const k=jetonlar(u.ad)[0];if(!k||k.length<3||k.startsWith("sut"))continue;const i=koke(tok,k);if(i<0)continue;const m=miktarBul(tok,i);if(!m&&!fiyatNiyeti(tok))continue;
+      bulundu=true;if(!fiyatVar(u.fiyat)){fiyatYok(`${u.ad}`);continue}const n=m?m.n:1;ekle(u.ad,`${n.toLocaleString("tr-TR")} ${u.birim||"adet"}`,`${tl(+u.fiyat)} / ${u.birim||"adet"}`,n*+u.fiyat);if(!m)not.push(`Miktar yazmadığın için ${u.ad} için 1 ${u.birim||"adet"} hesapladım.`)}}
+  if(!bulundu||!satir.length)return null;
+  const bilinen=satir.filter(s=>s.tutar!==null);const toplam=bilinen.reduce((a,s)=>a+s.tutar,0);
+  const baslik=satir.length>1?"Maliyet hesabı":satir[0].ad;
+  // Haftalık satırı toplama ek bilgi; toplamdan çıkar (çift saymasın)
+  const asil=bilinen.filter(s=>!/^Haftalık tekrar/.test(s.ad)&&!/market\/pazar/.test(s.ad));
+  const top2=asil.reduce((a,s)=>a+s.tutar,0);
+  const sutKarsilastirma=satir.some(s=>/market\/pazar/.test(s.ad));
+  return {tur:"hesap",baslik,satirlar:satir,toplam:asil.length&&!sutKarsilastirma?top2:null,notlar:[...new Set([...not,...(eksikSoru?[eksikSoru]:[])])],oneriler:oner.slice(0,3),eksik:!!eksikSoru};
+}
+/* ---- Site araması ---- */
+const DUR=new Set(["ve","mi","mu","var","nerede","nereden","bulabilirim","bulurum","en","uygun","ucuz","icin","ile","bir","bu","su","o","ne","nasil","hangi","kadar","nedir","hakkinda","bana","bize","goster","ara","bul","lazim","istiyorum","yok","var","midir","miyim","mıyım","olan","gibi","kaca","kac"]);
+const SINONIM=[["giyim","kiyafet","giysi","elbise","pantolon","gomlek","mont","ceket","ayakkabi","tisort","kazak","tekstil","moda"],["eczane","ilac","vitamin","krem"],["firin","ekmek","pide","borek","pasta","simit","tatli"],["kasap","et","tavuk","kiyma","sucuk","kofte"],["manav","sebze","meyve","domates","salatalik","elma"],["kafe","kahve","restoran","yemek","lokanta","cafe","kahvalti"],["hirdavat","tamir","boya","vida","ampul","ev"],["market","bakkal","deterjan","temizlik"],["hizmet","usta","tamirci","kuafor","berber","nakliyat"]];
+const KATSIN={giyim:"Giyim ve tekstil",eczane:"Eczane",firin:"Fırın",kasap:"Kasap",manav:"Manav",kafe:"Kafe ve restoran",hirdavat:"Ev ve hırdavat",market:"Market",hizmet:"Hizmet"};
+function genislet(tok){const s=new Set();for(const t of tok){s.add(t);for(const g of SINONIM)if(g.some(x=>x===t||(t.length>=4&&(x.startsWith(t)||t.startsWith(x)))))g.forEach(x=>s.add(x))}return [...s]}
+const metinTok=o=>jetonlar([o.baslik,o.metin,o.isletme,o.kategori,o.aciklama].filter(Boolean).join(" "));
+function puanla(o,sorgu,genis){const tt=metinTok(o),bt=jetonlar(o.baslik||o.isletme||"");let p=0;
+  for(const q of sorgu){if(q.length<2)continue;const hit=x=>x===q||(q.length>=3&&x.startsWith(q));if(bt.some(hit))p+=3;else if(tt.some(hit))p+=2}
+  for(const q of genis){if(sorgu.includes(q)||q.length<3)continue;if(tt.some(x=>x===q||x.startsWith(q)))p+=1}
+  return p}
+function ara(q,ogeler,n=5){
+  const tok=jetonlar(q).filter(x=>!DUR.has(x)&&!/^\d/.test(x));if(!tok.length)return [];
+  const genis=genislet(tok);
+  return (ogeler||[]).map(o=>({o,p:puanla(o,tok,genis)})).filter(x=>x.p>=2).sort((a,b)=>b.p-a.p||(+b.o.oran||0)-(+a.o.oran||0)||(b.o.t||0)-(a.o.t||0)).slice(0,n).map(x=>x.o);
+}
+/* "En uygun kıyafeti nerede bulabilirim?": Fırsatlarda ara; indirim oranı yüksek, yakın ve çabuk bitenler önde */
+const FIRSAT_NIYET=tok=>tok.includes("nerede")||(tok.includes("en")&&(tok.includes("uygun")||tok.includes("ucuz")))||tok.includes("ucuz")||tok.includes("indirim")||tok.includes("firsat")||tok.includes("bulabilirim");
+function firsatAra(q,firsatlar){
+  const tok=jetonlar(q).filter(x=>!DUR.has(x)&&!/^\d/.test(x));if(!tok.length)return [];const genis=genislet(tok);
+  const katlar=new Set(genis.filter(x=>KATSIN[x]).map(x=>KATSIN[x]));
+  return (firsatlar||[]).map(f=>{let p=puanla({baslik:f.baslik,isletme:f.isletme,kategori:f.kategori,aciklama:f.aciklama,metin:""},tok,genis);if(katlar.has(f.kategori))p+=2;return {f,p}})
+    .filter(x=>x.p>=2).sort((a,b)=>(+b.f.oran||0)-(+a.f.oran||0)||(+a.f.mesafe||999)-(+b.f.mesafe||999)||String(a.f.bitis||"9").localeCompare(String(b.f.bitis||"9"))).slice(0,3).map(x=>x.f);
+}
+/* Dağıtıcı: hesap → fırsat niyeti → hazır bilgi → site araması → yok */
+function coz(q,v,ogeler){
+  const h=hesapla(q,v||{});if(h)return h;
+  const tok=jetonlar(q);
+  if(FIRSAT_NIYET(tok)){const f=firsatAra(q,(v||{}).firsatlar);if(f.length)return {tur:"firsat",sonuclar:f};
+    const bos=genislet(tok.filter(x=>!DUR.has(x))).some(x=>KATSIN[x]);if(bos&&(tok.includes("nerede")||tok.includes("en")||tok.includes("bulabilirim")))return {tur:"firsatYok",anahtar:tok.filter(x=>!DUR.has(x)&&!/^\d/.test(x)).join(" ")}}
+  const b=belirle(q);if(b)return {tur:"bilgi",id:b.id,cevap:b.c,eylem:b.eylem||null};
+  const r=ara(q,ogeler);if(r.length)return {tur:"arama",sonuclar:r};
+  return {tur:"yok"};
+}
+return {asc,BILGI,SORULAR,belirle,cevapla,fal,KONULAR,SEMBOLLER,jetonlar,hesapla,ara,firsatAra,coz,tl};
 })();
 /*MINNOS-MOTOR-BITIS*/
 
@@ -2267,6 +2383,28 @@ let panel=null,panelOnceki=null;
 const apiVar=()=>typeof window.BS_API==="function";
 async function durumYukle(){ if(!apiVar()){P.ai={yapayZeka:false,kapali:"sayfa"};return} try{const b=await window.BS_API("GET","/api/minnos/bilgi");P.ai={yapayZeka:!!b.yapayZeka,premium:!!b.premium,kalan:b.kalan}}catch(e){P.ai={yapayZeka:false,kapali:"hata"}} }
 const durumYazi=()=>{const a=P.ai;if(!a)return "";if(a.yapayZeka&&a.premium)return `Yapay zekâ açık · bugün ${a.kalan??"?"} soru hakkın kaldı`;if(a.yapayZeka&&!a.premium)return "Hazır cevap modu · yapay zekâ cevapları Premium'a dahil";if(a.kapali==="sayfa")return "Hazır cevap modu · yapay zekâ bu sayfada yok, uygulamada çalışır";return "Hazır cevap modu · yapay zekâ henüz kapalı"};
+const TIPAD={firsat:"Fırsat",duyuru:"Duyuru",etkinlik:"Etkinlik",mac:"Turnuva",tur:"Pazar ve market",gonderi:"Gündem paylaşımı",hizmet:"Hizmet",urun:"Ürün"};
+function kisalt(t,n=90){t=String(t||"").replace(/\s+/g," ").trim();return t.length>n?t.slice(0,n)+"…":t}
+function veriTopla(){try{const A=hzAyar();return {hali:A.hali,sut:A.sut,utu:A.utu,temizlik:A.temizlik,urunler:(typeof KAT!=="undefined"&&KAT&&KAT.urunler)||[],firsatlar:(typeof FRS!=="undefined"&&FRS||[]).filter(gecerli)}}catch(e){return {}}}
+function ogeTopla(){const o=[];try{
+  for(const x of gundemOgeleri())o.push({tip:x.tip,baslik:x.baslik||(x.tip==="gonderi"?"Komşu paylaşımı":""),metin:kisalt(x.metin,200),link:x.link||(x.tip==="etkinlik"?"#etkinlik":"#gundem"),t:x.t||0});
+  const A=hzAyar(),f=v=>v!==""&&v!=null?`${(+v).toLocaleString("tr-TR")} TL`:"fiyat yönetimce belirlenir";
+  if(A.hali.aktif!==false)o.push({tip:"hizmet",baslik:"Halı yıkama",metin:`${f(A.hali.fiyat)} / m² · halı yıkama, halı temizleme`,link:"#hizmet"});
+  if(A.sut.aktif!==false)o.push({tip:"hizmet",baslik:"Çiftlikten taze süt",metin:`${f(A.sut.fiyat)} / litre ${A.sut.ciftlik||""}`,link:"#hizmet"});
+  if(A.utu.aktif!==false)for(const k of A.utu.kalemler)o.push({tip:"hizmet",baslik:`Ütü: ${k.ad}`,metin:f(k.fiyat)+" / parça",link:"#hizmet"});
+  if(A.temizlik.aktif!==false)for(const k of A.temizlik.turler)o.push({tip:"hizmet",baslik:`Ev temizliği: ${k.ad}`,metin:f(k.fiyat),link:"#hizmet"});
+  for(const u of ((typeof KAT!=="undefined"&&KAT&&KAT.urunler)||[]))if(u.aktif!==false)o.push({tip:"urun",baslik:u.ad,metin:`${f(u.fiyat)} / ${u.birim||"adet"} · ${u.kat||""}`,link:"#sepet"});
+ }catch(e){}return o}
+function kartHtml(r){
+  const gitLink=(h,ad)=>`<a class="mn-git" href="${esc(h)}" data-mn="git">${esc(ad)}</a>`;
+  if(r.tur==="hesap")return `<div class="mn-kart"><b>${esc(r.baslik)}</b>${r.satirlar.map(s=>`<div class="mn-satir"><span>${esc(s.ad)}${s.miktar||s.birim?`<small>${esc([s.miktar,s.birim].filter(Boolean).join(" · "))}</small>`:""}</span><b>${s.tutar===null?"—":esc(M_().tl(s.tutar))}</b></div>`).join("")}
+    ${r.toplam!==null&&r.satirlar.length>1?`<div class="mn-satir toplam"><span>Toplam</span><b>${esc(M_().tl(r.toplam))}</b></div>`:""}${r.notlar.map(n=>`<p class="mn-not">${esc(n)}</p>`).join("")}
+    ${r.oneriler.length?`<div class="mn-etiket">Çevredeki fırsatlar</div>${r.oneriler.map(f=>`<div class="mn-sonuc"><b>${esc(f.isletme)}${f.oran?` · %${+f.oran}`:""}</b><span>${esc(f.baslik)}</span></div>`).join("")}${gitLink("#firsat","Fırsatlara git")}`:""}</div>`;
+  if(r.tur==="firsat")return `<div class="mn-kart"><b>Fırsatlarda buldum</b><p class="mn-not">İndirimi yüksek ve yakın olanlar önde. Süresi geçenler gösterilmez.</p>${r.sonuclar.map(f=>`<div class="mn-sonuc"><b>${esc(f.isletme)}${f.oran?` · %${+f.oran} indirim`:""}</b><span>${esc(f.baslik)}${f.mesafe?` · ${+f.mesafe} dk yürüme`:""}${f.adres?` · ${esc(f.adres)}`:""}</span></div>`).join("")}${gitLink("#firsat","Hepsini Fırsatlar'da gör")}</div>`;
+  if(r.tur==="firsatYok")return `<div class="mn-kart"><b>Şu an bir şey bulamadım</b><p class="mn-not">Fırsatlarda "${esc(r.anahtar)}" ile ilgili kayıt yok; uydurmak istemem. Komşulara sorabilir ya da bildiğin bir indirimi öneri olarak ekleyebilirsin.</p>${gitLink("#gundem","Gündem'de komşulara sor")} ${gitLink("#firsat","Fırsatlar'dan öneri ekle")}</div>`;
+  if(r.tur==="arama")return `<div class="mn-kart"><b>Sitede şunları buldum</b>${r.sonuclar.map(o=>`<a class="mn-sonuc" href="${esc(o.link||"#gundem")}" data-mn="git"><b>${esc(TIPAD[o.tip]||o.tip)} · ${esc(o.baslik)}</b>${o.metin?`<span>${esc(kisalt(o.metin))}</span>`:""}</a>`).join("")}</div>`;
+  return "";
+}
 function panelCiz(){ if(!panel)return; const sg=document.getElementById("mnGovde"),scroll=sg?sg.scrollTop:0;
   const ust=`<div class="mn-ust"><div class="mn-kedi">${SVG("p")}</div><div class="mn-ad"><b>Minnoş</b><small>bekçi kedi · alaca, dişi bir sokak kedisi</small></div><button type="button" class="mn-kapat" data-mn="kapat" aria-label="Kapat">✕</button></div>
    <div class="mn-sekme" role="tablist"><button type="button" role="tab" aria-selected="${P.sekme==="sohbet"}" data-mn="sekme:sohbet">Soru sor</button><button type="button" role="tab" aria-selected="${P.sekme==="fal"}" data-mn="sekme:fal">Kahve falı</button></div>
@@ -2275,7 +2413,7 @@ function panelCiz(){ if(!panel)return; const sg=document.getElementById("mnGovde
   if(P.sekme==="sohbet"){
     const M=window.MinnosMotor||MinnosMotor;
     govde=`<div class="mn-govde" id="mnGovde">${P.msj.length?"":`<div class="mn-msj"><span>Mırr! Ben Minnoş. Uygulamayla ilgili ne merak ediyorsan sor, bilmediğimi dürüstçe söylerim.</span></div><div class="mn-oneri">${M.SORULAR.map(q=>`<button type="button" data-mn="oneri:${esc(q)}">${esc(q)}</button>`).join("")}</div>`}
-      ${P.msj.map(m=>`<div class="mn-msj ${m.ben?"ben":"ai"}"><span>${esc(m.t)}</span>${m.k?`<small>${esc(m.k)}</small>`:""}${m.eylem==="fal"?`<br><button type="button" class="mn-ana" data-mn="sekme:fal" style="margin-top:8px">Kahve falına geç</button>`:""}</div>`).join("")}
+      ${P.msj.map(m=>`<div class="mn-msj ${m.ben?"ben":"ai"}">${m.kart?kartHtml(m.kart):`<span>${esc(m.t)}</span>`}${m.k?`<small>${esc(m.k)}</small>`:""}${m.eylem==="fal"?`<br><button type="button" class="mn-ana" data-mn="sekme:fal" style="margin-top:8px">Kahve falına geç</button>`:""}</div>`).join("")}
       ${P.bekle?`<div class="mn-msj" aria-live="polite"><span class="mn-nokta" aria-label="Minnoş yazıyor"><i></i><i></i><i></i></span></div>`:""}</div>
      <form class="mn-yaz" data-mn-form="sor"><input id="mnSoru" maxlength="300" autocomplete="off" placeholder="Bir şey sor… (telefon, adres yazma)" aria-label="Minnoş'a sorun" value="${esc(P.taslak||"")}"><button type="submit" ${P.bekle?"disabled":""}>Sor</button></form>`;
   }else{
@@ -2299,6 +2437,7 @@ function panelAc(sekme){
     const t=e.target.closest("[data-mn]");if(!t)return;const [k,...r]=t.dataset.mn.split(":"),x=r.join(":");
     if(k==="kapat")panelKapat();else if(k==="sekme"){P.sekme=x;panelCiz()}
     else if(k==="oneri")soruSor(x);
+    else if(k==="git")panelKapat();
     else if(k==="konu"){P.konu=x;panelCiz()}
     else if(k==="sem"){P.niyet=(document.getElementById("mnNiyet")||{value:P.niyet}).value;P.sem=P.sem.includes(x)?P.sem.filter(y=>y!==x):[...P.sem,x].slice(-3);panelCiz()}
     else if(k==="falBak"){P.niyet=(document.getElementById("mnNiyet")||{value:P.niyet}).value;falBak()}
@@ -2316,14 +2455,21 @@ const M_=()=>window.MinnosMotor||MinnosMotor;
 async function soruSor(q){
   if(P.bekle)return; P.msj.push({ben:true,t:q});P.bekle=true;panelCiz();
   let c=null,not="";
-  if(apiVar()){ try{ const r=await window.BS_API("POST","/api/minnos/sor",{soru:q});
-      if(r.kaynak==="yapay-zeka"){c={t:r.cevap,k:"Yapay zekâ",ai:true};if(P.ai)P.ai.kalan=r.kalan}
-      else if(r.kaynak==="engel")c={t:r.cevap,k:"Minnoş"};
-      else not=r.neden==="premium"?"Hazır cevap · yapay zekâ Premium'a dahil":r.neden==="limit"?"Hazır cevap · bugünkü yapay zekâ hakkın doldu":"Hazır cevap";
-    }catch(e){ not=e&&e.status===429?"Hazır cevap · Minnoş biraz dinleniyor":"Hazır cevap" } }
-  else not="Hazır cevap";
-  if(!c){const y=M_().cevapla(q);c={t:y.cevap,k:y.id?not:"Hazır cevap · bilgi bankamda yok",eylem:y.eylem}}
-  P.msj.push({ben:false,t:c.t,k:c.k,eylem:c.eylem,ai:c.ai});P.bekle=false;panelCiz();
+  /* 1) Kodla: maliyet hesabı, fırsat/site araması, hazır bilgi. Rakamlar yönetimin girdiği fiyatlardan gelir. */
+  const r=M_().coz(q,veriTopla(),ogeTopla());
+  if(["hesap","firsat","firsatYok","arama"].includes(r.tur))c={kart:r,k:r.tur==="hesap"?"Site fiyatlarından hesaplandı":"Site araması"};
+  else if(r.tur==="bilgi")c={t:r.cevap,k:"Hazır cevap",eylem:r.eylem};
+  /* 2) Bilinmeyen soru: yapay zekâ (açıksa), değilse dürüst "bilmiyorum" */
+  if(!c){
+    if(apiVar()){ try{ const a=await window.BS_API("POST","/api/minnos/sor",{soru:q});
+        if(a.kaynak==="yapay-zeka"){c={t:a.cevap,k:"Yapay zekâ",ai:true};if(P.ai)P.ai.kalan=a.kalan}
+        else if(a.kaynak==="engel")c={t:a.cevap,k:"Minnoş"};
+        else not=a.neden==="premium"?"Hazır cevap · yapay zekâ Premium'a dahil":a.neden==="limit"?"Hazır cevap · bugünkü yapay zekâ hakkın doldu":"Hazır cevap";
+      }catch(e){ not=e&&e.status===429?"Hazır cevap · Minnoş biraz dinleniyor":"Hazır cevap" } }
+    else not="Hazır cevap";
+    if(!c){const y=M_().cevapla(q);c={t:y.cevap,k:not+" · bilgi bankamda yok"}}
+  }
+  P.msj.push({ben:false,t:c.t,kart:c.kart,k:c.k,eylem:c.eylem,ai:c.ai});P.bekle=false;panelCiz();
 }
 async function falBak(){
   if(!P.sem.length||P.falBekle)return; P.falBekle=true;panelCiz();

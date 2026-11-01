@@ -64,3 +64,65 @@ test("Kahve falı: aynı seçim aynı gün aynı falı verir; semboller ve konu 
   }
   const uc = M.fal({ konu: "para", semboller: ["kus", "yol", "yuzuk", "ay", "dag"], gun: "x" }); assert.ok((uc.match(/\./g) || []).length < 12, "en çok 3 sembol yorumlanır");
 });
+
+/* ---- Maliyet hesabı ve site araması ---- */
+const VERI = {
+  hali: { aktif: true, fiyat: 45 }, sut: { aktif: true, fiyat: 40, ciftlik: "Örnek Çiftliği" },
+  utu: { aktif: true, aksamEk: 20, kalemler: [{ ad: "Gömlek", fiyat: 60 }, { ad: "Pantolon", fiyat: 70 }, { ad: "Elbise", fiyat: "" }] },
+  temizlik: { aktif: true, turler: [{ ad: "Ev temizliği", fiyat: 900 }] },
+  urunler: [{ ad: "Süt", birim: "litre", fiyat: 30, aktif: true }, { ad: "Domates", birim: "kg", fiyat: 25, aktif: true }, { ad: "Peynir", birim: "kg", fiyat: "", aktif: true }, { ad: "Salatalık", birim: "kg", fiyat: 20, aktif: false }],
+  firsatlar: [
+    { isletme: "Moda Butik", baslik: "Kış montlarında indirim", kategori: "Giyim ve tekstil", oran: 40, mesafe: 6 },
+    { isletme: "Şık Giyim", baslik: "Pantolon alana gömlek hediye", kategori: "Giyim ve tekstil", oran: 20, mesafe: 3 },
+    { isletme: "Köşe Fırını", baslik: "Akşam ekmek yarı fiyat", kategori: "Fırın", oran: 50, mesafe: 4 },
+    { isletme: "Pırıl Halı Yıkama", baslik: "Halı yıkamada %15 indirim", kategori: "Hizmet", oran: 15, mesafe: 8 }
+  ]
+};
+const OGELER = [{ tip: "duyuru", baslik: "Duyuru", metin: "Cumartesi bahçe temizliği var, gönüllüler toplanıyor", link: "#gundem", t: 5 }, { tip: "etkinlik", baslik: "Komşu çay saati", metin: "Pazar 16:00 salonda", link: "#etkinlik", t: 4 },
+  { tip: "firsat", baslik: "Köşe Fırını · %50", metin: "Akşam ekmek yarı fiyat", link: "#firsat", t: 3 }, { tip: "urun", baslik: "Domates", metin: "25 TL / kg", link: "#sepet", t: 1 }];
+
+test("Maliyet hesabı: halı, ütü, süt, market, temizlik rakamları yönetimin girdiği fiyatlardan çıkar", () => {
+  let c = M.coz("10 metrekare halıyı kaça yıkatırım?", VERI, OGELER);
+  assert.equal(c.tur, "hesap"); assert.equal(c.toplam, 450); assert.equal(c.satirlar[0].miktar, "10 m²"); assert.match(c.notlar.join(" "), /ölçümden sonra/); assert.equal(c.oneriler[0].isletme, "Pırıl Halı Yıkama", "halı yıkama fırsatı da önerilir");
+  assert.equal(M.coz("12,5 m² halı kaç para", VERI, []).toplam, 562.5);
+  c = M.coz("5 gömlek 3 pantolon ütü ne kadar", VERI, []); assert.equal(c.toplam, 5 * 60 + 3 * 70); assert.equal(c.satirlar.length, 2);
+  c = M.coz("5 gömlek ütü aynı akşam kaç tl", VERI, []); assert.equal(c.toplam, 5 * 60 + 5 * 20, "aynı akşam ek ücreti");
+  c = M.coz("2 elbise ütü ne kadar", VERI, []); assert.equal(c.tur, "hesap"); assert.equal(c.satirlar[0].tutar, null); assert.match(c.notlar.join(" "), /henüz fiyat girmemiş/, "fiyat yoksa uydurmaz");
+  c = M.coz("2,5 kg domates kaç lira", VERI, []); assert.equal(c.toplam, 62.5);
+  c = M.coz("peynir kaç tl", VERI, []); assert.match(c.notlar.join(" "), /henüz fiyat girmemiş/);
+  assert.notEqual(M.coz("3 kg salatalık kaç tl", VERI, []).tur, "hesap", "pasif ürün hesaplanmaz");
+  c = M.coz("ev temizliği ne kadar", VERI, []); assert.equal(c.toplam, 900);
+  c = M.coz("halı yıkama fiyatı", VERI, []); assert.equal(c.toplam, null); assert.match(c.notlar.join(" "), /kaç metrekare/, "miktar yoksa sorar");
+});
+
+test("Maliyet hesabı: süt için çiftlik ile market karşılaştırılır; hizmet istenirse yalnız çiftlik", () => {
+  let c = M.coz("5 litre süt kaça gelir?", VERI, []); assert.equal(c.satirlar.length, 2); assert.equal(c.satirlar[0].tutar, 200); assert.equal(c.satirlar[1].tutar, 150); assert.match(c.notlar.join(" "), /Market\/pazar litrede 10,00? TL daha ucuz|Market\/pazar litrede 10 TL daha ucuz/); assert.equal(c.toplam, null, "iki alternatifin toplamı yok");
+  c = M.coz("5 litre çiftlik sütü kaça gelir?", VERI, []); assert.equal(c.satirlar.length, 1); assert.equal(c.toplam, 200);
+  c = M.coz("haftalık 3 litre taze süt kaç tl", VERI, []); assert.ok(c.satirlar.some(s => /Haftalık tekrar/.test(s.ad) && s.tutar === 480)); assert.equal(c.toplam, 120, "haftalık satır toplama eklenmez");
+});
+
+test("Hesap kapalı hizmeti ya da fiyatı olmayan hizmeti uydurmaz; hizmet kapalıysa hesap yok", () => {
+  assert.notEqual(M.coz("10 m2 halı kaça yıkanır", { ...VERI, hali: { aktif: false, fiyat: 45 } }, []).tur, "hesap");
+  const c = M.coz("10 m2 halı kaça yıkanır", { ...VERI, hali: { aktif: true, fiyat: "" } }, []); assert.equal(c.tur, "hesap"); assert.equal(c.satirlar[0].tutar, null); assert.equal(c.toplam, null);
+});
+
+test("Fırsat araması: 'en uygun kıyafeti nerede bulabilirim?' indirimi yüksek ve yakın olanı öne alır; bulamazsa uydurmaz", () => {
+  const c = M.coz("En uygun kıyafeti nerede bulabilirim?", VERI, OGELER); assert.equal(c.tur, "firsat"); assert.deepEqual(c.sonuclar.map(f => f.isletme), ["Moda Butik", "Şık Giyim"]);
+  assert.equal(M.coz("ucuz ekmek nerede var", VERI, OGELER).sonuclar[0].isletme, "Köşe Fırını");
+  const y = M.coz("En uygun ilacı nerede bulabilirim?", VERI, OGELER); assert.equal(y.tur, "firsatYok"); assert.match(y.anahtar, /ilac/);
+  assert.equal(M.coz("en uygun kıyafeti nerede bulabilirim", { ...VERI, firsatlar: [] }, []).tur, "firsatYok");
+});
+
+test("Site araması: Gündem, Etkinlik, ürün ve fırsat kayıtlarında bulur; bilgi bankası ve hesap önceliklidir", () => {
+  let c = M.coz("bahçe temizliği ne zaman", VERI, OGELER); assert.equal(c.tur, "arama"); assert.equal(c.sonuclar[0].tip, "duyuru");
+  assert.equal(M.coz("çay saati", VERI, OGELER).sonuclar[0].baslik, "Komşu çay saati");
+  assert.equal(M.coz("Düello nasıl oynanır?", VERI, OGELER).tur, "bilgi");
+  assert.equal(M.coz("Halı nasıl yıkatılır, yıkatmak istiyorum", VERI, OGELER).tur, "bilgi", "fiyat/miktar yoksa hesap değil, anlatım");
+  assert.equal(M.coz("zebra giraffe", VERI, OGELER).tur, "yok");
+  assert.equal(M.coz("", VERI, OGELER).tur, "yok");
+});
+
+test("Gizlilik: arama yalnızca verilen herkese açık öğelerde çalışır (kat, daire, telefon alanı yok)", () => {
+  const html2 = html.slice(html.indexOf("function ogeTopla()"), html.indexOf("function kartHtml"));
+  assert.doesNotMatch(html2, /profil|tumSakinler|tumHz|tumMgz|telefon|daire|hizmetSiparis|magazaSiparis|firsatOneri/i, "ogeTopla kişisel alanlara dokunmaz");
+});

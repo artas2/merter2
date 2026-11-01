@@ -4,6 +4,29 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-11-01 · Minnoş site arama motoru olsun ve maliyet hesaplasın
+
+**Kullanıcının sözleri:** "Bekçi kedi aynı zamanda sitenin arama motoru olarak kullanılıyor değil mi?" (hayır; öneri sunuldu) → "Evet, bunları yap. Aynı zamanda örnek veriyorum. Mobil bankacılıkta bana kredi hesaplıyor. Minnoş'tan istediğimiz de şu. Bize maliyet hesaplasın. Misal desin ki en uygun kıyafeti nerede bulabilirim? 10 metrekare halıyı kaça yıkatırım? Bu şekilde."
+
+```
+HEDEF       : Minnoş site içinde arama yapsın ve sitedeki hizmetler için maliyet hesaplasın.
+KAPSAM      : 1) Hesap: halı (m²), ütü (parça, aynı akşam ek ücreti), çiftlik sütü (litre, haftalık), market/pazar ürünü (kg/litre/adet), ev temizliği.
+              2) Süt için çiftlik ↔ market karşılaştırması; halı için ilgili fırsat önerisi.
+              3) Fırsat araması: "en uygun kıyafeti nerede bulabilirim?" (eş anlamlılar: kıyafet→giyim vb.); indirim oranı, yakınlık, bitiş sırasıyla.
+              4) Genel site araması: duyuru, etkinlik, fırsat, Gündem paylaşımı, hizmet, ürün.
+              5) Sonuç kartları (tablo, toplam, bağlantılar), düzen: hesap → fırsat → hazır bilgi → arama → yapay zekâ.
+KISITLAR    : Rakamları yapay zekâ üretmez, kodla ve yönetimin girdiği fiyattan hesaplanır; fiyat yoksa uydurulmaz; "tahmini" uyarısı;
+              yalnızca herkese açık içerik taranır (kat, daire, telefon, sipariş yok); önce sor (push, yayın).
+BAŞARI      : Motor testleri (450 TL halı, 510 TL ütü, süt karşılaştırması, fiyatsız ürün, kapalı hizmet, kıyafet sıralaması, bulunamayan, gizlilik); sayfada 16 kontrol.
+VARSAYIMLAR : "Mobil bankacılıktaki kredi hesaplayıcı gibi" = soruyu yazınca tablo ve toplam görmek. "En uygun" = Fırsatlar'daki indirim oranı yüksek ve yakın olan.
+              Uygulamada fiyat karşılaştırması yalnızca sitedeki kayıtlı fırsat, ürün ve hizmetler arasındadır; internetteki mağazalar aranmaz.
+BELİRSİZ    : Fiyatların güncelliği (yönetimin girişine bağlı); site dışı mağazaları da aramak istenip istenmediği; kredi/aidat gibi başka hesapların istenip istenmediği.
+```
+
+**Puan: 89 (baş usta).** Niyete sadakat 4, ölçülebilirlik 4, belirsizlik 4, kısıtlar 4, yapı 3, kısalık 3, dil 4.
+
+---
+
 ## 2026-10-31 · Kedinin adı Minnoş; soruları yapay zekâ ile cevaplasın; kahve falı baksın; "Ona bu becerileri öğretin"
 
 **Kullanıcının sözleri:** "Kedinin ismi minnoş olsun ve soruları aı ile cevaplasın ve kahve falı bakabilsin." · "Ona bu becerileri öğretin."

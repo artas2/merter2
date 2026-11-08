@@ -4,6 +4,24 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-11-08 · Kuru temizleme: Ütü hizmetinin içinde seçenek
+
+**Kullanıcının sözleri:** "Taze süt ve kuru temizleme seçeneklerini de ekledik mi?" → "Ütünün içinde seçenek olsun ve hangisi daha profesyonel ise o gözüksün."
+
+```
+HEDEF       : Ütü kartında "Ütü / Kuru temizleme" seçimi; kuru temizleme kendi parça listesi ve fiyatıyla sipariş verilir.
+KAPSAM      : Sakin: seçim (iki kutucuk, açıklamalı), ayrı parça listesi (başlangıç: takım elbise, ceket, pantolon, elbise, mont, perde), tutar, not, sipariş + Taleplerim. Yönetici: toplama listesinde ayrı etiket ve sayım, ayarlarda parça/fiyat/teslim süresi ve aç-kapa. Minnoş: hesap, bilgi bankası, fırsat/arama kayıtları.
+KAPSAM DIŞI : Ayrı sekme, aynı akşam teslim (kuru temizlemede yok), lekeye göre fiyat.
+KISITLAR    : Fiyatı yönetim girer (başlangıç listesi fiyatsız); teslim süresini yönetim yazar, uygulama süre uydurmaz; ödeme alınmaz.
+BAŞARI      : Motor testi (hesap, fiyatsız parça, kapalı seçenek, ütü etkilenmez), sayfa testi (seçim, liste, tutar, kayıt, yönetici etiketi, ayar doğrulama, kapalıyken gizli).
+VARSAYIMLAR : "Daha profesyonel olan gözüksün" = iki seçeneği açıklamalı, net bir seçim kutusu olarak göstermek (kuru temizleme kapalıysa kutu hiç görünmez).
+BELİRSİZ    : Gerçek fiyatlar ve teslim süresi (yönetim girer).
+```
+
+**Puan: 84 (baş usta).** "Profesyonel" ifadesi yoruma açık olduğundan belirsizlik puanı düştü.
+
+---
+
 ## 2026-11-01 · Et satışı: Sepet > Kasap (anlaşmalı kasaplar) ve Hizmet > Taze et (anlaşmalı çiftlikler)
 
 **Kullanıcının sözleri:** "Çünkü yakında et de satacağız." → "Bence her ikisi için de yapalım. Birinde anlaşmalı kasaplarımızı kullanırız. Diğerinde de anlaşmalı çiftliklerimizden kullanıcıya yardımcı oluruz."

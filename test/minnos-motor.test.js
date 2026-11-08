@@ -238,3 +238,16 @@ test("Et bilgi bankası: kasap ve çiftlik eti soruları doğru konuya gider", (
   for (const q of ["Kasaptan et sipariş edebilir miyim?", "Çiftlik etini nasıl alırım?", "Kıyma nereden alabilirim?"]) assert.equal(M.cevapla(q).id, "et", q);
   assert.equal(M.cevapla("Taze süt sipariş edebilir miyim?").id, "sut", "süt etkilenmedi");
 });
+
+/* ---- Kuru temizleme (Ütü hizmetinin içinde seçenek) ---- */
+const KURU_VERI = { ...VERI, utu: { ...VERI.utu, kuru: { aktif: true, kalemler: [{ ad: "Takım elbise", fiyat: 250 }, { ad: "Ceket", fiyat: 150 }, { ad: "Pantolon", fiyat: 90 }, { ad: "Perde (takım)", fiyat: "" }] } } };
+test("Kuru temizleme hesabı: ütüden ayrı fiyat listesi, fiyatsız parça uydurulmaz", () => {
+  let c = M.coz("2 ceket 1 pantolon kuru temizleme ne kadar?", KURU_VERI, []);
+  assert.equal(c.tur, "hesap"); assert.equal(c.toplam, 390); assert.ok(c.satirlar.every(r => /^Kuru temizleme/.test(r.ad)), "ütü satırı karışmaz");
+  c = M.coz("1 takım elbise kuru temizleme kaça gelir", KURU_VERI, []); assert.equal(c.toplam, 250);
+  c = M.coz("2 perde kuru temizleme kaç TL", KURU_VERI, []); assert.equal(c.toplam, null); assert.match(c.notlar.join(" "), /henüz fiyat girmemiş/);
+  c = M.coz("kuru temizleme fiyatları", KURU_VERI, []); assert.equal(c.toplam, null); assert.ok(c.satirlar.length >= 3, "liste gösterilir, toplanmaz");
+  c = M.coz("3 pantolon ütü ne kadar", KURU_VERI, []); assert.equal(c.toplam, 210, "ütü etkilenmez");
+  assert.notEqual(M.coz("2 ceket kuru temizleme ne kadar", { ...KURU_VERI, utu: { ...KURU_VERI.utu, kuru: { ...KURU_VERI.utu.kuru, aktif: false } } }, []).tur, "hesap", "kapalıysa hesaplanmaz");
+  assert.equal(M.cevapla("Kuru temizleme yaptırabilir miyim?").id, "utu");
+});

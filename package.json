@@ -18,6 +18,7 @@
     "ekran": "node --disable-warning=ExperimentalWarning test/araclar/ekran-goruntusu.js",
     "bekci:egit": "node --disable-warning=ExperimentalWarning scripts/bekci-egit.js --yaz",
     "yuk": "node --disable-warning=ExperimentalWarning scripts/yuk-testi.js",
+    "onizleme": "node scripts/onizleme.js",
     "migrate": "node --disable-warning=ExperimentalWarning scripts/migrate.js"
   },
   "dependencies": {

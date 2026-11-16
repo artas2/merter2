@@ -429,6 +429,73 @@ textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--l
 @keyframes mnNokta{0%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
 @keyframes mnFincan{0%{transform:rotate(0) translateY(0)}35%{transform:translateY(-16px) rotate(0)}70%{transform:translateY(-16px) rotate(180deg)}100%{transform:translateY(0) rotate(180deg)}}
 @keyframes mnBuhar{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:.8;transform:translateY(-8px)}}@keyframes mnFal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* ---- Hesabım (kişisel bütçe): antrasit, şampanya altını, zümrüt, kuşkonmaz grisi; uygulama temasından bağımsız ---- */
+.ks{--k-bg:#17181A;--k-sheet:#1F2023;--k-sheet2:#26282C;--k-line:#33363B;--k-ink:#F4F2EC;--k-mute:#A3AD96;--k-gold:#D8C08C;--k-green:#34C38F;--k-red:#E8736A;--k-gray:#8C9684;
+  --k-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--k-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  background:var(--k-bg);color:var(--k-ink);font:400 16px/1.5 var(--k-sans);border-radius:24px;padding:18px 16px 22px;margin:0 -4px}
+.ks *{box-sizing:border-box}
+.ks button,.ks input,.ks select{font:inherit;color:inherit}
+.ks button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ks :focus-visible{outline:2px solid var(--k-gold);outline-offset:2px}
+.ks-head{display:flex;align-items:center;gap:10px}
+.ks-logo{width:30px;height:30px;stroke:var(--k-gold);fill:none;stroke-width:1.5;flex:none}
+.ks-head b{font-weight:300;letter-spacing:.3em;font-size:15px;color:var(--k-ink)}
+.ks-eye{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--k-mute);margin:18px 0 6px}
+.ks-h{font:300 22px/1.25 var(--k-sans);margin:0 0 4px;letter-spacing:-.01em;color:var(--k-ink)}
+.ks-serif{font-family:var(--k-serif);font-style:italic;color:var(--k-mute);font-size:15px;line-height:1.5;margin:12px 0 0}
+.ks-num{font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ks .up{color:var(--k-green)}.ks .down{color:var(--k-red)}.ks .gold{color:var(--k-gold)}
+.ks-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
+.ks-tabs button{min-height:44px;border-radius:12px;border:1px solid var(--k-line);background:transparent;font-size:13px;letter-spacing:.04em;color:var(--k-mute);padding:0 2px}
+.ks-tabs button[aria-pressed="true"]{border-color:var(--k-gold);color:var(--k-gold)}
+.ks-card{background:var(--k-sheet);border:1px solid var(--k-line);border-radius:20px;padding:18px;margin-top:14px}
+.ks-ring{position:relative;width:min(100%,280px);margin:6px auto 0}
+.ks-ring svg{display:block;width:100%;height:auto;transform:rotate(-90deg)}
+.ks-ringc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ks-ringc small{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--k-mute)}
+.ks-ringc b{font-weight:300;font-size:36px;line-height:1.1}
+.ks-ringc span{font-family:var(--k-serif);font-style:italic;color:var(--k-mute);font-size:14px}
+.ks-rows{list-style:none;margin:14px 0 0;padding:0}
+.ks-rows li{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--k-line);margin:0}
+.ks-rows li:first-child{border-top:0}
+.ks-dot{width:10px;height:10px;border-radius:50%}
+.ks-rows b{font-weight:500;color:var(--k-ink)}.ks-rows small{display:block;font-family:var(--k-serif);font-style:italic;color:var(--k-mute);font-size:13px}
+.ks-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ks-stat small{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--k-mute)}
+.ks-stat b{font-weight:300;font-size:24px}
+.ks-dal{display:block;width:100%;height:84px;margin-top:8px}
+.ks-leak{display:grid;grid-template-columns:1fr auto 52px;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--k-line)}
+.ks-leak:first-of-type{border-top:0}
+.ks-leak b{font-weight:500;color:var(--k-ink)}.ks-leak small{display:block;font-family:var(--k-serif);font-style:italic;color:var(--k-mute);font-size:13px}
+.ks-leak.kapali b,.ks-leak.kapali .tut{text-decoration:line-through;text-decoration-color:var(--k-red);text-decoration-thickness:1px;color:var(--k-mute)}
+.ks .ks-sw{width:52px;height:32px;min-height:32px;border-radius:16px;border:1px solid var(--k-line);background:var(--k-sheet2);position:relative;padding:0}
+.ks .ks-sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--k-gray);transition:transform .2s,background .2s}
+.ks .ks-sw[aria-checked="true"]{border-color:var(--k-green)}.ks .ks-sw[aria-checked="true"]::after{transform:translateX(20px);background:var(--k-green)}
+.ks label.ks-f{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--k-mute);margin-top:14px}
+.ks label.ks-f output{float:right;color:var(--k-ink);letter-spacing:0;text-transform:none;font-size:15px}
+.ks input[type=range]{width:100%;accent-color:var(--k-gold);height:32px;margin:2px 0 0;padding:0;border:0;background:transparent}
+.ks input[type=number],.ks select{width:100%;min-height:46px;background:var(--k-sheet2);color:var(--k-ink);border:1px solid var(--k-line);border-radius:12px;padding:10px 12px;margin-top:6px}
+.ks .ks-btn{display:block;min-height:48px;border-radius:14px;border:1px solid var(--k-gold);background:var(--k-gold);color:#17181A;font-weight:600;padding:0 18px;width:100%;margin-top:14px}
+.ks .ks-btn.ghost{background:transparent;color:var(--k-ink);border-color:var(--k-line)}
+.ks-note{font-size:12.5px;color:var(--k-mute);margin:10px 0 0;line-height:1.45}
+.ks-gears{display:block;width:100%;height:auto;margin-top:4px}
+.ks-gears .g{fill:none;stroke:var(--k-gray);stroke-width:1.2;cursor:pointer}
+.ks-gears .g.on{stroke:var(--k-gold);stroke-width:1.6}
+.ks-gears .hair{stroke:var(--k-line);stroke-width:.6;stroke-dasharray:2 3;fill:none}
+.ks-gears text{fill:var(--k-mute);font:500 8px var(--k-sans);letter-spacing:.12em;text-anchor:middle}
+@media (prefers-reduced-motion:no-preference){
+ .ks-spin{animation:ksSpin 24s linear infinite;transform-box:fill-box;transform-origin:center}.ks-spin.rev{animation-direction:reverse}.ks-spin.s2{animation-duration:18s}.ks-spin.s3{animation-duration:30s}
+ @keyframes ksSpin{to{transform:rotate(360deg)}}
+ .ks-ring circle.ks-seg{transition:stroke-dasharray .5s ease,stroke-dashoffset .5s ease}
+}
+.ks-flow{display:flex;gap:6px;margin-top:10px}
+.ks-flow button{flex:1;min-height:56px;border-radius:14px;border:1px solid var(--k-line);background:transparent;color:var(--k-ink);font-size:12.5px;line-height:1.25;padding:6px 4px}
+.ks-flow button[aria-pressed="true"]{border-color:var(--k-gold);color:var(--k-gold)}
+.ks-flow i{align-self:center;font-style:normal;color:var(--k-mute)}
+.ks-rule{display:grid;grid-template-columns:1fr 52px;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--k-line)}
+.ks-rule:first-child{border-top:0}
+.ks-rule b{font-weight:500;color:var(--k-ink)}.ks-rule small{display:block;font-family:var(--k-serif);font-style:italic;font-size:13px;color:var(--k-mute)}
+.ks-rule .del{grid-column:1/-1;justify-self:start;background:none;border:0;color:var(--k-mute);font-size:13px;text-decoration:underline;min-height:44px;min-width:44px;padding:0;text-align:left}
 </style>
 
 <header class="top">
@@ -441,6 +508,7 @@ textarea{width:100%;font:14px var(--f-body);padding:8px;border:1px solid var(--l
     <a href="#sepet" data-v="sepet">Sepet</a>
     <a href="#hikmet" data-v="hikmet">Hikmet</a>
     <a href="#hizmet" data-v="hizmet">Hizmetler</a>
+    <a href="#hesap" data-v="hesap">Hesabım</a>
     <a href="#etkinlik" data-v="etkinlik">Etkinlik ve turnuva</a>
     <a href="#firsat" data-v="firsat">Fırsatlar</a>
     <a href="#kart" data-v="kart">Puan Kartım</a>
@@ -2215,6 +2283,7 @@ function viewAnasayfa(){
     const tr=TRN.find(t=>t.aktif!==false);if(tr){const tab=puanTablosu(tr),sira=tab.findIndex(r=>bizMi(r.ad))+1;
       h+=`<a class="hcard link" href="#etkinlik" data-tp-go="turnuva"><div class="hhead">${ikon("kupa","acc")}<h3>${esc(tr.ad)}</h3>${ikon("sag","go")}</div><p class="big">${sira?`${esc(AYAR.siteAdi)} ${sira}. sırada · ${tab[sira-1].p} puan`:`${tab.length} site yarışıyor`}</p><p class="meta">${esc(tr.brans||"")}${tab[0]&&tab[0].o?` · Lider: ${esc(tab[0].ad)}`:""}</p></a>`}
     h+=hizmetKarti();
+    if(window.BS_HESABIM)h+=BS_HESABIM.kart();
     if(window.BS_ARENA)h+=BS_ARENA.kart();
     {const fl=FRS.filter(gecerli).sort((a,b)=>(a.bitis||"9999").localeCompare(b.bitis||"9999")).slice(0,3);
      h+=`<a class="hcard link" href="#firsat"><div class="hhead">${ikon("etiket","acc")}<h3>Yakındaki fırsatlar</h3>${ikon("sag","go")}</div>${fl.length?`<ul class="mods">${fl.map(f=>`<li>${esc(f.isletme)} · ${esc(f.baslik)}${f.oran?`<span class="pill">%${+f.oran}</span>`:""}</li>`).join("")}</ul>`:`<p class="meta">Çevredeki indirimleri keşfedin, gördüğünüz fırsatları komşularınızla paylaşın.</p>`}</a>`;}}
@@ -2235,7 +2304,7 @@ function bnav(){
 let current="anasayfa";
 function route(){
   gnSay=10;
-  let v=(location.hash||"#anasayfa").slice(1); if(!(v in BY)&&!["anasayfa","bugun","hikmet","hizmet","gundem","harita","profil","sepet","etkinlik","magaza","firsat","kart","projeler","cerceve","sakinler","ayarlar","davetler","arena"].includes(v)) v="anasayfa";
+  let v=(location.hash||"#anasayfa").slice(1); if(!(v in BY)&&!["anasayfa","bugun","hikmet","hizmet","hesap","gundem","harita","profil","sepet","etkinlik","magaza","firsat","kart","projeler","cerceve","sakinler","ayarlar","davetler","arena"].includes(v)) v="anasayfa";
   current=v; render(true);
 }
 function render(scrollTop){
@@ -2250,6 +2319,7 @@ function render(scrollTop){
   else if(v==="davetler") main.innerHTML=window.BS_YONETIM&&ADMIN?BS_YONETIM.view():`<div class="pending">Bu bölüm yalnızca site yönetimine açık.</div>`;
   else if(v==="firsat"||v==="magaza"){ if(v==="magaza"){current="firsat";fSekme="hizmet"} const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input:not([type=checkbox]):not(#frAra),textarea")) return; main.innerHTML=viewFirsat(); }
   else if(v==="hikmet"){ main.innerHTML=viewHikmet(); }
+  else if(v==="hesap"){ const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input,select")) return; main.innerHTML=window.BS_HESABIM?BS_HESABIM.view():""; }
   else if(v==="hizmet"){ const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input:not([type=checkbox]):not([type=radio]),textarea")) return; main.innerHTML=viewHizmet(); }
   else if(v==="bugun"){ const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input")) return; main.innerHTML=viewBugun(); }
   else if(v==="gundem"){ const ae=document.activeElement; if(!scrollTop&&ae&&main.contains(ae)&&ae.matches("input:not([type=checkbox]):not([type=file]),textarea")) return; main.innerHTML=viewGundem(); gundemSonra(); }
@@ -2305,6 +2375,143 @@ applyAyar(); route(); initStore();
 setInterval(()=>{if(current==="anasayfa"||current==="bugun"){const ae=document.activeElement;if(ae&&ae.matches&&ae.matches("input,textarea,select"))return;const y=window.scrollY;render(false);window.scrollTo(0,y)}},60000);
 </script>
 <script>
+/*HESABIM-BASLA*/
+/* Hesabım (kişisel bütçe): sakin kendi gelir/gider rakamlarını girer; "harcama filtresi" ile küçük günlük giderleri kapatıp
+   birikime çevirir. Veri yalnızca bu cihazda saklanır (sunucuya ve yönetime gitmez). Banka bağlantısı ve ödeme yoktur.
+   Getiri oranı kullanıcının kendi varsayımıdır; uygulama oran önermez. */
+(function(){
+"use strict";
+const KAT={zorunlu:{ad:"Zorunlu",acik:"Kira, aidat, fatura, market",renk:"var(--k-gray)"},yasam:{ad:"Yaşam",acik:"Ulaşım, sağlık, eğitim",renk:"var(--k-gold)"},gereksiz:{ad:"Gereksiz",acik:"Vazgeçince fark edilmeyenler",renk:"var(--k-red)"}};
+const VARS=()=>({gelir:85000,harcama:{zorunlu:38000,yasam:14500,gereksiz:9800},
+  delikler:[{id:"d1",ad:"Dışarıda kahve",acik:"Günde iki bardak",tutar:260,kapali:false},{id:"d2",ad:"Paket yemek",acik:"Kurye ve servis ücretiyle",tutar:520,kapali:false},{id:"d3",ad:"Kullanılmayan abonelikler",acik:"Günlüğe bölünmüş hâli",tutar:140,kapali:false},{id:"d4",ad:"Kısa mesafe taksi",acik:"Yürünebilecek yollar",tutar:330,kapali:false},{id:"d5",ad:"Anlık alışveriş",acik:"Sepette bekletilmeyenler",tutar:250,kapali:false}],
+  yil:5,getiri:0,kurallar:[{id:"k1",tip:"limit",kat:"gereksiz",tutar:6000,acik:true},{id:"k2",tip:"aktar",yuzde:10,acik:true}],sekme:"ozet",cark:0,duzen:false,ornek:true});
+let S=null,yuklenen=null,kForm={tip:"limit",kat:"gereksiz",tutar:5000,yuzde:10},msg="";
+const anahtar=()=>"bss-hesabim-"+((typeof UID!=="undefined"&&UID)||"misafir");
+function yukle(){const a=anahtar();if(S&&yuklenen===a)return;S=VARS();yuklenen=a;
+  try{const k=JSON.parse(localStorage.getItem(a)||"null");if(k&&typeof k==="object")S={...S,...k,harcama:{...S.harcama,...(k.harcama||{})}}}catch(e){}}
+const kaydet=()=>{try{localStorage.setItem(anahtar(),JSON.stringify(S))}catch(e){}};
+const es=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const tl=n=>"₺"+Math.round(n).toLocaleString("tr-TR");
+/* Aylık düzenli katkının gelecekteki değeri (getiri 0 ise yalnızca birikir) */
+function birikim(aylik,yil,yuzde){const n=Math.round(yil*12),i=yuzde/100/12;return i>0?aylik*((Math.pow(1+i,n)-1)/i):aylik*n}
+function hesap(){
+  const top=S.harcama.zorunlu+S.harcama.yasam+S.harcama.gereksiz,kalan=S.gelir-top;
+  const gunluk=S.delikler.reduce((a,d)=>a+d.tutar,0),kapanan=S.delikler.filter(d=>d.kapali).reduce((a,d)=>a+d.tutar,0);
+  const aylik=kapanan*30,aktar=S.kurallar.filter(k=>k.acik&&k.tip==="aktar").reduce((a,k)=>a+S.gelir*k.yuzde/100,0),katki=aylik+aktar;
+  return {top,kalan,gunluk,kapanan,aylik,aktar,katki,birikim:birikim(katki,S.yil,S.getiri)};
+}
+/* Sitedeki harcama: aidat (yönetimin girdiği tutar), bu turun sepeti ve açık hizmet talepleri. Yalnızca kişinin kendi verisi. */
+function siteHarcama(){const o=[];
+  try{if(typeof AYAR!=="undefined"&&AYAR.aidat!==""&&AYAR.aidat!=null&&Number.isFinite(+AYAR.aidat)&&+AYAR.aidat>0)o.push(["Aidat","aylık",+AYAR.aidat])}catch(e){}
+  try{if(typeof sepet!=="undefined"&&typeof sepetOzet==="function"&&!(typeof eski==="function"&&eski())){const t=sepetOzet(sepet.kalemler).t;if(t>0)o.push(["Sepet","bu tur, tahmini",t])}}catch(e){}
+  try{if(typeof hzBenimListe==="function"){const t=hzBenimListe().filter(s=>!["teslim","tamam","iptal"].includes(s.durum)&&s.tutar!==""&&s.tutar!=null).reduce((a,s)=>a+(+s.tutar||0),0);if(t>0)o.push(["Hizmetler","açık talepler, tahmini",t])}}catch(e){}
+  return o}
+function halka(h){
+  const R=52,C=2*Math.PI*R,g=Math.max(S.gelir,1);let off=0;
+  const seg=(tutar,renk,w)=>{const u=Math.max(0,Math.min(1,tutar/g))*C,s=`<circle class="ks-seg" cx="60" cy="60" r="${R}" fill="none" stroke="${renk}" stroke-width="${w}" stroke-dasharray="${Math.max(0,u-1.2).toFixed(2)} ${C.toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}"/>`;off+=u;return s};
+  return `<svg viewBox="0 0 120 120" role="img" aria-label="Bütçe halkası: gelirin yüzde ${Math.round(h.top/g*100)} kadarı harcandı"><circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--k-line)" stroke-width="1"/>${seg(S.harcama.zorunlu,"var(--k-gray)",7)}${seg(S.harcama.yasam,"var(--k-gold)",7)}${seg(S.harcama.gereksiz,"var(--k-red)",2)}${h.kalan>0?seg(h.kalan,"var(--k-green)",7):""}</svg>`;
+}
+function dal(katki){
+  const W=300,H=84,n=Math.max(1,S.yil),p=[];let mx=1;
+  for(let y=0;y<=n;y++){const v=birikim(katki,y,S.getiri);p.push(v);mx=Math.max(mx,v)}
+  const xy=p.map((v,i)=>[(i/n*(W-12)+6),(H-8-(v/mx)*(H-20))]);
+  const d=xy.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+  const yap=xy.slice(1).map(q=>`<path d="M${q[0].toFixed(1)} ${q[1].toFixed(1)}q5 -7 11 -5q-3 6 -11 5z" fill="var(--k-green)" opacity=".75"/>`).join("");
+  return `<svg class="ks-dal" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${n} yılda birikimin yükselişi"><path d="M6 ${H-8}H${W-6}" stroke="var(--k-line)" stroke-width="1"/><path d="${d}" fill="none" stroke="var(--k-green)" stroke-width="1.8" stroke-linecap="round"/>${katki>0?yap:""}</svg>`;
+}
+function disli(cx,cy,r,dis){let d="";const n=dis*2;for(let i=0;i<n;i++){const a0=i/n*2*Math.PI,a1=(i+1)/n*2*Math.PI,rr=i%2?r:r-5;d+=(i?"L":"M")+(cx+rr*Math.cos(a0)).toFixed(2)+" "+(cy+rr*Math.sin(a0)).toFixed(2)+"L"+(cx+rr*Math.cos(a1)).toFixed(2)+" "+(cy+rr*Math.sin(a1)).toFixed(2)}return d+"Z"}
+const LOGO='<svg class="ks-logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 6h24v20H4z"/><path d="M8 26v3M24 26v3"/><circle cx="16" cy="16" r="5"/><path d="M16 11v2M16 19v2M11 16h2M19 16h2"/></svg>';
+const siteAdi=()=>{try{return (typeof AYAR!=="undefined"&&AYAR.siteAdi)||"Çınar Evleri"}catch(e){return "Çınar Evleri"}};
+function vDuzen(){
+  return `<section class="ks-card"><p class="ks-eye" style="margin-top:0">Aylık rakamların</p>
+   <label class="ks-f" for="ksGelir">Aylık gelir (₺)</label><input type="number" id="ksGelir" inputmode="numeric" min="0" step="500" value="${S.gelir}">
+   ${Object.entries(KAT).map(([k,v])=>`<label class="ks-f" for="ks-${k}">${v.ad} harcama (₺)</label><input type="number" id="ks-${k}" inputmode="numeric" min="0" step="100" value="${S.harcama[k]}">`).join("")}
+   <button type="button" class="ks-btn" data-ks="dkaydet">Kaydet</button><button type="button" class="ks-btn ghost" data-ks="dkapat">Vazgeç</button><button type="button" class="ks-btn ghost" data-ks="sifirla">Örnek veriye dön</button>
+   <p class="ks-note" id="ksMsg" role="status">${es(msg)||"Rakamların yalnızca bu cihazda saklanır; yönetim ve komşular göremez."}</p></section>`}
+function vOzet(){const h=hesap(),sh=siteHarcama();
+  if(S.duzen)return vDuzen();
+  return `<section class="ks-card"><div class="ks-ring">${halka(h)}<div class="ks-ringc"><small>${h.kalan>=0?"Kalan":"Açık"}</small><b class="ks-num ${h.kalan>=0?"up":"down"}" id="ksKalan">${tl(Math.abs(h.kalan))}</b><span>${tl(S.gelir)} gelirden</span></div></div>
+   <ul class="ks-rows">${Object.entries(KAT).map(([k,v])=>`<li><span class="ks-dot" style="background:${v.renk}"></span><div><b>${v.ad}</b><small>${v.acik}</small></div><b class="ks-num">${tl(S.harcama[k])}</b></li>`).join("")}</ul></section>
+  <section class="ks-card"><div class="ks-two"><div class="ks-stat"><small>Kapanan delik</small><b class="ks-num ${h.kapanan?"up":""}">${tl(h.kapanan)}<span style="font-size:13px"> / gün</span></b></div><div class="ks-stat"><small>Aylık birikim</small><b class="ks-num gold" id="ksKatki">${tl(h.katki)}</b></div></div>
+   ${dal(h.katki)}<p class="ks-serif">${h.katki>0?`${S.yil} yıl sonra yaklaşık <b class="ks-num up" style="font-style:normal">${tl(h.birikim)}</b>.`:"Henüz bir delik kapatılmadı. Filtre sekmesinden başla."}</p></section>
+  ${sh.length?`<section class="ks-card" id="ksSite"><p class="ks-eye" style="margin-top:0">Sitedeki harcaman</p><ul class="ks-rows">${sh.map(r=>`<li><span class="ks-dot" style="background:var(--k-gray)"></span><div><b>${r[0]}</b><small>${r[1]}</small></div><b class="ks-num">${tl(r[2])}</b></li>`).join("")}</ul><p class="ks-note">Uygulamadaki kendi kayıtlarından okunur; bütçene otomatik eklenmez, "Zorunlu" tutarını girerken hesaba kat.</p></section>`:""}
+  <button type="button" class="ks-btn ghost" data-ks="duzenle">Gelir ve harcamayı düzenle</button>
+  <p class="ks-note">${S.ornek?"Şu an örnek rakamlar görünüyor; kendi rakamlarını gir. ":""}Banka bağlantısı ve ödeme yoktur. Rakamların yalnızca bu cihazda kalır.</p>`}
+function vFiltre(){const h=hesap();
+  return `<p class="ks-serif">Günde <span class="ks-num" style="font-style:normal">${tl(h.gunluk)}</span> sessizce çıkıyor. Kapattığın delik birikime döner.</p>
+  <section class="ks-card" id="ksDelik">${S.delikler.map(d=>`<div class="ks-leak${d.kapali?" kapali":""}"><div><b>${es(d.ad)}</b><small>${es(d.acik)}</small></div><span class="ks-num tut">${tl(d.tutar)}</span><button type="button" class="ks-sw" role="switch" aria-checked="${d.kapali}" aria-label="${es(d.ad)} deliğini kapat" data-ks="delik:${d.id}"></button></div>`).join("")}</section>
+  <section class="ks-card"><div class="ks-two"><div class="ks-stat"><small>Günlük</small><b class="ks-num up" id="ksGun">${tl(h.kapanan)}</b></div><div class="ks-stat"><small>Aylık</small><b class="ks-num up" id="ksAy">${tl(h.aylik)}</b></div></div>
+   <label class="ks-f" for="ksYil">Süre <output id="ksYilO">${S.yil} yıl</output></label><input type="range" id="ksYil" min="1" max="30" step="1" value="${S.yil}">
+   <label class="ks-f" for="ksGetiri">Yıllık getiri varsayımı <output id="ksGetO">%${S.getiri}</output></label><input type="range" id="ksGetiri" min="0" max="40" step="1" value="${S.getiri}">
+   <div class="ks-stat" style="margin-top:14px"><small>Süre sonunda</small><b class="ks-num gold" id="ksSon" style="font-size:32px">${tl(birikim(h.aylik,S.yil,S.getiri))}</b></div>
+   <p class="ks-note">Getiri oranı senin varsayımındır; uygulama oran önermez ve getiri garanti edilmez. %0'da yalnızca kapattığın tutar birikir. Enflasyon hesaba katılmaz. Bu ekran yatırım tavsiyesi değildir.</p></section>`}
+const CARK=[["Gider kontrolü","Delikleri kapat","Harcama filtresi gereksiz gideri inceltir. Kapanan her delik bir sonraki çarkı döndürür."],["Pasif yatırım","Farkı ayır","Kapanan tutar ve otomatik kuralların ayırdığı pay, sen düşünmeden her ay birikime geçer."],["Sürdürülebilir büyüme","Zamana bırak","Düzenli katkı zamanla büyür; büyüdükçe gider kontrolünü sürdürmek kolaylaşır ve çark kendi kendine döner."]];
+function vCark(){const h=hesap(),i=S.cark,deger=[`${tl(h.kapanan)} / gün`,`${tl(h.katki)} / ay`,`${tl(h.birikim)} · ${S.yil} yıl`][i];
+  const G=[[62,74,38,14,"ks-spin"],[127,62,30,11,"ks-spin rev s2"],[183,92,34,12,"ks-spin s3"]];
+  return `<p class="ks-serif">Üç hamle, tek döngü. Bir çarka dokun.</p>
+  <section class="ks-card"><svg class="ks-gears" viewBox="0 0 260 150" role="img" aria-label="Birbirine geçen üç çark: gider kontrolü, pasif yatırım, sürdürülebilir büyüme">
+    <path class="hair" d="M0 74H260M62 0V150M127 0V150M183 0V150"/><circle class="hair" cx="62" cy="74" r="48"/><circle class="hair" cx="183" cy="92" r="44"/>
+    ${G.map((g,k)=>`<g data-ks="cark:${k}"><path class="g ${g[4]}${k===i?" on":""}" d="${disli(g[0],g[1],g[2],g[3])}M${g[0]+g[2]*.34} ${g[1]}a${(g[2]*.34).toFixed(1)} ${(g[2]*.34).toFixed(1)} 0 1 0 ${(-g[2]*.68).toFixed(1)} 0a${(g[2]*.34).toFixed(1)} ${(g[2]*.34).toFixed(1)} 0 1 0 ${(g[2]*.68).toFixed(1)} 0"/><circle cx="${g[0]}" cy="${g[1]}" r="${g[2]+4}" fill="transparent"/><text x="${g[0]}" y="${g[1]+3}">0${k+1}</text></g>`).join("")}</svg>
+   <div class="ks-flow">${CARK.map((c,k)=>`${k?"<i aria-hidden='true'>→</i>":""}<button type="button" data-ks="cark:${k}" aria-pressed="${k===i}">${c[0]}</button>`).join("")}</div></section>
+  <section class="ks-card"><p class="ks-eye" style="margin-top:0">0${i+1} · ${CARK[i][1]}</p><b class="ks-num gold" id="ksCark" style="font-weight:300;font-size:30px">${deger}</b><p class="ks-serif" style="margin-top:8px">${CARK[i][2]}</p></section>`}
+function kuralMetin(k){
+  if(k.tip==="limit"){const har=S.harcama[k.kat],asti=har>k.tutar;return [`${KAT[k.kat].ad} aylık ${tl(k.tutar)} sınırını aşarsa haber ver`,asti?`<span class="down" style="font-style:normal">${tl(har-k.tutar)} aşıldı.</span>`:`Sınıra ${tl(k.tutar-har)} var.`]}
+  return [`Her ay gelirin %${k.yuzde}'ini birikime ayır`,k.acik?`Bu ay ${tl(S.gelir*k.yuzde/100)} ayrılıyor.`:"Kapalı."]}
+function vKural(){
+  return `<p class="ks-serif">Bir kez kur, unut. Kural durumunu bu ekranda görürsün; bildirim gönderilmez.</p>
+  <section class="ks-card" id="ksKurallar">${S.kurallar.length?S.kurallar.map(k=>{const [a,b]=kuralMetin(k);return `<div class="ks-rule"><div><b>${a}</b><small>${b}</small></div><button type="button" class="ks-sw" role="switch" aria-checked="${k.acik}" aria-label="Kuralı aç ya da kapat" data-ks="kac:${k.id}"></button><button type="button" class="del" data-ks="ksil:${k.id}">Sil</button></div>`}).join(""):`<p class="ks-serif">Henüz kural yok.</p>`}</section>
+  <section class="ks-card"><p class="ks-eye" style="margin-top:0">Yeni kural</p>
+   <label class="ks-f" for="ksTip">Ne olunca</label><select id="ksTip"><option value="limit" ${kForm.tip==="limit"?"selected":""}>Bir kategori sınırı aşarsa haber ver</option><option value="aktar" ${kForm.tip==="aktar"?"selected":""}>Her ay gelirden pay ayır</option></select>
+   ${kForm.tip==="limit"?`<label class="ks-f" for="ksKat">Kategori</label><select id="ksKat">${Object.entries(KAT).map(([k,v])=>`<option value="${k}" ${k===kForm.kat?"selected":""}>${v.ad}</option>`).join("")}</select>
+   <label class="ks-f" for="ksTutar">Aylık sınır (₺)</label><input type="number" id="ksTutar" inputmode="numeric" min="0" step="100" value="${es(kForm.tutar)}">`
+   :`<label class="ks-f" for="ksYuzde">Gelirin yüzdesi <output id="ksYO">%${kForm.yuzde}</output></label><input type="range" id="ksYuzde" min="1" max="50" step="1" value="${kForm.yuzde}">`}
+   <button type="button" class="ks-btn" data-ks="kekle">Kuralı ekle</button><p class="ks-note" id="ksKMsg" role="status">${es(msg)}</p></section>`}
+const EKRAN={ozet:["Özet",vOzet],filtre:["Filtre",vFiltre],cark:["Çark",vCark],kural:["Kurallar",vKural]};
+function ic(){
+  if(!EKRAN[S.sekme])S.sekme="ozet";
+  return `<div class="ks-head">${LOGO}<b>${es(siteAdi().toLocaleUpperCase("tr"))}</b></div>
+   <p class="ks-eye">Hesabım</p><h2 class="ks-h">Parayı yönetmek bir kısıtlama değil, özgürlük mimarisidir.</h2>
+   <div class="ks-tabs" role="group" aria-label="Hesabım bölümleri">${Object.entries(EKRAN).map(([k,e])=>`<button type="button" data-ks="git:${k}" aria-pressed="${k===S.sekme}">${e[0]}</button>`).join("")}</div>
+   ${EKRAN[S.sekme][1]()}`}
+function view(){yukle();return `<div class="ks" id="ksKok">${ic()}</div>`}
+function ciz(odak){const k=document.getElementById("ksKok");if(!k)return;k.innerHTML=ic();msg="";if(odak){const el=k.querySelector(`[data-ks="${odak}"]`);if(el)el.focus({preventScroll:true})}}
+function kart(){yukle();const h=hesap();
+  return `<a class="hcard link ks-kart" href="#hesap"><div class="hhead">${typeof ikon==="function"?ikon("etiket","acc"):""}<h3>Hesabım</h3>${typeof ikon==="function"?ikon("sag","go"):""}</div><p class="big">${S.ornek?"Bütçeni kur":`${h.kalan>=0?"Kalan":"Açık"}: ${tl(Math.abs(h.kalan))}`}</p><p class="meta">${S.ornek?"Gelirini ve giderini gir; küçük delikleri kapat, birikimini gör.":`Aylık birikim ${tl(h.katki)} · yalnızca bu cihazda`}</p></a>`}
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-ks]");if(!b||!S)return;const [k,x]=b.dataset.ks.split(":"),yaz=(id,m)=>{const el=document.getElementById(id);if(el)el.textContent=m};
+  if(k==="git"){S.sekme=x;S.duzen=false;kaydet();return ciz(b.dataset.ks)}
+  if(k==="delik"){const d=S.delikler.find(q=>q.id===x);if(d){d.kapali=!d.kapali;kaydet();ciz(b.dataset.ks)}return}
+  if(k==="cark"){S.cark=+x;kaydet();return ciz()}
+  if(k==="kac"){const r=S.kurallar.find(q=>q.id===x);if(r){r.acik=!r.acik;kaydet();ciz(b.dataset.ks)}return}
+  if(k==="ksil"){S.kurallar=S.kurallar.filter(q=>q.id!==x);kaydet();return ciz()}
+  if(k==="kekle"){
+    if(S.kurallar.length>=12)return yaz("ksKMsg","En fazla 12 kural.");
+    if(kForm.tip==="limit"){const v=parseFloat(document.getElementById("ksTutar").value);
+      if(!Number.isFinite(v)||v<=0||v>1e8)return yaz("ksKMsg","Sınır için sıfırdan büyük bir tutar gir.");
+      S.kurallar.push({id:"k"+Date.now().toString(36),tip:"limit",kat:KAT[kForm.kat]?kForm.kat:"gereksiz",tutar:Math.round(v),acik:true})}
+    else{const top=S.kurallar.filter(q=>q.tip==="aktar"&&q.acik).reduce((a,q)=>a+q.yuzde,0);
+      if(top+kForm.yuzde>100)return yaz("ksKMsg","Ayrılan paylar gelirin %100'ünü geçemez.");
+      S.kurallar.push({id:"k"+Date.now().toString(36),tip:"aktar",yuzde:kForm.yuzde,acik:true})}
+    kaydet();return ciz()}
+  if(k==="duzenle"){S.duzen=true;ciz();const g=document.getElementById("ksGelir");if(g)g.focus();return}
+  if(k==="dkapat"){S.duzen=false;return ciz("duzenle")}
+  if(k==="sifirla"){S=VARS();kaydet();return ciz()}
+  if(k==="dkaydet"){const oku=id=>parseFloat(document.getElementById(id).value),g=oku("ksGelir"),h={};let ok=Number.isFinite(g)&&g>=0&&g<=1e9;
+    for(const c of Object.keys(KAT)){h[c]=oku("ks-"+c);if(!Number.isFinite(h[c])||h[c]<0||h[c]>1e9)ok=false}
+    if(!ok)return yaz("ksMsg","Tutarları sıfır ya da daha büyük sayı olarak gir.");
+    S.gelir=Math.round(g);for(const c of Object.keys(KAT))S.harcama[c]=Math.round(h[c]);S.ornek=false;S.duzen=false;kaydet();return ciz("duzenle")}
+});
+document.addEventListener("input",e=>{const t=e.target;if(!S||!t.id||t.id.slice(0,2)!=="ks")return;const yaz=(id,m)=>{const el=document.getElementById(id);if(el)el.textContent=m};
+  if(t.id==="ksYil"||t.id==="ksGetiri"){S[t.id==="ksYil"?"yil":"getiri"]=+t.value;kaydet();const q=hesap();yaz("ksYilO",S.yil+" yıl");yaz("ksGetO","%"+S.getiri);yaz("ksSon",tl(birikim(q.aylik,S.yil,S.getiri)))}
+  if(t.id==="ksYuzde"){kForm.yuzde=+t.value;yaz("ksYO","%"+kForm.yuzde)}
+  if(t.id==="ksTutar")kForm.tutar=t.value;
+});
+document.addEventListener("change",e=>{const t=e.target;if(!S)return;if(t.id==="ksTip"){kForm.tip=t.value;ciz();const el=document.getElementById("ksTip");if(el)el.focus()}if(t.id==="ksKat")kForm.kat=t.value});
+window.BS_HESABIM={view,kart,hesap:()=>{yukle();return hesap()},birikim,durum:()=>S};
+})();
+/*HESABIM-BITIS*/
+</script>
+<script>
 /*MINNOS-MOTOR-BASLA*/
 const MinnosMotor=(()=>{
 const asc=t=>String(t==null?"":t).toLocaleLowerCase("tr").replace(/ı/g,"i").replace(/[çğöşüâîû]/g,c=>({"ç":"c","ğ":"g","ö":"o","ş":"s","ü":"u","â":"a","î":"i","û":"u"}[c])).replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim();
@@ -2324,6 +2531,7 @@ const BILGI=[
  {id:"temizlik",k:["ev temizligi","temizlik","temizlikci","randevu"],c:"Hizmet > Ev temizliği: tür, gün ve saat aralığını seçersin; yönetim randevuyu onaylar, onaylanınca orada görürsün. Anahtar ya da kapı şifresini buraya yazma."},
  {id:"hali",k:["hali","hali yikama","halim"],c:"Hizmet > Halı yıkama: halı sayısını, tahmini metrekareyi ve toplama gününü seçersin. Görevli alır, yıkanınca geri getirir. Kesin tutar ölçümden sonra belli olur."},
  {id:"arac",k:["arac","araba","oto yikama","arac yikama","araba yikama","otopark"],c:"Hizmet > Araç yıkama: yıkama türünü (dış ya da iç ve dış gibi), araç tipini, gün ve saat aralığını seçersin; yönetim randevuyu onaylar. Plaka ve anahtarı yazma; fiyatı yönetim belirler ve araç tipine göre değişebilir."},
+ {id:"butce",k:["butce","butcem","tasarruf","birikim","harcama filtresi","gider kontrolu"],c:"Hesabım sayfasında kendi bütçeni kurarsın: gelirini ve giderini girersin, halka kalanını gösterir. 'Filtre'de küçük günlük giderleri kapatıp birikime çevirirsin, 'Kurallar'da sınır ve otomatik pay belirlersin. Rakamların yalnızca bu cihazda kalır; yönetim ve komşular göremez. Banka bağlantısı ve yatırım tavsiyesi yoktur."},
  {id:"et",k:["et","kasap","dana","kuzu","kiyma","kusbasi","pirzola","tavuk","pilic","soguk zincir","ciftlik eti","anlasmali"],c:"Et iki yoldan gelir: (1) Sepet > Kasap: anlaşmalı kasaplarımızın ürünleri (kıyma, kuşbaşı, pirzola, piliç, sucuk) toplu sipariş turuyla; kasabın adı üründe yazar. (2) Hizmet > Taze et: anlaşmalı çiftlikten kilo seçip teslim günü verirsin. Fiyatları yönetim girer, tartım sonrası kesinleşir; teslimde eti hemen buzdolabına koy."},
  {id:"sut",k:["sut","ciftlik","taze sut","litre"],c:"Hizmet > Taze süt: çiftlikten litreyi ve teslim gününü seçersin; istersen her hafta tekrarlanır. Çiftliğin adını, fiyatı ve günleri yönetim belirler."},
  {id:"firsat",k:["firsat","indirim","kupon","kampanya","kod","firmanin sitesi"],c:"Fırsatlar'da çevredeki indirimler listelenir. Kupon kodunu kopyalayabilir, haritada açabilir; firmanın kendi sitesi varsa büyük 'Firmanın sitesine git' düğmesiyle oraya geçebilirsin."},

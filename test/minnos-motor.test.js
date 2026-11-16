@@ -251,3 +251,20 @@ test("Kuru temizleme hesabı: ütüden ayrı fiyat listesi, fiyatsız parça uyd
   assert.notEqual(M.coz("2 ceket kuru temizleme ne kadar", { ...KURU_VERI, utu: { ...KURU_VERI.utu, kuru: { ...KURU_VERI.utu.kuru, aktif: false } } }, []).tur, "hesap", "kapalıysa hesaplanmaz");
   assert.equal(M.cevapla("Kuru temizleme yaptırabilir miyim?").id, "utu");
 });
+
+/* ---- Hesabım (kişisel bütçe modülü): hesap çekirdeği sayfa kaynağından çıkarılıp Node'da sınanır ---- */
+test("Hesabım: bütçe, delik ve bileşik birikim hesabı; veri sunucuya yazılmaz", () => {
+  const b = html.slice(html.indexOf("/*HESABIM-BASLA*/"), html.indexOf("/*HESABIM-BITIS*/"));
+  assert.ok(b.length > 1000, "modül sayfada");
+  assert.doesNotMatch(b, /DB\.doc|DB\.collection|fetch\(/, "kişisel bütçe sunucuya ya da belge deposuna yazılmaz");
+  const depo = {}; const sahte = { addEventListener() {}, getElementById() { return null; } };
+  const w = {}; new Function("window", "document", "localStorage", b)(w, sahte, { getItem: k => depo[k] || null, setItem: (k, v) => { depo[k] = v; } });
+  const H = w.BS_HESABIM; let h = H.hesap();
+  assert.equal(h.kalan, 85000 - (38000 + 14500 + 9800)); assert.equal(h.gunluk, 1500, "örnek delikler günde 1.500"); assert.equal(h.kapanan, 0); assert.equal(h.katki, 8500, "%10 otomatik pay");
+  H.durum().delikler[0].kapali = true; H.durum().delikler[1].kapali = true; h = H.hesap();
+  assert.equal(h.kapanan, 780); assert.equal(h.aylik, 23400); assert.equal(h.katki, 31900);
+  assert.equal(H.birikim(23400, 5, 0), 23400 * 60, "getiri 0: yalnızca birikir");
+  const i = 0.12 / 12; assert.ok(Math.abs(H.birikim(23400, 10, 12) - 23400 * ((Math.pow(1 + i, 120) - 1) / i)) < 1e-6, "bileşik formül");
+  assert.match(b, /getiri garanti edilmez/); assert.match(b, /yatırım tavsiyesi değildir/);
+  assert.equal(M.cevapla("Bütçemi nasıl kurarım?").id, "butce"); assert.equal(M.cevapla("Hesabımı silmek istiyorum").id, "hesap", "hesap silme etkilenmedi");
+});

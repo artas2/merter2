@@ -4,6 +4,24 @@ Her komut, `docs/retorik-ustasi.md` şablonuyla yeniden yazılır ve 0–100 pua
 
 ---
 
+## 2026-11-16 · Hesabım: kişisel bütçe modülü (pafta brifinden app'e), Çınar Evleri başlığıyla uygulamaya gömüldü
+
+**Kullanıcının sözleri:** (finans uygulaması pafta brifi) "Bunu bir app'e uygun olarak revize edebilir misin… tasarla ve kontrol et." → "Beğendim; KASA yazmasın, Çınar Evleri olarak revize edelim başlığı; bunu site koluna ve mevcut çalışmamıza entegre edelim. O siyahları ben getirdim, ana sayfayı beğendim."
+
+```
+HEDEF       : Brifteki finans konseptini çalışan bir modül olarak Bilinçli Sakin'e eklemek; başlık site adı, siyah görünüm ve özet ekranı korunur.
+KAPSAM      : Yeni sayfa "#hesap" (üst menü + ana sayfa kartı): bütçe halkası, Harcama Filtresi (delik simülasyonu, süre ve getiri varsayımı), üç dişli çark, otomatik kurallar; "Sitedeki harcaman" (aidat, sepet, açık hizmetler; kişinin kendi kayıtları). Minnoş bilgi bankasına "bütçe" maddesi.
+KAPSAM DIŞI : Banka bağlantısı, ödeme/transfer, bildirim, tek tek harcama kaydı, yatırım ürünü önerisi.
+KISITLAR    : Rakamlar yalnızca cihazda (localStorage; belge deposuna yazılmaz, yönetim göremez); getiri oranı kullanıcının varsayımı (varsayılan %0), "garanti edilmez / yatırım tavsiyesi değildir" notu; modül uygulama temasından bağımsız antrasit palet kullanır.
+BAŞARI      : Hesap çekirdeği testi (bütçe, delik, bileşik formül, sunucuya yazmama), gömülü sayfa testi 320 ve 390 px (46 kontrol: başlık, rakamlar, taşma, dokunma alanı, kontrast ≥4,5, doğrulama, diğer sayfalar bozulmadı), tam paket.
+VARSAYIMLAR : "Site kolu" = Bilinçli Sakin'in site (Merter) arayüzü. Başlıkta sitenin kayıtlı adı gösterilir (kayıt yoksa "Çınar Evleri"). "1500 altın" = günde 1.500 TL. Örnek rakamlar kullanıcı kendi rakamını girene kadar "örnek" diye işaretlenir.
+BELİRSİZ    : Gerçek üründe yatırım yönlendirmesi lisans gerektirebilir (doğrulanmadı); modül bu yüzden yalnızca hesaplayıcıdır.
+```
+
+**Puan: 85 (baş usta).** İki mesajda gelen istek tek hedefe bağlandı; "site kolu" ve "siyahlar" yorumları varsayım olarak yazıldı.
+
+---
+
 ## 2026-11-08 · Kuru temizleme: Ütü hizmetinin içinde seçenek
 
 **Kullanıcının sözleri:** "Taze süt ve kuru temizleme seçeneklerini de ekledik mi?" → "Ütünün içinde seçenek olsun ve hangisi daha profesyonel ise o gözüksün."
